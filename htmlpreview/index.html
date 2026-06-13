@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTMLPreview — Live HTML/CSS/JS Editor & Preview</title>
+<meta name="description" content="Write HTML, CSS, and JavaScript with live preview. Free online code editor like CodePen. No sign-up required.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#1e1e1e;color:#d4d4d4;height:100vh;display:flex;flex-direction:column}
+.toolbar{display:flex;align-items:center;padding:.4rem .8rem;background:#252526;border-bottom:1px solid #3c3c3c;gap:.5rem}
+.logo{font-size:.95rem;font-weight:800;margin-right:auto}.logo span{color:#569cd6}
+.tab{padding:.3rem .7rem;border-radius:4px;font-size:.72rem;font-weight:600;cursor:pointer;color:#858585;transition:all .15s}
+.tab.active{color:#d4d4d4;background:#1e1e1e}
+.run-btn{background:#569cd6;color:#1e1e1e;border:none;padding:.3rem .8rem;border-radius:4px;font-size:.72rem;font-weight:700;cursor:pointer}
+.workspace{flex:1;display:flex;overflow:hidden}
+.editors{flex:1;display:flex;flex-direction:column;min-width:0}
+.editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.editor-pane.hidden{display:none}
+.editor-label{padding:.2rem .8rem;background:#2d2d2d;font-size:.65rem;color:#858585;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #3c3c3c}
+.editor-pane textarea{flex:1;padding:.6rem .8rem;background:#1e1e1e;border:none;color:#d4d4d4;font-family:'Cascadia Code','Fira Code','SF Mono',monospace;font-size:.82rem;line-height:1.7;resize:none;outline:none;tab-size:2}
+.divider{width:4px;background:#3c3c3c;cursor:col-resize;flex-shrink:0}
+.preview{flex:1;min-width:0;background:#fff}
+.preview iframe{width:100%;height:100%;border:none}
+@media(max-width:700px){.workspace{flex-direction:column}.divider{width:100%;height:4px;cursor:row-resize}.preview{min-height:200px}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+<div class="logo">HTML<span>Preview</span></div>
+<div class="tab active" onclick="showTab('html',this)">HTML</div>
+<div class="tab" onclick="showTab('css',this)">CSS</div>
+<div class="tab" onclick="showTab('js',this)">JS</div>
+<button class="run-btn" onclick="run()">▶ Run</button>
+</div>
+<div class="workspace">
+<div class="editors">
+<div class="editor-pane" id="pane-html">
+<div class="editor-label">HTML</div>
+<textarea id="html" oninput="autoRun()" spellcheck="false"><h1>Hello World!</h1>
+<p>Edit this code and see the preview update in real-time.</p>
+<button id="btn">Click me</button>
+<div id="output"></div></textarea>
+</div>
+<div class="editor-pane hidden" id="pane-css">
+<div class="editor-label">CSS</div>
+<textarea id="css" oninput="autoRun()" spellcheck="false">* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui; padding: 2rem; background: #1a1a2e; color: #e0e0e0; }
+h1 { color: #00d2ff; margin-bottom: 1rem; }
+p { margin-bottom: 1rem; color: #aaa; }
+button { background: #00d2ff; color: #1a1a2e; border: none; padding: .6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+button:hover { opacity: .8; }
+#output { margin-top: 1rem; font-size: 1.2rem; color: #ffd700; }</textarea>
+</div>
+<div class="editor-pane hidden" id="pane-js">
+<div class="editor-label">JavaScript</div>
+<textarea id="js" oninput="autoRun()" spellcheck="false">let count = 0;
+document.getElementById('btn').addEventListener('click', () => {
+  count++;
+  document.getElementById('output').textContent = `Clicked ${count} time${count === 1 ? '' : 's'}!`;
+});</textarea>
+</div>
+</div>
+<div class="divider"></div>
+<div class="preview"><iframe id="preview"></iframe></div>
+</div>
+<script>
+function showTab(id,el){
+  document.querySelectorAll('.editor-pane').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('pane-'+id).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+let timer=null;
+function autoRun(){clearTimeout(timer);timer=setTimeout(run,300)}
+function run(){
+  const html=document.getElementById('html').value;
+  const css=document.getElementById('css').value;
+  const js=document.getElementById('js').value;
+  const iframe=document.getElementById('preview');
+  const doc=iframe.contentDocument||iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`);
+  doc.close();
+}
+// Tab key support
+document.querySelectorAll('textarea').forEach(ta=>{
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart,end=ta.selectionEnd;ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(end);ta.selectionStart=ta.selectionEnd=s+2;autoRun()}
+  });
+});
+run();
+</script>
+</body>
+</html>
