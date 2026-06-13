@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TextCount — Word Counter, Character Counter & Reading Time</title>
+<meta name="description" content="Count words, characters, sentences, paragraphs, and estimate reading time. Free online text counter tool.">
+<meta name="keywords" content="word counter, character counter, letter counter, reading time calculator, text analyzer">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fcfcfc;--surface:#fff;--border:#eee;--accent:#2563eb;--text:#1a1a2e;--muted:#94a3b8}
+body{font-family:'Söhne','Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:1rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.15rem;font-weight:700;letter-spacing:-.02em}.logo span{color:var(--accent)}
+main{max-width:800px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.6rem;font-weight:700;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.7rem;margin-bottom:1.5rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;text-align:center}
+.stat .num{font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1.2}
+.stat .label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+textarea{width:100%;min-height:350px;padding:1.2rem;border:1px solid var(--border);border-radius:10px;font-size:1rem;font-family:inherit;line-height:1.8;color:var(--text);resize:vertical;outline:none;background:var(--surface);transition:border-color .2s}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:#ccc}
+.extras{margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+@media(max-width:600px){.extras{grid-template-columns:1fr}}
+.extra{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem}
+.extra .title{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.extra .value{font-size:.9rem;font-weight:600}
+.density{display:flex;flex-wrap:wrap;gap:.4rem;max-height:80px;overflow:hidden}
+.density span{background:#f1f5f9;padding:.15rem .5rem;border-radius:4px;font-size:.72rem;color:#475569}
+.density span b{color:var(--accent)}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Text<span>Count</span></div></nav>
+<main>
+<h1>Word & Character Counter</h1>
+<p class="sub">Paste or type your text below to see live statistics.</p>
+<div class="stats-bar" id="stats"></div>
+<textarea id="input" placeholder="Start typing or paste your text here..."></textarea>
+<div class="extras">
+<div class="extra"><div class="title">Reading Time</div><div class="value" id="readTime">0 min</div></div>
+<div class="extra"><div class="title">Speaking Time</div><div class="value" id="speakTime">0 min</div></div>
+<div class="extra"><div class="title">Top Words</div><div class="density" id="topWords"></div></div>
+<div class="extra"><div class="title">Avg Word Length</div><div class="value" id="avgLen">0 chars</div></div>
+</div>
+</main>
+<footer>&copy; 2026 TextCount &mdash; Free word counter tool. Nothing is stored or sent.</footer>
+<script>
+const input=document.getElementById('input'),statsEl=document.getElementById('stats');
+const statDefs=[{id:'words',label:'Words'},{id:'chars',label:'Characters'},{id:'charsNoSpace',label:'No Spaces'},{id:'sentences',label:'Sentences'},{id:'paragraphs',label:'Paragraphs'},{id:'lines',label:'Lines'}];
+statDefs.forEach(s=>{const d=document.createElement('div');d.className='stat';d.innerHTML=`<div class="num" id="${s.id}">0</div><div class="label">${s.label}</div>`;statsEl.appendChild(d)});
+input.addEventListener('input',analyze);
+function analyze(){const t=input.value;const words=t.trim()?t.trim().split(/\s+/):[];const chars=t.length;const noSpace=t.replace(/\s/g,'').length;const sentences=t.split(/[.!?]+/).filter(s=>s.trim()).length||(t.trim()?1:0);const paragraphs=t.split(/\n\s*\n/).filter(p=>p.trim()).length||(t.trim()?1:0);const lines=t?t.split('\n').length:0;
+document.getElementById('words').textContent=words.length;
+document.getElementById('chars').textContent=chars.toLocaleString();
+document.getElementById('charsNoSpace').textContent=noSpace.toLocaleString();
+document.getElementById('sentences').textContent=sentences;
+document.getElementById('paragraphs').textContent=paragraphs;
+document.getElementById('lines').textContent=lines;
+const readMin=Math.ceil(words.length/238);
+document.getElementById('readTime').textContent=readMin<1&&words.length>0?'< 1 min':readMin+' min';
+const speakMin=Math.ceil(words.length/150);
+document.getElementById('speakTime').textContent=speakMin<1&&words.length>0?'< 1 min':speakMin+' min';
+const avgLen=words.length?((words.join('').length/words.length).toFixed(1)):0;
+document.getElementById('avgLen').textContent=avgLen+' chars';
+const freq={};words.forEach(w=>{const k=w.toLowerCase().replace(/[^a-z0-9]/g,'');if(k&&k.length>2)freq[k]=(freq[k]||0)+1});
+const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+document.getElementById('topWords').innerHTML=top.map(([w,c])=>`<span>${w} <b>×${c}</b></span>`).join('')}
+</script>
+</body>
+</html>
