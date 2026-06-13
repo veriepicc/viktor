@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Text Shadow Generator — Text Glow & Shadow Effects Free</title>
+<meta name="description" content="Create CSS text shadows with live preview. Neon glow, 3D text, retro effects. Copy CSS instantly. Free text shadow generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.preview{width:100%;min-height:180px;background:#111;border:1px solid #222;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;padding:1rem;overflow:hidden}
+.preview span{font-size:48px;font-weight:900;text-align:center;transition:all .2s}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.card h3{font-size:.62rem;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:.5rem}
+.row{display:flex;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap}
+.field{flex:1;min-width:80px}.field label{display:block;font-size:.58rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
+.field input,.field select{width:100%;padding:.35rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.78rem;outline:none;font-family:inherit}
+.field input[type=color]{height:30px;padding:2px}.field input[type=range]{accent-color:#e879f9}
+.layers{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem}
+.layer{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;background:#1a1a1a;border:1px solid #272727;border-radius:6px;padding:.4rem}
+.layer input[type=color]{width:35px;height:24px;border:none;border-radius:3px;background:transparent;padding:0;cursor:pointer}
+.layer input[type=range]{width:60px;accent-color:#e879f9}
+.layer .lbl{font-size:.55rem;color:#666;min-width:14px}
+.layer .rm{background:none;border:none;color:#ef4444;cursor:pointer;font-size:1rem;padding:0 .2rem}
+.presets{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.preset{padding:.3rem .5rem;border-radius:5px;font-size:.65rem;font-weight:600;cursor:pointer;border:1px solid #333;color:#888;background:#1a1a1a}
+.preset:hover{border-color:#e879f9;color:#e879f9}
+.btn{padding:.4rem .8rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;background:#222;color:#ccc}
+.code{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.72rem;color:#a5f3fc;word-break:break-all;cursor:pointer;margin-top:1rem}
+</style>
+</head>
+<body>
+<main>
+<h1>✨ Text Shadow Generator</h1>
+<div class="preview" id="previewBox"><span id="preview">SHADOW</span></div>
+<div class="card">
+<h3>Text</h3>
+<div class="row">
+<div class="field" style="flex:3"><input type="text" id="text" value="SHADOW" oninput="render()"></div>
+<div class="field"><label>Color</label><input type="color" id="textColor" value="#ffffff" oninput="render()"></div>
+<div class="field"><label>BG</label><input type="color" id="bgColor" value="#111111" oninput="render()"></div>
+</div>
+<div class="row">
+<div class="field"><label>Size</label><input type="range" id="fontSize" min="20" max="120" value="48" oninput="render()"></div>
+<div class="field"><label>Font</label><select id="font" onchange="render()"><option>Impact</option><option>Arial Black</option><option selected>Inter</option><option>Georgia</option><option>Verdana</option></select></div>
+</div>
+</div>
+<div class="card">
+<h3>Shadow Layers</h3>
+<div class="layers" id="layers"></div>
+<button class="btn" onclick="addLayer()">+ Add Layer</button>
+</div>
+<div class="card">
+<h3>Presets</h3>
+<div class="presets">
+<div class="preset" onclick="loadPreset('neon')">⚡ Neon Glow</div>
+<div class="preset" onclick="loadPreset('3d')">🎲 3D</div>
+<div class="preset" onclick="loadPreset('retro')">📺 Retro</div>
+<div class="preset" onclick="loadPreset('fire')">🔥 Fire</div>
+<div class="preset" onclick="loadPreset('ice')">❄️ Ice</div>
+<div class="preset" onclick="loadPreset('neonpink')">💜 Neon Pink</div>
+<div class="preset" onclick="loadPreset('emboss')">🪨 Emboss</div>
+<div class="preset" onclick="loadPreset('long')">📐 Long Shadow</div>
+</div>
+</div>
+<div class="code" id="code" onclick="navigator.clipboard.writeText(this.textContent)"></div>
+</main>
+<script>
+let shadows=[{x:0,y:0,blur:20,color:'#e879f9'},{x:0,y:0,blur:40,color:'#e879f9'},{x:0,y:0,blur:80,color:'#e879f9'}];
+
+const presetData={
+  neon:[{x:0,y:0,blur:7,color:'#fff'},{x:0,y:0,blur:10,color:'#fff'},{x:0,y:0,blur:21,color:'#0ff'},{x:0,y:0,blur:42,color:'#0ff'},{x:0,y:0,blur:82,color:'#0ff'}],
+  '3d':[{x:1,y:1,blur:0,color:'#666'},{x:2,y:2,blur:0,color:'#555'},{x:3,y:3,blur:0,color:'#444'},{x:4,y:4,blur:0,color:'#333'},{x:5,y:5,blur:0,color:'#222'}],
+  retro:[{x:3,y:3,blur:0,color:'#ff6b6b'},{x:6,y:6,blur:0,color:'#feca57'},{x:9,y:9,blur:0,color:'#48dbfb'}],
+  fire:[{x:0,y:-2,blur:4,color:'#ff0'},{x:0,y:-4,blur:10,color:'#f80'},{x:0,y:-8,blur:20,color:'#f00'}],
+  ice:[{x:0,y:0,blur:10,color:'#a5f3fc'},{x:0,y:0,blur:30,color:'#67e8f9'},{x:0,y:0,blur:60,color:'#22d3ee'}],
+  neonpink:[{x:0,y:0,blur:10,color:'#e879f9'},{x:0,y:0,blur:40,color:'#e879f9'},{x:0,y:0,blur:80,color:'#e879f9'}],
+  emboss:[{x:-1,y:-1,blur:0,color:'#fff3'},{x:1,y:1,blur:0,color:'#0003'}],
+  long:Array.from({length:20},(_, i)=>({x:i+1,y:i+1,blur:0,color:`rgba(0,0,0,${0.3-i*0.01})`}))
+};
+
+function loadPreset(name){shadows=JSON.parse(JSON.stringify(presetData[name]));renderLayers();render()}
+
+function renderLayers(){
+  document.getElementById('layers').innerHTML=shadows.map((s,i)=>`
+    <div class="layer">
+      <input type="color" value="${s.color.startsWith('rgba')?'#000000':s.color}" oninput="shadows[${i}].color=this.value;render()">
+      <span class="lbl">X</span><input type="range" min="-50" max="50" value="${s.x}" oninput="shadows[${i}].x=+this.value;render()">
+      <span class="lbl">Y</span><input type="range" min="-50" max="50" value="${s.y}" oninput="shadows[${i}].y=+this.value;render()">
+      <span class="lbl">B</span><input type="range" min="0" max="100" value="${s.blur}" oninput="shadows[${i}].blur=+this.value;render()">
+      ${shadows.length>1?`<button class="rm" onclick="shadows.splice(${i},1);renderLayers();render()">×</button>`:''}
+    </div>
+  `).join('');
+}
+
+function addLayer(){shadows.push({x:2,y:2,blur:4,color:'#888888'});renderLayers();render()}
+
+function render(){
+  const el=document.getElementById('preview');
+  const text=document.getElementById('text').value||'SHADOW';
+  el.textContent=text;
+  el.style.fontSize=document.getElementById('fontSize').value+'px';
+  el.style.fontFamily=document.getElementById('font').value;
+  el.style.color=document.getElementById('textColor').value;
+  el.style.fontWeight='900';
+  document.getElementById('previewBox').style.background=document.getElementById('bgColor').value;
+  
+  const css=shadows.map(s=>`${s.x}px ${s.y}px ${s.blur}px ${s.color}`).join(', ');
+  el.style.textShadow=css;
+  document.getElementById('code').textContent=`text-shadow: ${css};`;
+}
+renderLayers();render();
+</script>
+</body>
+</html>
