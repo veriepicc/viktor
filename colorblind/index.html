@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ColorBlind — Color Accessibility Checker & Contrast Tester</title>
+<meta name="description" content="Check color contrast ratio for WCAG compliance. Preview how colors look with different types of color blindness. Free accessibility tool.">
+<meta name="keywords" content="color contrast checker, wcag contrast, color blindness simulator, accessibility checker, contrast ratio, color accessibility">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafafa;--surface:#fff;--border:#e5e5e5;--accent:#7c3aed;--text:#171717;--muted:#737373;--green:#22c55e;--red:#ef4444}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.color-inputs{display:flex;gap:1.5rem;margin-bottom:1.5rem}
+.color-field{flex:1}
+.color-field label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
+.color-field .row{display:flex;gap:.4rem}
+.color-field input[type=color]{width:56px;height:40px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px}
+.color-field input[type=text]{flex:1;padding:.5rem .7rem;border:1px solid var(--border);border-radius:6px;font-size:.88rem;font-family:'SF Mono',monospace;outline:none}
+.color-field input[type=text]:focus{border-color:var(--accent)}
+.preview{border-radius:14px;overflow:hidden;margin-bottom:1.5rem;border:1px solid var(--border)}
+.preview-main{padding:2rem;text-align:center}
+.preview-main h2{font-size:1.5rem;font-weight:800;margin-bottom:.5rem}
+.preview-main p{font-size:.95rem;line-height:1.6}
+.preview-main .small{font-size:.75rem;margin-top:.5rem}
+.ratio-bar{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.ratio-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem 1.2rem;text-align:center;min-width:130px}
+.ratio-item .num{font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
+.ratio-item .label{font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.pass{color:var(--green)}
+.fail{color:var(--red)}
+.badge{display:inline-block;padding:.1rem .5rem;border-radius:4px;font-size:.68rem;font-weight:700;margin-left:.3rem}
+.badge.pass-bg{background:#dcfce7;color:#166534}
+.badge.fail-bg{background:#fef2f2;color:#991b1b}
+.sim-section{margin-top:2rem}
+.sim-section h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem}
+.sim-card{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.sim-card .sim-preview{padding:1rem;text-align:center}
+.sim-card .sim-preview .big{font-size:1rem;font-weight:700}
+.sim-card .sim-preview .sm{font-size:.72rem;margin-top:.3rem}
+.sim-card .sim-label{padding:.4rem .7rem;font-size:.7rem;font-weight:600;background:#f5f5f5;text-align:center;border-top:1px solid var(--border)}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Color<span>Blind</span></div></nav>
+<main>
+<h1>Color Contrast Checker</h1>
+<p class="sub">Check WCAG compliance and preview color blindness simulations.</p>
+<div class="color-inputs">
+<div class="color-field"><label>Foreground (Text)</label><div class="row"><input type="color" id="fg" value="#1e293b" oninput="sync('fg')"><input type="text" id="fgHex" value="#1e293b" oninput="syncHex('fg')"></div></div>
+<div class="color-field"><label>Background</label><div class="row"><input type="color" id="bg" value="#ffffff" oninput="sync('bg')"><input type="text" id="bgHex" value="#ffffff" oninput="syncHex('bg')"></div></div>
+</div>
+<div class="preview" id="preview"><div class="preview-main" id="previewMain"><h2>Preview Text</h2><p>This is how your text looks against the background.</p><p class="small">Small text needs higher contrast to be accessible.</p></div></div>
+<div class="ratio-bar" id="ratioBar"></div>
+<div class="sim-section">
+<h3>Color Blindness Simulation</h3>
+<div class="sim-grid" id="simGrid"></div>
+</div>
+</main>
+<footer>&copy; 2026 ColorBlind &mdash; Accessibility checker. Runs in your browser.</footer>
+<script>
+function sync(which){const c=document.getElementById(which).value;document.getElementById(which+'Hex').value=c;update()}
+function syncHex(which){let v=document.getElementById(which+'Hex').value;if(/^#[0-9a-f]{6}$/i.test(v))document.getElementById(which).value=v;update()}
+
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return[r,g,b]}
+function luminance(r,g,b){const[rs,gs,bs]=[r,g,b].map(c=>{c/=255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)});return .2126*rs+.7152*gs+.0722*bs}
+function contrastRatio(fg,bg){const l1=luminance(...fg),l2=luminance(...bg);const lighter=Math.max(l1,l2),darker=Math.min(l1,l2);return(lighter+.05)/(darker+.05)}
+
+// Color blindness simulation matrices
+const simulations={
+'Normal':[1,0,0,0,1,0,0,0,1],
+'Protanopia':[.567,.433,0,.558,.442,0,0,.242,.758],
+'Deuteranopia':[.625,.375,0,.7,.3,0,0,.3,.7],
+'Tritanopia':[.95,.05,0,0,.433,.567,0,.475,.525],
+'Achromatopsia':[.299,.587,.114,.299,.587,.114,.299,.587,.114],
+};
+
+function applyMatrix(rgb,matrix){return[
+  Math.round(rgb[0]*matrix[0]+rgb[1]*matrix[1]+rgb[2]*matrix[2]),
+  Math.round(rgb[0]*matrix[3]+rgb[1]*matrix[4]+rgb[2]*matrix[5]),
+  Math.round(rgb[0]*matrix[6]+rgb[1]*matrix[7]+rgb[2]*matrix[8])
+].map(v=>Math.min(255,Math.max(0,v)))}
+
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('')}
+
+function update(){
+  const fg=hexToRgb(document.getElementById('fg').value);
+  const bg=hexToRgb(document.getElementById('bg').value);
+  const ratio=contrastRatio(fg,bg);
+
+  const pm=document.getElementById('previewMain');
+  pm.style.color=document.getElementById('fg').value;
+  pm.style.background=document.getElementById('bg').value;
+
+  const aaLarge=ratio>=3;const aaNormal=ratio>=4.5;const aaaLarge=ratio>=4.5;const aaaNormal=ratio>=7;
+  document.getElementById('ratioBar').innerHTML=
+    `<div class="ratio-item"><div class="num">${ratio.toFixed(2)}:1</div><div class="label">Contrast Ratio</div></div>`+
+    `<div class="ratio-item"><div class="num ${aaNormal?'pass':'fail'}">${aaNormal?'PASS':'FAIL'}</div><div class="label">AA Normal<span class="badge ${aaNormal?'pass-bg':'fail-bg'}">≥4.5</span></div></div>`+
+    `<div class="ratio-item"><div class="num ${aaLarge?'pass':'fail'}">${aaLarge?'PASS':'FAIL'}</div><div class="label">AA Large<span class="badge ${aaLarge?'pass-bg':'fail-bg'}">≥3.0</span></div></div>`+
+    `<div class="ratio-item"><div class="num ${aaaNormal?'pass':'fail'}">${aaaNormal?'PASS':'FAIL'}</div><div class="label">AAA Normal<span class="badge ${aaaNormal?'pass-bg':'fail-bg'}">≥7.0</span></div></div>`;
+
+  const simGrid=document.getElementById('simGrid');
+  simGrid.innerHTML='';
+  for(const[name,matrix]of Object.entries(simulations)){
+    const simFg=applyMatrix(fg,matrix);
+    const simBg=applyMatrix(bg,matrix);
+    const simRatio=contrastRatio(simFg,simBg);
+    const card=document.createElement('div');card.className='sim-card';
+    card.innerHTML=`<div class="sim-preview" style="color:${rgbToHex(...simFg)};background:${rgbToHex(...simBg)}"><div class="big">Sample Text</div><div class="sm">${simRatio.toFixed(1)}:1 ratio</div></div><div class="sim-label">${name}</div>`;
+    simGrid.appendChild(card);
+  }
+}
+update();
+</script>
+</body>
+</html>
