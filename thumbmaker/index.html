@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Thumbnail Maker — Create Thumbnails with Text & Effects Free</title>
+<meta name="description" content="Create YouTube thumbnails with bold text, gradients, and effects. 1280x720 export. No signup, no watermark. Free thumbnail maker.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+main{max-width:800px;margin:0 auto;padding:1.5rem}
+h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem;color:#ef4444}
+.preview-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#111;border-radius:10px;overflow:hidden;margin-bottom:1rem;border:1px solid #222}
+canvas{width:100%;height:100%;display:block}
+.controls{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.controls h3{font-size:.62rem;text-transform:uppercase;color:#666;margin-bottom:.5rem;font-weight:700}
+.row{display:flex;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap}
+.field{flex:1;min-width:100px}
+.field label{display:block;font-size:.6rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
+.field input,.field select{width:100%;padding:.35rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.78rem;outline:none;font-family:inherit}
+.field input[type=color]{height:30px;padding:2px}
+.field input[type=range]{accent-color:#ef4444}
+.presets{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.8rem}
+.preset{width:50px;height:28px;border-radius:5px;cursor:pointer;border:2px solid transparent}
+.preset:hover{border-color:#fff}
+.preset.active{border-color:#ef4444}
+.btn-row{display:flex;gap:.5rem}
+.btn{flex:1;padding:.5rem;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;border:none}
+.btn-primary{background:#ef4444;color:#fff}
+.btn-secondary{background:#222;color:#e5e5e5}
+</style>
+</head>
+<body>
+<main>
+<h1>🎬 YouTube Thumbnail Maker</h1>
+<div class="preview-wrap"><canvas id="canvas" width="1280" height="720"></canvas></div>
+<div class="controls">
+<h3>Background</h3>
+<div class="row">
+<div class="field"><label>Color 1</label><input type="color" id="bg1" value="#1a1a2e" oninput="render()"></div>
+<div class="field"><label>Color 2</label><input type="color" id="bg2" value="#e94560" oninput="render()"></div>
+<div class="field"><label>Style</label><select id="bgStyle" onchange="render()"><option value="gradient">Gradient</option><option value="solid">Solid</option><option value="radial">Radial</option><option value="diagonal">Diagonal</option></select></div>
+<div class="field"><label>Image</label><input type="file" accept="image/*" onchange="loadBgImage(event)" style="font-size:.65rem"></div>
+</div>
+<div class="presets" id="presets"></div>
+
+<h3>Text</h3>
+<div class="row">
+<div class="field" style="flex:3"><label>Main Text</label><input type="text" id="mainText" value="INSANE NEW VIDEO" oninput="render()"></div>
+<div class="field"><label>Color</label><input type="color" id="textColor" value="#ffffff" oninput="render()"></div>
+</div>
+<div class="row">
+<div class="field"><label>Size</label><input type="range" id="textSize" min="40" max="180" value="90" oninput="render()"></div>
+<div class="field"><label>Y Position</label><input type="range" id="textY" min="10" max="90" value="50" oninput="render()"></div>
+<div class="field"><label>Font</label><select id="font" onchange="render()"><option>Impact</option><option>Arial Black</option><option>Verdana</option><option>Georgia</option><option>Trebuchet MS</option></select></div>
+</div>
+<div class="row">
+<div class="field"><label>Stroke</label><input type="color" id="strokeColor" value="#000000" oninput="render()"></div>
+<div class="field"><label>Stroke Width</label><input type="range" id="strokeWidth" min="0" max="20" value="8" oninput="render()"></div>
+<div class="field"><label>Shadow</label><input type="range" id="shadowBlur" min="0" max="30" value="10" oninput="render()"></div>
+</div>
+
+<h3>Subtitle</h3>
+<div class="row">
+<div class="field" style="flex:3"><label>Sub Text</label><input type="text" id="subText" value="You won't believe this..." oninput="render()"></div>
+<div class="field"><label>Color</label><input type="color" id="subColor" value="#fbbf24" oninput="render()"></div>
+<div class="field"><label>Size</label><input type="range" id="subSize" min="20" max="80" value="36" oninput="render()"></div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="download()">⬇️ Download 1280×720</button>
+<button class="btn btn-secondary" onclick="resetAll()">Reset</button>
+</div>
+</main>
+<script>
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+let bgImage=null;
+
+const presetColors=[
+  ['#1a1a2e','#e94560'],['#0f0c29','#302b63'],['#000000','#434343'],
+  ['#141e30','#243b55'],['#ff416c','#ff4b2b'],['#11998e','#38ef7d'],
+  ['#ee0979','#ff6a00'],['#2193b0','#6dd5ed'],['#360033','#0b8793'],
+  ['#8e2de2','#4a00e0'],['#00b4db','#0083b0'],['#f12711','#f5af19']
+];
+
+document.getElementById('presets').innerHTML=presetColors.map(([c1,c2],i)=>
+  `<div class="preset" style="background:linear-gradient(135deg,${c1},${c2})" onclick="setPreset('${c1}','${c2}',this)"></div>`
+).join('');
+
+function setPreset(c1,c2,el){
+  document.getElementById('bg1').value=c1;
+  document.getElementById('bg2').value=c2;
+  document.querySelectorAll('.preset').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function loadBgImage(e){
+  const file=e.target.files[0];if(!file)return;
+  const img=new Image();
+  img.onload=()=>{bgImage=img;render()};
+  img.src=URL.createObjectURL(file);
+}
+
+function render(){
+  const w=1280,h=720;
+  const bg1=document.getElementById('bg1').value;
+  const bg2=document.getElementById('bg2').value;
+  const style=document.getElementById('bgStyle').value;
+  
+  // Background
+  if(bgImage){
+    const scale=Math.max(w/bgImage.width,h/bgImage.height);
+    const iw=bgImage.width*scale,ih=bgImage.height*scale;
+    ctx.drawImage(bgImage,(w-iw)/2,(h-ih)/2,iw,ih);
+    // Overlay
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.fillRect(0,0,w,h);
+  }else{
+    let grad;
+    if(style==='solid'){ctx.fillStyle=bg1;ctx.fillRect(0,0,w,h)}
+    else if(style==='radial'){grad=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);grad.addColorStop(0,bg1);grad.addColorStop(1,bg2);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h)}
+    else if(style==='diagonal'){grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,bg1);grad.addColorStop(1,bg2);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h)}
+    else{grad=ctx.createLinearGradient(0,0,w,0);grad.addColorStop(0,bg1);grad.addColorStop(1,bg2);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h)}
+  }
+  
+  // Main text
+  const mainText=document.getElementById('mainText').value;
+  const textSize=parseInt(document.getElementById('textSize').value);
+  const textY=h*(parseInt(document.getElementById('textY').value)/100);
+  const textColor=document.getElementById('textColor').value;
+  const font=document.getElementById('font').value;
+  const strokeColor=document.getElementById('strokeColor').value;
+  const strokeWidth=parseInt(document.getElementById('strokeWidth').value);
+  const shadowBlur=parseInt(document.getElementById('shadowBlur').value);
+  
+  ctx.font=`900 ${textSize}px ${font}`;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  
+  if(shadowBlur>0){ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=shadowBlur;ctx.shadowOffsetX=4;ctx.shadowOffsetY=4}
+  
+  if(strokeWidth>0){ctx.strokeStyle=strokeColor;ctx.lineWidth=strokeWidth;ctx.lineJoin='round';ctx.strokeText(mainText,w/2,textY)}
+  
+  ctx.fillStyle=textColor;
+  ctx.fillText(mainText,w/2,textY);
+  ctx.shadowBlur=0;
+  
+  // Subtitle
+  const subText=document.getElementById('subText').value;
+  if(subText){
+    const subSize=parseInt(document.getElementById('subSize').value);
+    const subColor=document.getElementById('subColor').value;
+    ctx.font=`700 ${subSize}px ${font}`;
+    ctx.fillStyle=subColor;
+    ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=6;
+    ctx.fillText(subText,w/2,textY+textSize*0.7);
+    ctx.shadowBlur=0;
+  }
+}
+
+function download(){
+  const a=document.createElement('a');
+  a.download='thumbnail.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+}
+
+function resetAll(){
+  document.getElementById('mainText').value='INSANE NEW VIDEO';
+  document.getElementById('subText').value="You won't believe this...";
+  document.getElementById('bg1').value='#1a1a2e';
+  document.getElementById('bg2').value='#e94560';
+  document.getElementById('textSize').value=90;
+  document.getElementById('textY').value=50;
+  bgImage=null;
+  render();
+}
+render();
+</script>
+</body>
+</html>
