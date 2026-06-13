@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FontPair — Google Fonts Pairing Tool with Live Preview</title>
+<meta name="description" content="Find perfect Google Font pairings. Preview heading and body font combinations with live text. Free font pairing tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafafa;--surface:#fff;--border:#e5e5e5;--accent:#6366f1;--text:#1a1a1a;--muted:#999}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem;text-align:center}
+.controls{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1.5rem}
+.controls h3{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.5rem;font-weight:700}
+.row{display:flex;gap:.5rem;margin-bottom:.8rem}
+.row select{flex:1;padding:.5rem;border:1px solid var(--border);border-radius:6px;font-size:.85rem;outline:none;font-family:inherit}
+.row select:focus{border-color:var(--accent)}
+.pairs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:1rem}
+.pair-btn{padding:.3rem .6rem;border-radius:5px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.pair-btn:hover{border-color:var(--accent);color:var(--accent)}
+.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2.5rem;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.preview-card .heading{margin-bottom:.8rem;line-height:1.2}
+.preview-card .body-text{line-height:1.7;color:#444}
+.code-box{background:#f5f5f5;border:1px solid var(--border);border-radius:8px;margin-top:1.5rem;overflow:hidden}
+.code-box .head{display:flex;justify-content:space-between;padding:.4rem .6rem;border-bottom:1px solid var(--border);font-size:.68rem;color:var(--muted);font-weight:600;align-items:center}
+.code-box .head button{background:var(--accent);color:#fff;border:none;padding:.2rem .5rem;border-radius:4px;font-size:.65rem;font-weight:700;cursor:pointer}
+.code-box pre{padding:.6rem;font-size:.72rem;font-family:'SF Mono',monospace;overflow-x:auto;line-height:1.5;color:#333}
+</style>
+</head>
+<body>
+<main>
+<h1>Font Pair Finder</h1>
+<div class="controls">
+<h3>Curated Pairings</h3>
+<div class="pairs" id="pairBtns"></div>
+<h3>Or Pick Your Own</h3>
+<div class="row">
+<select id="headingFont" onchange="update()"></select>
+<select id="bodyFont" onchange="update()"></select>
+</div>
+<div class="row">
+<select id="headingSize" onchange="update()">
+<option value="2rem">32px</option><option value="2.5rem" selected>40px</option><option value="3rem">48px</option><option value="3.5rem">56px</option><option value="4rem">64px</option>
+</select>
+<select id="bodySize" onchange="update()">
+<option value=".9rem">14px</option><option value="1rem" selected>16px</option><option value="1.1rem">18px</option><option value="1.25rem">20px</option>
+</select>
+</div>
+</div>
+<div class="preview-card" id="preview"></div>
+<div class="code-box">
+<div class="head"><span>Import Code</span><button onclick="cp()">Copy</button></div>
+<pre id="code"></pre>
+</div>
+</main>
+<script>
+const fonts=['Inter','Roboto','Open Sans','Lato','Montserrat','Poppins','Raleway','Playfair Display','Merriweather','Source Sans 3','Nunito','Work Sans','DM Sans','Outfit','Space Grotesk','Bitter','Crimson Text','Libre Baskerville','PT Serif','Lora','Archivo','Rubik','Manrope','Plus Jakarta Sans','Sora','Oswald','Bebas Neue','Cormorant Garamond','EB Garamond','Source Serif 4','Noto Sans','Fira Sans','IBM Plex Sans','IBM Plex Serif','Spectral','Fraunces','Cabinet Grotesk'];
+
+const pairs=[
+  ['Playfair Display','Source Sans 3'],['Montserrat','Merriweather'],['Oswald','Lato'],['Bebas Neue','Open Sans'],
+  ['Space Grotesk','DM Sans'],['Fraunces','Inter'],['Cormorant Garamond','Poppins'],['Sora','Inter'],
+  ['Plus Jakarta Sans','Lora'],['Outfit','Source Serif 4'],['Archivo','Libre Baskerville'],['Raleway','Roboto'],
+];
+
+// Populate selects
+const optHTML=fonts.map(f=>`<option value="${f}">${f}</option>`).join('');
+document.getElementById('headingFont').innerHTML=optHTML;
+document.getElementById('bodyFont').innerHTML=optHTML;
+
+// Pair buttons
+document.getElementById('pairBtns').innerHTML=pairs.map((p,i)=>`<div class="pair-btn" onclick="setPair(${i})">${p[0]} + ${p[1]}</div>`).join('');
+
+function setPair(i){
+  document.getElementById('headingFont').value=pairs[i][0];
+  document.getElementById('bodyFont').value=pairs[i][1];
+  update();
+}
+
+function loadFont(name){
+  const id='font-'+name.replace(/\s+/g,'-').toLowerCase();
+  if(document.getElementById(id))return;
+  const link=document.createElement('link');
+  link.id=id;link.rel='stylesheet';
+  link.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@400;500;600;700;800;900&display=swap`;
+  document.head.appendChild(link);
+}
+
+function update(){
+  const hFont=document.getElementById('headingFont').value;
+  const bFont=document.getElementById('bodyFont').value;
+  const hSize=document.getElementById('headingSize').value;
+  const bSize=document.getElementById('bodySize').value;
+  loadFont(hFont);loadFont(bFont);
+  
+  document.getElementById('preview').innerHTML=`
+    <div class="heading" style="font-family:'${hFont}',serif;font-size:${hSize};font-weight:800">The quick brown fox jumps over the lazy dog</div>
+    <p class="body-text" style="font-family:'${bFont}',sans-serif;font-size:${bSize}">Typography is the art and technique of arranging type to make written language legible, readable, and appealing when displayed. The arrangement of type involves selecting typefaces, point sizes, line lengths, line-spacing, and letter-spacing, and adjusting the space between pairs of letters.</p>
+    <p class="body-text" style="font-family:'${bFont}',sans-serif;font-size:${bSize};margin-top:.8rem"><strong>Bold text looks like this.</strong> <em>And italic text looks like this.</em> Mix and match weights and styles for visual hierarchy.</p>`;
+  
+  document.getElementById('code').textContent=`<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(hFont)}:wght@700;800;900&family=${encodeURIComponent(bFont)}:wght@400;500;700&display=swap" rel="stylesheet">\n\n/* Heading */\nfont-family: '${hFont}', serif;\n\n/* Body */\nfont-family: '${bFont}', sans-serif;`;
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('code').textContent)}
+setPair(0);
+</script>
+</body>
+</html>
