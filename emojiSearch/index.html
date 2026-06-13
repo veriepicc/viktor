@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmojiSearch — Find & Copy Emojis Instantly</title>
+<meta name="description" content="Search and copy emojis instantly. Browse by category, search by keyword. Click to copy. Free emoji picker tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>😀</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fffbf0;--surface:#fff;--border:#f0e6d0;--accent:#e67e22;--text:#2c2c2c;--muted:#999}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.8rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:1.5rem}
+.search{display:flex;gap:.5rem;margin-bottom:1rem}
+.search input{flex:1;padding:.65rem 1rem;border:1px solid var(--border);border-radius:10px;font-size:1rem;outline:none;font-family:inherit;background:var(--surface)}
+.search input:focus{border-color:var(--accent)}
+.cats{display:flex;gap:.3rem;margin-bottom:1rem;flex-wrap:wrap}
+.cat{padding:.3rem .7rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.cat.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:4px}
+.emoji{font-size:1.8rem;text-align:center;padding:.5rem;border-radius:8px;cursor:pointer;transition:all .12s;line-height:1}
+.emoji:hover{background:rgba(230,126,34,.1);transform:scale(1.2)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.count{text-align:center;font-size:.72rem;color:var(--muted);margin-top:1rem}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:1rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Emoji<span>Search</span></div></nav>
+<main>
+<div class="search"><input id="q" placeholder="Search emojis... (e.g. smile, heart, fire)" oninput="filter()"></div>
+<div class="cats" id="cats"></div>
+<div class="grid" id="grid"></div>
+<div class="count" id="count"></div>
+</main>
+<div class="toast" id="toast">Copied!</div>
+<footer>&copy; 2026 EmojiSearch &mdash; Click any emoji to copy.</footer>
+<script>
+const emojiData={
+'Smileys':['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🫢','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','🫤','😟','🙁','😮','😯','😲','😳','🥺','🥹','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+'Hands':['👋','🤚','🖐️','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄'],
+'Hearts':['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','❤️‍🔥','❤️‍🩹','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','🫶'],
+'Animals':['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🪳','🦟','🦗','🕷️','🐢','🐍','🦎','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮'],
+'Food':['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🫒','🧄','🧅','🥔','🍠','🫘','🥐','🥖','🍞','🥨','🥯','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🫘','🍯'],
+'Travel':['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🛴','🚲','🛵','🏍️','🛺','🚁','🛸','🚀','🛩️','✈️','🛫','🛬','⛵','🚤','🛥️','🛳️','⛴️','🚢','🗽','🗼','🏰','🏯','🏟️','🎡','🎢','🎠','⛲','⛱️','🏖️','🏝️','🏜️','🌋','⛰️','🏔️','🗻','🏕️','🛖','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏗️','🧱','🪨','🪵'],
+'Objects':['⌚','📱','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💾','💿','📀','📼','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭','⏱️','⏲️','⏰','🕰️','⌛','📡','🔋','🔌','💡','🔦','🕯️','🧯','🗑️','🛢️','💸','💵','💴','💶','💷','🪙','💰','💳','🧲','🔧','🪛','🔩','⚙️','🧰','🪜','🧲'],
+'Symbols':['❤️','🔥','⭐','✨','💥','💫','🌟','💯','✅','❌','⚠️','🚫','♻️','✳️','❇️','🔰','💠','Ⓜ️','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔸','🔹','🔶','🔷','💬','💭','🗯️','♠️','♣️','♥️','♦️','🎵','🎶','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','🔄','◀️','▶️','🔼','🔽','⏩','⏪','ℹ️','🔤','🔣','🔢','🔡','🔠','🆕','🆒','🆓','🆙','🆗','🈶','🈚','🈸','🈺','🉐'],
+'Flags':['🏳️','🏴','🏁','🚩','🏳️‍🌈','🏳️‍⚧️','🇺🇸','🇬🇧','🇫🇷','🇩🇪','🇯🇵','🇰🇷','🇨🇳','🇮🇳','🇧🇷','🇲🇽','🇨🇦','🇦🇺','🇮🇹','🇪🇸','🇷🇺','🇹🇷','🇸🇦','🇦🇪','🇳🇱','🇧🇪','🇨🇭','🇦🇹','🇸🇪','🇳🇴','🇩🇰','🇫🇮','🇵🇱','🇭🇺','🇨🇿','🇬🇷','🇵🇹','🇮🇪','🇮🇱','🇪🇬','🇿🇦','🇳🇬','🇰🇪','🇦🇷','🇨🇴','🇨🇱','🇵🇪','🇻🇪','🇵🇭','🇹🇭','🇻🇳','🇮🇩','🇲🇾','🇸🇬','🇳🇿','🇺🇦','🇷🇸'],
+};
+
+const catsEl=document.getElementById('cats');
+const gridEl=document.getElementById('grid');
+let allEmojis=[];
+Object.entries(emojiData).forEach(([cat,emojis])=>{emojis.forEach(e=>allEmojis.push({emoji:e,cat}))});
+let currentCat='all';
+
+catsEl.innerHTML=`<div class="cat active" onclick="setCat('all',this)">All (${allEmojis.length})</div>`+Object.entries(emojiData).map(([cat,emojis])=>`<div class="cat" onclick="setCat('${cat}',this)">${cat} (${emojis.length})</div>`).join('');
+
+function setCat(c,el){currentCat=c;document.querySelectorAll('.cat').forEach(e=>e.classList.remove('active'));el.classList.add('active');filter()}
+
+function filter(){
+  const q=document.getElementById('q').value.toLowerCase();
+  const filtered=allEmojis.filter(e=>{
+    if(currentCat!=='all'&&e.cat!==currentCat)return false;
+    if(q)return e.cat.toLowerCase().includes(q)||e.emoji.includes(q);
+    return true;
+  });
+  gridEl.innerHTML=filtered.map(e=>`<div class="emoji" onclick="copy('${e.emoji}')" title="${e.cat}">${e.emoji}</div>`).join('');
+  document.getElementById('count').textContent=filtered.length+' emojis';
+}
+
+function copy(emoji){navigator.clipboard.writeText(emoji);const t=document.getElementById('toast');t.textContent='Copied '+emoji;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),800)}
+filter();
+</script>
+</body>
+</html>
