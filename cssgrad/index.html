@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSSGrad — Beautiful CSS Gradient Generator</title>
+<meta name="description" content="Create stunning CSS gradients with a visual editor. Linear, radial, and conic gradients with live preview and one-click copy.">
+<meta name="keywords" content="css gradient generator, gradient maker, css gradient, linear gradient, radial gradient, css background">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f0f;color:#e0e0e0;min-height:100vh;display:flex;flex-direction:column}
+nav{padding:.9rem 2rem;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.2rem;font-weight:800}.logo span{background:linear-gradient(90deg,#f093fb,#f5576c,#4facfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.random-btn{background:#222;border:1px solid #333;color:#aaa;padding:.45rem 1rem;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .2s}
+.random-btn:hover{border-color:#666;color:#fff}
+.preview{flex:1;min-height:45vh;transition:background .3s;cursor:crosshair;display:flex;align-items:center;justify-content:center}
+.preview .hint{font-size:.85rem;color:rgba(255,255,255,.3);pointer-events:none}
+.panel{background:#161616;border-top:1px solid #222;padding:1.5rem 2rem}
+.row{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.2rem;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#666}
+.field select,.field input[type=number]{background:#222;border:1px solid #333;color:#e0e0e0;padding:.4rem .7rem;border-radius:6px;font-size:.82rem;font-family:inherit;min-width:100px}
+.color-stops{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center}
+.stop{display:flex;align-items:center;gap:.4rem;background:#222;padding:.4rem .6rem;border-radius:8px;border:1px solid #333}
+.stop input[type=color]{width:32px;height:28px;border:none;border-radius:4px;cursor:pointer;background:none}
+.stop input[type=number]{width:55px;background:#1a1a1a;border:1px solid #333;color:#e0e0e0;padding:.25rem .4rem;border-radius:4px;font-size:.78rem;font-family:inherit}
+.stop .remove{background:none;border:none;color:#666;cursor:pointer;font-size:1rem;padding:0 .3rem;transition:color .15s}
+.stop .remove:hover{color:#f7768e}
+.add-stop{background:none;border:1px dashed #444;color:#666;padding:.4rem .8rem;border-radius:8px;cursor:pointer;font-size:.8rem;transition:all .15s}
+.add-stop:hover{border-color:#888;color:#aaa}
+.code-output{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.8rem 1rem;display:flex;align-items:center;gap:.8rem}
+.code-output code{flex:1;font-family:'SF Mono',monospace;font-size:.8rem;color:#7aa2f7;word-break:break-all}
+.code-output button{background:#333;border:none;color:#eee;padding:.4rem .9rem;border-radius:5px;cursor:pointer;font-size:.78rem;font-weight:600;white-space:nowrap;transition:background .15s}
+.code-output button:hover{background:#444}
+footer{text-align:center;padding:1rem;color:#444;font-size:.7rem;border-top:1px solid #222}
+</style>
+</head>
+<body>
+<nav><div class="logo">CSS<span>Grad</span></div><button class="random-btn" onclick="randomize()">🎲 Random</button></nav>
+<div class="preview" id="preview"><span class="hint">Your gradient preview</span></div>
+<div class="panel">
+<div class="row">
+<div class="field"><label>Type</label><select id="type"><option value="linear">Linear</option><option value="radial">Radial</option><option value="conic">Conic</option></select></div>
+<div class="field"><label>Angle / Position</label><input type="number" id="angle" value="135" min="0" max="360" step="1"></div>
+</div>
+<div class="row">
+<div class="field"><label>Color Stops</label>
+<div class="color-stops" id="stops"></div>
+</div>
+</div>
+<div class="code-output"><code id="cssCode"></code><button onclick="copyCSS()">Copy CSS</button></div>
+</div>
+<footer>&copy; 2026 CSSGrad &mdash; CSS gradient generator. No data collected.</footer>
+<script>
+let stops=[{color:'#667eea',pos:0},{color:'#764ba2',pos:50},{color:'#f093fb',pos:100}];
+const preview=document.getElementById('preview'),stopsEl=document.getElementById('stops'),cssCode=document.getElementById('cssCode'),typeEl=document.getElementById('type'),angleEl=document.getElementById('angle');
+typeEl.onchange=angleEl.oninput=render;
+function render(){
+stopsEl.innerHTML='';
+stops.forEach((s,i)=>{const d=document.createElement('div');d.className='stop';
+d.innerHTML=`<input type="color" value="${s.color}" onchange="stops[${i}].color=this.value;render()"><input type="number" value="${s.pos}" min="0" max="100" onchange="stops[${i}].pos=parseInt(this.value);render()"><span style="font-size:.7rem;color:#666">%</span>${stops.length>2?`<button class="remove" onclick="stops.splice(${i},1);render()">×</button>`:''}`;
+stopsEl.appendChild(d)});
+const add=document.createElement('button');add.className='add-stop';add.textContent='+ Add';add.onclick=()=>{stops.push({color:randomColor(),pos:100});render()};stopsEl.appendChild(add);
+const sorted=[...stops].sort((a,b)=>a.pos-b.pos);
+const stopStr=sorted.map(s=>`${s.color} ${s.pos}%`).join(', ');
+const t=typeEl.value,a=angleEl.value;
+let css;
+if(t==='linear')css=`linear-gradient(${a}deg, ${stopStr})`;
+else if(t==='radial')css=`radial-gradient(circle, ${stopStr})`;
+else css=`conic-gradient(from ${a}deg, ${stopStr})`;
+preview.style.background=css;preview.querySelector('.hint').style.display='none';
+cssCode.textContent=`background: ${css};`}
+function copyCSS(){navigator.clipboard.writeText(cssCode.textContent);const btn=document.querySelector('.code-output button');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy CSS',1200)}
+function randomColor(){return'#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0')}
+function randomize(){const n=2+Math.floor(Math.random()*3);stops=[];for(let i=0;i<n;i++)stops.push({color:randomColor(),pos:Math.round(i/(n-1)*100)});angleEl.value=Math.floor(Math.random()*360);typeEl.value=['linear','radial','conic'][Math.floor(Math.random()*3)];render()}
+render();
+</script>
+</body>
+</html>
