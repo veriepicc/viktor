@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>.gitignore Generator — Create gitignore Files by Language & Framework</title>
+<meta name="description" content="Generate .gitignore files for any language or framework. Node.js, Python, Rust, Go, Java, C++, Unity, and more. Free .gitignore builder.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📁</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--accent:#f97316;--text:#c9d1d9;--muted:#8b949e}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.search{width:100%;padding:.6rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;outline:none;margin-bottom:1rem;font-family:inherit}
+.search:focus{border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.4rem;margin-bottom:1.5rem}
+.chip{padding:.4rem .6rem;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);text-align:center;transition:all .15s}
+.chip:hover{border-color:var(--accent)}
+.chip.active{border-color:var(--accent);color:var(--accent);background:rgba(249,115,22,.08)}
+.output{background:#010409;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.output-head{display:flex;justify-content:space-between;padding:.5rem .8rem;border-bottom:1px solid var(--border);align-items:center}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.output-head button{background:var(--accent);color:#fff;border:none;padding:.35rem .7rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer}
+.output pre{padding:.8rem;font-size:.78rem;line-height:1.6;overflow-x:auto;white-space:pre;color:var(--text);font-family:'SF Mono',monospace;max-height:500px;overflow-y:auto}
+.count{font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
+</style>
+</head>
+<body>
+<main>
+<h1>.gitignore Generator</h1>
+<input class="search" id="search" placeholder="Search languages & frameworks..." oninput="filterTemplates()">
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+<div class="output">
+<div class="output-head"><span>.gitignore</span><button onclick="cp()">Copy</button></div>
+<pre id="output"># Select languages/frameworks above</pre>
+</div>
+</main>
+<script>
+const templates={
+'Node.js':`node_modules/\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.pnpm-debug.log*\ndist/\n.env\n.env.local\n.env.*.local\n.cache/\ncoverage/\n.nyc_output/`,
+'Python':`__pycache__/\n*.py[cod]\n*$py.class\n*.so\n.Python\nbuild/\ndevelop-eggs/\ndist/\ndownloads/\neggs/\n.eggs/\nlib/\nlib64/\nparts/\nsdist/\nvar/\nwheels/\n*.egg-info/\n.installed.cfg\n*.egg\n.venv/\nvenv/\nENV/\n.env`,
+'Rust':`/target/\nCargo.lock\n**/*.rs.bk`,
+'Go':`*.exe\n*.exe~\n*.dll\n*.so\n*.dylib\n*.test\n*.out\ngo.work\nvendor/`,
+'Java':`*.class\n*.log\n*.jar\n*.war\n*.nar\n*.ear\n*.zip\n*.tar.gz\n*.rar\nhs_err_pid*\n.gradle/\nbuild/\n.idea/\n*.iml\nout/\ntarget/`,
+'C++':`*.o\n*.obj\n*.exe\n*.out\n*.app\n*.so\n*.dylib\n*.dll\n*.a\n*.lib\n*.pch\n*.gch\nbuild/\ncmake-build-*/\n.cache/\ncompile_commands.json`,
+'C#/.NET':`bin/\nobj/\n*.suo\n*.user\n*.sln.docstates\n[Dd]ebug/\n[Rr]elease/\nx64/\nx86/\n.vs/\n*.DotSettings.user\npackages/`,
+'Unity':`[Ll]ibrary/\n[Tt]emp/\n[Oo]bj/\n[Bb]uild/\n[Bb]uilds/\n[Ll]ogs/\n[Uu]ser[Ss]ettings/\n*.csproj\n*.unityproj\n*.sln\n*.suo\n*.tmp\n*.user\n*.pidb\n*.booproj\n*.svd\n*.pdb\n*.mdb\nAssets/Plugins/Editor/JetBrains*`,
+'React':`node_modules/\nbuild/\n.env\n.env.local\n.env.*.local\nnpm-debug.log*\nyarn-debug.log*\n.cache/\ncoverage/`,
+'Next.js':`node_modules/\n.next/\nout/\n.env\n.env.local\n.env.*.local\nnpm-debug.log*\nyarn-debug.log*\n.vercel`,
+'Vue':`node_modules/\ndist/\n.env\n.env.local\n*.local\nnpm-debug.log*\nyarn-debug.log*\n.cache/`,
+'Swift':`.build/\nPackages/\n*.xcodeproj\nxcuserdata/\nDerivedData/\n.swiftpm/\nPlayground.playground/`,
+'Kotlin':`*.class\n*.jar\n*.war\nbuild/\n.gradle/\n.idea/\n*.iml\nout/\nlocal.properties`,
+'Ruby':`*.gem\n*.rbc\n/.config\n/coverage/\n/InstalledFiles\n/pkg/\n/spec/reports/\n/spec/examples.txt\n/test/tmp/\n/test/version_tmp/\n/tmp/\n.bundle/\nvendor/bundle/\n.env\nGemfile.lock`,
+'PHP':`/vendor/\nnode_modules/\n.env\n*.log\ncomposer.lock\n.phpunit.result.cache\nstorage/*.key`,
+'Laravel':`/vendor/\nnode_modules/\n.env\n.env.backup\nstorage/*.key\nHomestead.json\nHomestead.yaml\nnpm-debug.log\nyarn-error.log\n/public/hot\n/public/storage\n/storage/*.key`,
+'Django':`*.pyc\ndb.sqlite3\n.env\nmedia/\nstaticfiles/\n*.log\n__pycache__/\n.venv/`,
+'Flutter':`*.dart_tool/\n.packages\nbuild/\n.flutter-plugins\n.flutter-plugins-dependencies\n*.iml\n.idea/`,
+'Terraform':`**/.terraform/*\n*.tfstate\n*.tfstate.*\ncrash.log\n*.tfvars\noverride.tf\noverride.tf.json\n*_override.tf`,
+'Docker':`docker-compose.override.yml\n.env\n*.log`,
+'macOS':`._*\n.DS_Store\n.AppleDouble\n.LSOverride\nIcon?\n.Spotlight-V100\n.Trashes`,
+'Windows':`Thumbs.db\nehthumbs.db\n[Dd]esktop.ini\n$RECYCLE.BIN/\n*.lnk`,
+'Linux':`*~\n.fuse_hidden*\n.directory\n.Trash-*\n.nfs*`,
+'JetBrains':`/.idea/\n*.iml\n*.iws\n*.ipr\nout/\n.idea_modules/\natlassian-ide-plugin.xml\ncom_crashlytics_export_strings.xml`,
+'VSCode':`.vscode/*\n!.vscode/settings.json\n!.vscode/tasks.json\n!.vscode/launch.json\n!.vscode/extensions.json\n*.code-workspace`,
+'Vim':`[._]*.s[a-v][a-z]\n[._]*.sw[a-p]\n[._]s[a-rt-v][a-z]\n[._]ss[a-gi-z]\n[._]sw[a-p]\nSession.vim\nNetrwhist\n*~\ntags`,
+};
+
+let selected=new Set();
+function renderGrid(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const keys=Object.keys(templates).filter(k=>k.toLowerCase().includes(q));
+  document.getElementById('count').textContent=`${keys.length} templates available`;
+  document.getElementById('grid').innerHTML=keys.map(k=>`<div class="chip ${selected.has(k)?'active':''}" onclick="toggle('${k}')">${k}</div>`).join('');
+}
+function toggle(k){if(selected.has(k))selected.delete(k);else selected.add(k);renderGrid();gen()}
+function gen(){
+  if(!selected.size){document.getElementById('output').textContent='# Select languages/frameworks above';return}
+  let out=[];
+  selected.forEach(k=>{out.push(`# === ${k} ===`);out.push(templates[k]);out.push('')});
+  document.getElementById('output').textContent=out.join('\n');
+}
+function filterTemplates(){renderGrid()}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+renderGrid();
+</script>
+</body>
+</html>
