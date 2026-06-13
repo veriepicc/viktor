@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlassMorph — CSS Glassmorphism & Backdrop Blur Generator</title>
+<meta name="description" content="Create CSS glassmorphism effects with backdrop blur, transparency, and border. Live preview with copy-ready code. Free glassmorphism generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:2rem}
+.preview-area{position:relative;height:300px;border-radius:16px;overflow:hidden;margin-bottom:1.5rem;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><circle cx="80" cy="80" r="80" fill="%23ff6b6b" opacity=".7"/><circle cx="300" cy="200" r="100" fill="%234ecdc4" opacity=".7"/><circle cx="200" cy="100" r="60" fill="%23ffe66d" opacity=".7"/><circle cx="350" cy="50" r="50" fill="%23a8e6cf" opacity=".6"/></svg>') center/cover,linear-gradient(135deg,#667eea,#764ba2)}
+.glass-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;padding:2rem;border-radius:16px;text-align:center}
+.glass-card h2{font-size:1.3rem;font-weight:700;margin-bottom:.5rem}
+.glass-card p{font-size:.82rem;opacity:.8}
+.controls{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:1.2rem}
+.control{margin-bottom:.8rem}
+.control:last-child{margin-bottom:0}
+.control label{display:flex;justify-content:space-between;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;opacity:.7;margin-bottom:.3rem}
+.control input[type=range]{width:100%;accent-color:#fff;height:4px}
+.control input[type=color]{width:40px;height:28px;border:none;border-radius:4px;cursor:pointer;vertical-align:middle}
+.control .row{display:flex;gap:.5rem;align-items:center}
+.control .row input[type=range]{flex:1}
+.code-box{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-top:1rem;overflow:hidden}
+.code-box .head{display:flex;justify-content:space-between;padding:.4rem .6rem;border-bottom:1px solid rgba(255,255,255,.1);font-size:.68rem;opacity:.6;align-items:center}
+.code-box .head button{background:rgba(255,255,255,.2);color:#fff;border:none;padding:.2rem .5rem;border-radius:4px;font-size:.65rem;font-weight:700;cursor:pointer}
+.code-box pre{padding:.6rem;font-size:.72rem;font-family:'SF Mono',monospace;overflow-x:auto;line-height:1.6;opacity:.9}
+</style>
+</head>
+<body>
+<main>
+<h1>Glassmorphism Generator</h1>
+<div class="preview-area"><div class="glass-card" id="glassCard"><h2>Glass Card</h2><p>Beautiful frosted glass effect with customizable blur, opacity, and border.</p></div></div>
+<div class="controls">
+<div class="control"><label>Blur <span id="blurVal">12px</span></label><input type="range" id="blur" min="0" max="40" value="12" oninput="update()"></div>
+<div class="control"><label>Opacity <span id="opacityVal">0.15</span></label><input type="range" id="opacity" min="0" max="100" value="15" oninput="update()"></div>
+<div class="control"><label>Border Opacity <span id="borderVal">0.2</span></label><input type="range" id="borderOpacity" min="0" max="100" value="20" oninput="update()"></div>
+<div class="control"><label>Border Radius <span id="radiusVal">16px</span></label><input type="range" id="radius" min="0" max="40" value="16" oninput="update()"></div>
+<div class="control"><label>Shadow Strength <span id="shadowVal">0.15</span></label><input type="range" id="shadow" min="0" max="100" value="15" oninput="update()"></div>
+<div class="control"><label>Color</label><div class="row"><input type="color" id="color" value="#ffffff" oninput="update()"><input type="range" id="saturation" min="0" max="100" value="0" oninput="update()"></div></div>
+</div>
+<div class="code-box">
+<div class="head"><span>CSS</span><button onclick="cp()">Copy</button></div>
+<pre id="code"></pre>
+</div>
+</main>
+<script>
+function hexToRgb(hex){hex=hex.replace('#','');return[parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)]}
+function update(){
+  const blur=document.getElementById('blur').value;
+  const opacity=(document.getElementById('opacity').value/100).toFixed(2);
+  const borderOpacity=(document.getElementById('borderOpacity').value/100).toFixed(2);
+  const radius=document.getElementById('radius').value;
+  const shadowStr=(document.getElementById('shadow').value/100).toFixed(2);
+  const [r,g,b]=hexToRgb(document.getElementById('color').value);
+
+  document.getElementById('blurVal').textContent=blur+'px';
+  document.getElementById('opacityVal').textContent=opacity;
+  document.getElementById('borderVal').textContent=borderOpacity;
+  document.getElementById('radiusVal').textContent=radius+'px';
+  document.getElementById('shadowVal').textContent=shadowStr;
+
+  const card=document.getElementById('glassCard');
+  card.style.background=`rgba(${r}, ${g}, ${b}, ${opacity})`;
+  card.style.backdropFilter=`blur(${blur}px)`;
+  card.style.webkitBackdropFilter=`blur(${blur}px)`;
+  card.style.border=`1px solid rgba(${r}, ${g}, ${b}, ${borderOpacity})`;
+  card.style.borderRadius=radius+'px';
+  card.style.boxShadow=`0 8px 32px rgba(0, 0, 0, ${shadowStr})`;
+
+  document.getElementById('code').textContent=`background: rgba(${r}, ${g}, ${b}, ${opacity});\nbackdrop-filter: blur(${blur}px);\n-webkit-backdrop-filter: blur(${blur}px);\nborder: 1px solid rgba(${r}, ${g}, ${b}, ${borderOpacity});\nborder-radius: ${radius}px;\nbox-shadow: 0 8px 32px rgba(0, 0, 0, ${shadowStr});`;
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('code').textContent)}
+update();
+</script>
+</body>
+</html>
