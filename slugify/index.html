@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slugify — URL Slug Generator</title>
+<meta name="description" content="Convert text to URL-friendly slugs. Free slug generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐌</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1c1917;--surface:#292524;--border:#44403c;--accent:#fb923c;--text:#e7e5e4;--muted:#78716c}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+.c{max-width:550px;width:100%}
+h1{font-size:1.6rem;font-weight:800;text-align:center;margin-bottom:.3rem}
+.sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+textarea{width:100%;min-height:80px;padding:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;outline:none;font-family:inherit;resize:vertical;margin-bottom:.8rem}
+textarea:focus{border-color:var(--accent)}
+.opts{display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.opt{display:flex;align-items:center;gap:.3rem;font-size:.82rem;color:var(--muted);cursor:pointer}
+.opt input{accent-color:var(--accent)}
+.out{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.95rem;color:var(--accent);cursor:pointer;min-height:42px;word-break:break-all}
+.out:hover{border-color:var(--accent)}
+.hint{font-size:.72rem;color:var(--muted);text-align:center;margin-top:.5rem}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#1c1917;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="c">
+<h1>URL Slug Generator</h1>
+<p class="sub">Convert any text to a clean URL slug.</p>
+<textarea id="input" oninput="go()">Hello World! This is a Great Blog Post — café résumé naïve</textarea>
+<div class="opts">
+<label class="opt"><input type="radio" name="sep" value="-" checked onchange="go()"> kebab-case</label>
+<label class="opt"><input type="radio" name="sep" value="_" onchange="go()"> snake_case</label>
+<label class="opt"><input type="checkbox" id="lower" checked onchange="go()"> lowercase</label>
+<label class="opt"><input type="checkbox" id="maxlen" onchange="go()"> max 60 chars</label>
+</div>
+<div class="out" id="out" onclick="cp()"></div>
+<p class="hint">Click slug to copy</p>
+</div>
+<div class="toast" id="toast">Copied!</div>
+<script>
+function go(){let t=document.getElementById('input').value;const s=document.querySelector('input[name=sep]:checked').value;const l=document.getElementById('lower').checked;const m=document.getElementById('maxlen').checked;t=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'');if(l)t=t.toLowerCase();t=t.replace(/[^a-zA-Z0-9]+/g,s).replace(new RegExp('^\\'+s+'+|\\'+s+'+$','g'),'');if(m&&t.length>60)t=t.substring(0,60).replace(new RegExp('\\'+s+'+$'),'');document.getElementById('out').textContent=t}
+function cp(){navigator.clipboard.writeText(document.getElementById('out').textContent);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)}
+go();
+</script>
+</body>
+</html>
