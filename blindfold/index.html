@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blindfold — Encrypt & Decrypt Text Online (AES-256)</title>
+<meta name="description" content="Encrypt and decrypt text with AES-256 encryption right in your browser. No data sent to any server. Free, private, secure.">
+<meta name="keywords" content="encrypt text, decrypt text, aes encryption, online encryption tool, text encryption, secure message">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#030712;--surface:#0f172a;--border:#1e293b;--accent:#8b5cf6;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#475569}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(circle at 20% 50%,rgba(139,92,246,.05),transparent 50%),radial-gradient(circle at 80% 50%,rgba(34,197,94,.03),transparent 50%)}
+nav{padding:1rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800;letter-spacing:-.02em}.logo span{color:var(--accent)}
+main{max-width:580px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:.3rem;color:#f8fafc}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.mode-toggle{display:flex;gap:0;margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;overflow:hidden}
+.mode-btn{flex:1;padding:.6rem;text-align:center;font-size:.85rem;font-weight:700;cursor:pointer;border-radius:8px;transition:all .2s;color:var(--muted)}
+.mode-btn.active{background:var(--accent);color:#fff}
+.field{margin-bottom:1.2rem}
+.field label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.4rem;font-weight:600}
+.field textarea{width:100%;min-height:120px;padding:.8rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'SF Mono',monospace;font-size:.85rem;line-height:1.6;resize:vertical;outline:none;transition:border-color .15s}
+.field textarea:focus{border-color:var(--accent)}
+.field .pass-row{display:flex;gap:.5rem}
+.field input[type=password],.field input[type=text]{flex:1;padding:.65rem .8rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:.9rem;outline:none}
+.field input:focus{border-color:var(--accent)}
+.eye-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);width:42px;border-radius:8px;cursor:pointer;font-size:1rem;transition:all .15s}
+.eye-btn:hover{border-color:var(--accent)}
+.action-btn{width:100%;padding:.75rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;transition:opacity .15s;margin-bottom:1rem}
+.action-btn:hover{opacity:.85}
+.output-area{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;position:relative;min-height:60px}
+.output-area .text{font-family:'SF Mono',monospace;font-size:.82rem;word-break:break-all;line-height:1.6;color:var(--green)}
+.output-area .text.err{color:var(--red)}
+.output-area .copy-btn{position:absolute;top:.6rem;right:.6rem;background:var(--border);border:none;color:var(--muted);padding:.3rem .7rem;border-radius:5px;font-size:.72rem;cursor:pointer;transition:all .15s}
+.output-area .copy-btn:hover{background:var(--accent);color:#fff}
+.info{font-size:.72rem;color:var(--muted);text-align:center;margin-top:1rem;line-height:1.6}
+.info strong{color:var(--accent2)}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.7rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Blind<span>fold</span></div></nav>
+<main>
+<h1>Encrypt & Decrypt</h1>
+<p class="sub">AES-256-GCM encryption. Everything stays in your browser.</p>
+<div class="mode-toggle">
+<div class="mode-btn active" id="mEnc" onclick="setMode('encrypt')">🔒 Encrypt</div>
+<div class="mode-btn" id="mDec" onclick="setMode('decrypt')">🔓 Decrypt</div>
+</div>
+<div class="field"><label id="inputLabel">Message to Encrypt</label><textarea id="input" placeholder="Type your secret message here..."></textarea></div>
+<div class="field"><label>Password</label><div class="pass-row"><input type="password" id="password" placeholder="Enter a strong password"><button class="eye-btn" id="eyeBtn" onclick="toggleEye()">👁</button></div></div>
+<button class="action-btn" id="actionBtn" onclick="doAction()">Encrypt</button>
+<div class="output-area"><div class="text" id="output">Result will appear here...</div><button class="copy-btn" onclick="copyResult()">Copy</button></div>
+<div class="info">Uses <strong>AES-256-GCM</strong> with <strong>PBKDF2</strong> key derivation (100k iterations). Your data never leaves this page.</div>
+</main>
+<footer>&copy; 2026 Blindfold &mdash; Client-side encryption tool. Zero data collection.</footer>
+<script>
+let mode='encrypt';
+function setMode(m){mode=m;document.getElementById('mEnc').classList.toggle('active',m==='encrypt');document.getElementById('mDec').classList.toggle('active',m==='decrypt');document.getElementById('inputLabel').textContent=m==='encrypt'?'Message to Encrypt':'Encrypted Text to Decrypt';document.getElementById('actionBtn').textContent=m==='encrypt'?'Encrypt':'Decrypt';document.getElementById('input').placeholder=m==='encrypt'?'Type your secret message here...':'Paste the encrypted text here...'}
+function toggleEye(){const p=document.getElementById('password'),b=document.getElementById('eyeBtn');if(p.type==='password'){p.type='text';b.textContent='🙈'}else{p.type='password';b.textContent='👁'}}
+async function doAction(){const text=document.getElementById('input').value,pass=document.getElementById('password').value,out=document.getElementById('output');
+if(!text||!pass){out.textContent='Please enter both text and password';out.className='text err';return}
+try{if(mode==='encrypt'){const enc=await encrypt(text,pass);out.textContent=enc;out.className='text'}else{const dec=await decrypt(text,pass);out.textContent=dec;out.className='text'}}catch(e){out.textContent='Error: '+e.message;out.className='text err'}}
+async function getKey(pass,salt){const enc=new TextEncoder().encode(pass);const key=await crypto.subtle.importKey('raw',enc,'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function encrypt(text,pass){const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const key=await getKey(pass,salt);const enc=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(text));const buf=new Uint8Array([...salt,...iv,...new Uint8Array(enc)]);return btoa(String.fromCharCode(...buf))}
+async function decrypt(b64,pass){const buf=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const salt=buf.slice(0,16),iv=buf.slice(16,28),data=buf.slice(28);const key=await getKey(pass,salt);const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,data);return new TextDecoder().decode(dec)}
+function copyResult(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+</script>
+</body>
+</html>
