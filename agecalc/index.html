@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age Calculator — Exact Age in Years, Months, Days, Hours & Minutes</title>
+<meta name="description" content="Calculate your exact age in years, months, days, hours, and minutes. Find days until next birthday. Free online age calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center}
+main{max-width:420px;width:100%;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:2rem}
+.card{background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:1.5rem;margin-bottom:1rem}
+.field label{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-bottom:.3rem;font-weight:600}
+.field input{width:100%;padding:.6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:1rem;outline:none;font-family:inherit}
+.field input:focus{border-color:rgba(255,255,255,.5)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.5rem}
+.stat{text-align:center;padding:.8rem .3rem;background:rgba(255,255,255,.08);border-radius:10px}
+.stat .num{font-size:1.6rem;font-weight:900}
+.stat .label{font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;opacity:.6;margin-top:.1rem}
+.big-stat{text-align:center;padding:1rem;background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:.5rem}
+.big-stat .num{font-size:2.5rem;font-weight:900}
+.big-stat .label{font-size:.7rem;opacity:.6;text-transform:uppercase}
+.fun-facts{font-size:.78rem;line-height:1.8;opacity:.8}
+.fun-facts strong{opacity:1}
+.bday{text-align:center;padding:.8rem;background:rgba(255,255,255,.08);border-radius:10px;font-size:.82rem}
+.bday strong{font-size:1.1rem}
+</style>
+</head>
+<body>
+<main>
+<h1>How Old Are You?</h1>
+<div class="card">
+<div class="field"><label>Date of Birth</label><input type="date" id="dob" value="2000-01-15" onchange="calc()"></div>
+</div>
+<div class="card" id="result"></div>
+</main>
+<script>
+function calc(){
+  const dob=new Date(document.getElementById('dob').value);
+  if(isNaN(dob))return;
+  const now=new Date();
+  
+  let years=now.getFullYear()-dob.getFullYear();
+  let months=now.getMonth()-dob.getMonth();
+  let days=now.getDate()-dob.getDate();
+  if(days<0){months--;const prev=new Date(now.getFullYear(),now.getMonth(),0);days+=prev.getDate()}
+  if(months<0){years--;months+=12}
+  
+  const totalMs=now-dob;
+  const totalDays=Math.floor(totalMs/86400000);
+  const totalHours=Math.floor(totalMs/3600000);
+  const totalMinutes=Math.floor(totalMs/60000);
+  const totalWeeks=Math.floor(totalDays/7);
+  const totalMonths=years*12+months;
+  
+  // Next birthday
+  let nextBday=new Date(now.getFullYear(),dob.getMonth(),dob.getDate());
+  if(nextBday<=now)nextBday=new Date(now.getFullYear()+1,dob.getMonth(),dob.getDate());
+  const daysUntil=Math.ceil((nextBday-now)/86400000);
+  const nextAge=nextBday.getFullYear()-dob.getFullYear();
+  
+  const dayName=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dob.getDay()];
+  
+  document.getElementById('result').innerHTML=`
+    <div class="big-stat"><div class="num">${years}</div><div class="label">Years Old</div></div>
+    <div class="grid">
+      <div class="stat"><div class="num">${years}</div><div class="label">Years</div></div>
+      <div class="stat"><div class="num">${months}</div><div class="label">Months</div></div>
+      <div class="stat"><div class="num">${days}</div><div class="label">Days</div></div>
+    </div>
+    <div class="grid">
+      <div class="stat"><div class="num">${totalMonths.toLocaleString()}</div><div class="label">Total Months</div></div>
+      <div class="stat"><div class="num">${totalWeeks.toLocaleString()}</div><div class="label">Total Weeks</div></div>
+      <div class="stat"><div class="num">${totalDays.toLocaleString()}</div><div class="label">Total Days</div></div>
+    </div>
+    <div class="grid">
+      <div class="stat"><div class="num">${(totalHours/1000).toFixed(0)}k</div><div class="label">Hours</div></div>
+      <div class="stat"><div class="num">${(totalMinutes/1000000).toFixed(1)}M</div><div class="label">Minutes</div></div>
+      <div class="stat"><div class="num">${(totalMs/1000/1000000).toFixed(0)}M</div><div class="label">Seconds</div></div>
+    </div>
+    <div class="bday">🎂 Next birthday in <strong>${daysUntil} days</strong> — you'll be <strong>${nextAge}</strong></div>
+    <div class="fun-facts" style="margin-top:.8rem">
+      <strong>Born on:</strong> ${dayName}, ${dob.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}<br>
+      <strong>Heartbeats:</strong> ~${(totalMinutes*72/1000000).toFixed(0)} million<br>
+      <strong>Breaths:</strong> ~${(totalMinutes*15/1000000).toFixed(0)} million
+    </div>`;
+}
+calc();
+</script>
+</body>
+</html>
