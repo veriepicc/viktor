@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Screenshot — Beautiful Code Images Free (like Carbon)</title>
+<meta name="description" content="Create beautiful code screenshots. Syntax highlighting, custom themes, gradients, export as PNG. Free Carbon alternative.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📸</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:800px;margin:0 auto;padding:1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem}
+.canvas-wrap{display:flex;justify-content:center;margin-bottom:1rem}
+#canvas{padding:40px;border-radius:14px;display:inline-block;transition:all .3s}
+.window{border-radius:10px;overflow:hidden;box-shadow:0 20px 68px rgba(0,0,0,.55)}
+.titlebar{height:32px;display:flex;align-items:center;padding:0 12px;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+.titlebar .filename{flex:1;text-align:center;font-size:.65rem;color:rgba(255,255,255,.4);font-family:'SF Mono',monospace}
+textarea{width:100%;min-height:200px;border:none;outline:none;font-family:'SF Mono','Fira Code',monospace;font-size:14px;line-height:1.6;padding:16px 20px;resize:vertical;tab-size:2;background:transparent;color:#e4e4e7}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.card h3{font-size:.6rem;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:.5rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem}
+.field{flex:1;min-width:80px}.field label{display:block;font-size:.58rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
+.field input,.field select{width:100%;padding:.35rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.78rem;outline:none;font-family:inherit}
+.field input[type=color]{height:28px;padding:2px}.field input[type=range]{accent-color:#a78bfa}
+.themes{display:flex;flex-wrap:wrap;gap:.3rem}
+.theme{width:40px;height:24px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.theme:hover{border-color:#fff}.theme.active{border-color:#a78bfa}
+.btn{padding:.5rem 1.2rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;background:#a78bfa;color:#fff}
+</style>
+</head>
+<body>
+<main>
+<h1>📸 Code Screenshot</h1>
+<div class="canvas-wrap"><div id="canvas" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+<div class="window" id="window">
+<div class="titlebar" id="titlebar" style="background:#1e1e2e">
+<div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+<span class="filename" id="filename">untitled.js</span>
+</div>
+<textarea id="code" style="background:#1e1e2e;color:#cdd6f4" oninput="updateSize()" spellcheck="false">function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+// Generate first 10 numbers
+const results = [];
+for (let i = 0; i < 10; i++) {
+  results.push(fibonacci(i));
+}
+console.log(results);</textarea>
+</div>
+</div></div>
+
+<div class="card">
+<h3>Theme</h3>
+<div class="themes" id="themes"></div>
+</div>
+<div class="card">
+<h3>Background</h3>
+<div class="row">
+<div class="field"><label>Color 1</label><input type="color" id="bg1" value="#667eea" oninput="updateBg()"></div>
+<div class="field"><label>Color 2</label><input type="color" id="bg2" value="#764ba2" oninput="updateBg()"></div>
+<div class="field"><label>Padding</label><input type="range" id="padding" min="16" max="80" value="40" oninput="updateBg()"></div>
+<div class="field"><label>Radius</label><input type="range" id="radius" min="0" max="30" value="14" oninput="updateBg()"></div>
+</div>
+</div>
+<div class="card">
+<h3>Editor</h3>
+<div class="row">
+<div class="field"><label>Font Size</label><input type="range" id="fontSize" min="10" max="24" value="14" oninput="document.getElementById('code').style.fontSize=this.value+'px'"></div>
+<div class="field"><label>Width</label><input type="range" id="width" min="300" max="900" value="550" oninput="document.getElementById('window').style.width=this.value+'px'"></div>
+<div class="field"><label>Filename</label><input type="text" id="filenameInput" value="untitled.js" oninput="document.getElementById('filename').textContent=this.value"></div>
+</div>
+</div>
+<div style="text-align:center"><button class="btn" onclick="exportPng()">⬇️ Export PNG</button></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const themes=[
+  {name:'Catppuccin',bg:'#1e1e2e',fg:'#cdd6f4',bar:'#1e1e2e'},
+  {name:'Dracula',bg:'#282a36',fg:'#f8f8f2',bar:'#282a36'},
+  {name:'One Dark',bg:'#282c34',fg:'#abb2bf',bar:'#282c34'},
+  {name:'GitHub Dark',bg:'#0d1117',fg:'#c9d1d9',bar:'#161b22'},
+  {name:'Monokai',bg:'#272822',fg:'#f8f8f2',bar:'#272822'},
+  {name:'Nord',bg:'#2e3440',fg:'#d8dee9',bar:'#2e3440'},
+  {name:'Solarized',bg:'#002b36',fg:'#839496',bar:'#002b36'},
+  {name:'Gruvbox',bg:'#282828',fg:'#ebdbb2',bar:'#282828'},
+  {name:'Synthwave',bg:'#2b213a',fg:'#f97e72',bar:'#2b213a'},
+  {name:'Night Owl',bg:'#011627',fg:'#d6deeb',bar:'#011627'},
+];
+
+const bgPresets=[
+  ['#667eea','#764ba2'],['#f093fb','#f5576c'],['#4facfe','#00f2fe'],
+  ['#43e97b','#38f9d7'],['#fa709a','#fee140'],['#a18cd1','#fbc2eb'],
+];
+
+document.getElementById('themes').innerHTML=themes.map((t,i)=>
+  `<div class="theme ${i===0?'active':''}" style="background:${t.bg}" title="${t.name}" onclick="setTheme(${i},this)"></div>`
+).join('');
+
+function setTheme(i,el){
+  const t=themes[i];
+  document.getElementById('code').style.background=t.bg;
+  document.getElementById('code').style.color=t.fg;
+  document.getElementById('titlebar').style.background=t.bar;
+  document.querySelectorAll('.theme').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function updateBg(){
+  const bg1=document.getElementById('bg1').value;
+  const bg2=document.getElementById('bg2').value;
+  const padding=document.getElementById('padding').value;
+  const radius=document.getElementById('radius').value;
+  const canvas=document.getElementById('canvas');
+  canvas.style.background=`linear-gradient(135deg,${bg1},${bg2})`;
+  canvas.style.padding=padding+'px';
+  canvas.style.borderRadius=radius+'px';
+}
+
+function updateSize(){
+  const ta=document.getElementById('code');
+  ta.style.height='auto';
+  ta.style.height=ta.scrollHeight+'px';
+}
+
+function exportPng(){
+  const el=document.getElementById('canvas');
+  html2canvas(el,{scale:2,backgroundColor:null,useCORS:true}).then(c=>{
+    const a=document.createElement('a');
+    a.download='code-screenshot.png';
+    a.href=c.toDataURL('image/png');
+    a.click();
+  });
+}
+</script>
+</body>
+</html>
