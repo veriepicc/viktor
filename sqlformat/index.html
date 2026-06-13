@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Formatter — Format & Beautify SQL Queries Online</title>
+<meta name="description" content="Format, beautify, and indent SQL queries. Supports SELECT, INSERT, UPDATE, DELETE, CREATE TABLE. Free online SQL formatter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗃️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1e1e1e;--surface:#252526;--border:#3c3c3c;--accent:#569cd6;--text:#d4d4d4;--muted:#858585;--kw:#c586c0;--fn:#dcdcaa;--str:#ce9178;--num:#b5cea8}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:800px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+@media(max-width:600px){.split{grid-template-columns:1fr}}
+.pane{display:flex;flex-direction:column}
+.pane-head{display:flex;justify-content:space-between;padding:.3rem .5rem;background:var(--surface);border:1px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;align-items:center}
+.pane-head button{background:var(--accent);color:#fff;border:none;padding:.2rem .5rem;border-radius:4px;font-size:.65rem;font-weight:700;cursor:pointer}
+textarea,pre{flex:1;min-height:300px;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:0 0 6px 6px;font-family:'SF Mono','Fira Code',monospace;font-size:.8rem;line-height:1.6;color:var(--text);outline:none;resize:vertical;overflow:auto}
+textarea:focus{border-color:var(--accent)}
+pre{white-space:pre-wrap;word-wrap:break-word}
+.opts{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.8rem}
+.opt{padding:.3rem .6rem;border-radius:5px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface)}
+.opt.active{border-color:var(--accent);color:var(--accent)}
+.opt select{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.7rem;padding:.1rem .3rem;outline:none}
+</style>
+</head>
+<body>
+<main>
+<h1>SQL Formatter</h1>
+<div class="opts">
+<div class="opt active" onclick="setCase('upper',this)">UPPER keywords</div>
+<div class="opt" onclick="setCase('lower',this)">lower keywords</div>
+<div class="opt">Indent: <select id="indent" onchange="format()"><option value="2">2 spaces</option><option value="4" selected>4 spaces</option><option value="tab">Tab</option></select></div>
+</div>
+<div class="split">
+<div class="pane">
+<div class="pane-head"><span>Input SQL</span></div>
+<textarea id="input" oninput="format()">SELECT u.id, u.name, u.email, o.order_id, o.total FROM users u INNER JOIN orders o ON u.id = o.user_id WHERE u.status = 'active' AND o.total > 100 GROUP BY u.id, u.name, u.email ORDER BY o.total DESC LIMIT 50;</textarea>
+</div>
+<div class="pane">
+<div class="pane-head"><span>Formatted</span><button onclick="cp()">Copy</button></div>
+<pre id="output"></pre>
+</div>
+</div>
+</main>
+<script>
+let kwCase='upper';
+function setCase(c,el){kwCase=c;document.querySelectorAll('.opt').forEach(o=>{if(!o.querySelector('select'))o.classList.remove('active')});el.classList.add('active');format()}
+
+const majorKW=['SELECT','FROM','WHERE','AND','OR','ORDER BY','GROUP BY','HAVING','LIMIT','OFFSET','INSERT INTO','VALUES','UPDATE','SET','DELETE FROM','CREATE TABLE','ALTER TABLE','DROP TABLE','INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','CROSS JOIN','JOIN','ON','UNION ALL','UNION','EXCEPT','INTERSECT','INTO','AS','CASE','WHEN','THEN','ELSE','END','EXISTS','IN','NOT','BETWEEN','LIKE','IS NULL','IS NOT NULL','ASC','DESC','DISTINCT','ALL'];
+const newlineBefore=['SELECT','FROM','WHERE','AND','OR','ORDER BY','GROUP BY','HAVING','LIMIT','OFFSET','INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','CROSS JOIN','JOIN','ON','UNION ALL','UNION','SET','VALUES','CASE','WHEN','THEN','ELSE','END'];
+const indentAfter=['SELECT','FROM','WHERE','SET','VALUES'];
+
+function format(){
+  let sql=document.getElementById('input').value.trim();
+  if(!sql){document.getElementById('output').textContent='';return}
+  
+  const indentVal=document.getElementById('indent').value;
+  const indent=indentVal==='tab'?'\t':' '.repeat(parseInt(indentVal));
+  
+  // Normalize whitespace
+  sql=sql.replace(/\s+/g,' ').trim();
+  
+  // Protect string literals
+  const strings=[];
+  sql=sql.replace(/'[^']*'/g,m=>{strings.push(m);return`__STR${strings.length-1}__`});
+  
+  // Insert newlines before major keywords
+  const sorted=[...newlineBefore].sort((a,b)=>b.length-a.length);
+  sorted.forEach(kw=>{
+    const re=new RegExp('\\b'+kw.replace(/ /g,'\\s+')+'\\b','gi');
+    sql=sql.replace(re,'\n'+kw);
+  });
+  
+  // Apply keyword case
+  majorKW.forEach(kw=>{
+    const re=new RegExp('\\b'+kw.replace(/ /g,'\\s+')+'\\b','gi');
+    sql=sql.replace(re,kwCase==='upper'?kw:kw.toLowerCase());
+  });
+  
+  // Handle commas in SELECT — put each column on new line
+  let lines=sql.split('\n').map(l=>l.trim()).filter(Boolean);
+  let result=[];
+  let depth=0;
+  
+  lines.forEach(line=>{
+    const upper=line.toUpperCase().trim();
+    const isIndented=indentAfter.some(k=>upper.startsWith(k));
+    
+    if(upper.startsWith('SELECT')){
+      // Split columns after SELECT
+      const afterSelect=line.replace(/^(SELECT\s*(?:DISTINCT\s*)?)/i,'');
+      const prefix=line.slice(0,line.length-afterSelect.length);
+      const cols=afterSelect.split(',').map(c=>c.trim()).filter(Boolean);
+      if(cols.length>1){
+        result.push(prefix);
+        cols.forEach((col,i)=>result.push(indent+col+(i<cols.length-1?',':'')));
+      }else{
+        result.push(line);
+      }
+    }else if(['AND','OR'].some(k=>upper.startsWith(k))){
+      result.push(indent+line);
+    }else if(['ON','WHEN','THEN','ELSE','END'].some(k=>upper.startsWith(k))){
+      result.push(indent+line);
+    }else{
+      result.push(line);
+    }
+  });
+  
+  let out=result.join('\n');
+  
+  // Restore strings
+  strings.forEach((s,i)=>{out=out.replace(`__STR${i}__`,s)});
+  
+  document.getElementById('output').textContent=out;
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+format();
+</script>
+</body>
+</html>
