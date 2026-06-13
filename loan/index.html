@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoanCalc — Free Loan & Mortgage Payment Calculator</title>
+<meta name="description" content="Calculate monthly loan payments, total interest, and amortization schedule. Mortgage, car, personal loans. Free calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafaf9;--surface:#fff;--border:#e7e5e4;--accent:#0d9488;--text:#1c1917;--muted:#78716c}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.3rem}
+.field input{width:100%;padding:.6rem;border:1px solid var(--border);border-radius:6px;font-size:1rem;outline:none;font-family:inherit}
+.field input:focus{border-color:var(--accent)}
+.row{display:flex;gap:.8rem}.row .field{flex:1}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem}
+.result{text-align:center;padding:.8rem;background:var(--bg);border-radius:10px}
+.result .num{font-size:1.4rem;font-weight:800;color:var(--accent)}
+.result .label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.2rem}
+.breakdown{overflow:hidden}
+.breakdown h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.6rem;font-weight:700}
+.bar{height:24px;display:flex;border-radius:6px;overflow:hidden;margin-bottom:.3rem}
+.bar-principal{background:var(--accent)}
+.bar-interest{background:#f59e0b}
+.bar-legend{display:flex;gap:1rem;font-size:.72rem;color:var(--muted);margin-bottom:1rem}
+.bar-legend span{display:flex;align-items:center;gap:.3rem}
+.bar-legend .dot{width:8px;height:8px;border-radius:50%}
+.schedule{max-height:300px;overflow-y:auto}
+.schedule table{width:100%;border-collapse:collapse;font-size:.75rem}
+.schedule th{text-align:left;padding:.3rem .5rem;color:var(--muted);font-weight:600;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface)}
+.schedule td{padding:.3rem .5rem;border-bottom:1px solid #f5f5f4}
+</style>
+</head>
+<body>
+<main>
+<h1>Loan Calculator</h1>
+<div class="card">
+<div class="field"><label>Loan Amount ($)</label><input type="number" id="amount" value="250000" oninput="calc()"></div>
+<div class="row">
+<div class="field"><label>Interest Rate (%)</label><input type="number" id="rate" value="6.5" step="0.1" oninput="calc()"></div>
+<div class="field"><label>Loan Term (years)</label><input type="number" id="term" value="30" oninput="calc()"></div>
+</div>
+</div>
+<div class="card">
+<div class="results" id="results"></div>
+<div class="breakdown" id="breakdown"></div>
+</div>
+<div class="card">
+<h3 style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#78716c;margin-bottom:.6rem;font-weight:700">Amortization Schedule</h3>
+<div class="schedule" id="schedule"></div>
+</div>
+</main>
+<script>
+function calc(){
+  const P=parseFloat(document.getElementById('amount').value)||0;
+  const annualRate=parseFloat(document.getElementById('rate').value)||0;
+  const years=parseFloat(document.getElementById('term').value)||1;
+  const r=annualRate/100/12;
+  const n=years*12;
+  const M=r>0?P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1):P/n;
+  const totalPaid=M*n;
+  const totalInterest=totalPaid-P;
+
+  document.getElementById('results').innerHTML=`
+    <div class="result"><div class="num">$${M.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</div><div class="label">Monthly Payment</div></div>
+    <div class="result"><div class="num">$${totalPaid.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</div><div class="label">Total Paid</div></div>
+    <div class="result"><div class="num">$${totalInterest.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</div><div class="label">Total Interest</div></div>`;
+
+  const pPct=(P/totalPaid*100).toFixed(1);
+  const iPct=(totalInterest/totalPaid*100).toFixed(1);
+  document.getElementById('breakdown').innerHTML=`
+    <h3>Payment Breakdown</h3>
+    <div class="bar"><div class="bar-principal" style="width:${pPct}%"></div><div class="bar-interest" style="width:${iPct}%"></div></div>
+    <div class="bar-legend"><span><div class="dot" style="background:#0d9488"></div>Principal ${pPct}%</span><span><div class="dot" style="background:#f59e0b"></div>Interest ${iPct}%</span></div>`;
+
+  // Yearly amortization
+  let balance=P;
+  let html='<table><tr><th>Year</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>';
+  for(let y=1;y<=years&&balance>0;y++){
+    let yearP=0,yearI=0;
+    for(let m=0;m<12&&balance>0;m++){
+      const intPmt=balance*r;
+      const prinPmt=Math.min(M-intPmt,balance);
+      yearI+=intPmt;yearP+=prinPmt;balance-=prinPmt;
+    }
+    const fmt=v=>'$'+Math.round(v).toLocaleString();
+    html+=`<tr><td>${y}</td><td>${fmt(yearP)}</td><td>${fmt(yearI)}</td><td>${fmt(Math.max(0,balance))}</td></tr>`;
+  }
+  html+='</table>';
+  document.getElementById('schedule').innerHTML=html;
+}
+calc();
+</script>
+</body>
+</html>
