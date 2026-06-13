@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flexbox Playground — CSS Flexbox Generator with Live Preview</title>
+<meta name="description" content="Learn CSS Flexbox visually. Interactive playground with live preview. Generate flexbox code. Free CSS flexbox generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:700px;margin:0 auto;padding:1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem}
+.preview{width:100%;min-height:250px;background:#111;border:2px dashed #333;border-radius:12px;padding:12px;margin-bottom:1rem;display:flex}
+.item{min-width:50px;min-height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff}
+.item:nth-child(1){background:#8b5cf6}.item:nth-child(2){background:#ec4899}.item:nth-child(3){background:#f59e0b}
+.item:nth-child(4){background:#10b981}.item:nth-child(5){background:#3b82f6}.item:nth-child(6){background:#ef4444}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:.8rem}
+.card h3{font-size:.6rem;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:.5rem}
+.props{display:flex;flex-wrap:wrap;gap:.5rem}
+.prop{min-width:140px;flex:1}
+.prop label{display:block;font-size:.58rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
+.prop select{width:100%;padding:.35rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.75rem;outline:none;font-family:inherit}
+.prop input[type=range]{width:100%;accent-color:#8b5cf6}
+.btn-row{display:flex;gap:.3rem;margin-bottom:.5rem}
+.btn{padding:.35rem .6rem;border-radius:5px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid #333;color:#888;background:#1a1a1a}
+.btn:hover{border-color:#8b5cf6;color:#8b5cf6}
+.code{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.7rem;color:#a5f3fc;cursor:pointer;white-space:pre}
+</style>
+</head>
+<body>
+<main>
+<h1>📦 Flexbox Playground</h1>
+<div class="preview" id="preview"></div>
+<div class="btn-row">
+<button class="btn" onclick="addItem()">+ Add Item</button>
+<button class="btn" onclick="removeItem()">- Remove Item</button>
+<button class="btn" onclick="resetItems()">Reset</button>
+</div>
+<div class="card">
+<h3>Container Properties</h3>
+<div class="props">
+<div class="prop"><label>flex-direction</label><select id="direction" onchange="render()"><option>row</option><option>row-reverse</option><option>column</option><option>column-reverse</option></select></div>
+<div class="prop"><label>justify-content</label><select id="justify" onchange="render()"><option>flex-start</option><option>flex-end</option><option>center</option><option>space-between</option><option>space-around</option><option>space-evenly</option></select></div>
+<div class="prop"><label>align-items</label><select id="align" onchange="render()"><option>stretch</option><option>flex-start</option><option>flex-end</option><option>center</option><option>baseline</option></select></div>
+<div class="prop"><label>flex-wrap</label><select id="wrap" onchange="render()"><option>nowrap</option><option>wrap</option><option>wrap-reverse</option></select></div>
+<div class="prop"><label>align-content</label><select id="alignContent" onchange="render()"><option>stretch</option><option>flex-start</option><option>flex-end</option><option>center</option><option>space-between</option><option>space-around</option></select></div>
+<div class="prop"><label>gap</label><input type="range" id="gap" min="0" max="30" value="8" oninput="render()"></div>
+</div>
+</div>
+<div class="code" id="code" onclick="navigator.clipboard.writeText(this.textContent)"></div>
+</main>
+<script>
+let itemCount=4;
+let itemSizes=[{w:80,h:80},{w:60,h:100},{w:100,h:60},{w:70,h:70}];
+
+function addItem(){if(itemCount<8){itemCount++;itemSizes.push({w:50+Math.random()*60|0,h:50+Math.random()*60|0});render()}}
+function removeItem(){if(itemCount>1){itemCount--;itemSizes.pop();render()}}
+function resetItems(){itemCount=4;itemSizes=[{w:80,h:80},{w:60,h:100},{w:100,h:60},{w:70,h:70}];render()}
+
+function render(){
+  const preview=document.getElementById('preview');
+  const dir=document.getElementById('direction').value;
+  const just=document.getElementById('justify').value;
+  const ali=document.getElementById('align').value;
+  const wrap=document.getElementById('wrap').value;
+  const ac=document.getElementById('alignContent').value;
+  const gap=document.getElementById('gap').value;
+  
+  preview.style.flexDirection=dir;
+  preview.style.justifyContent=just;
+  preview.style.alignItems=ali;
+  preview.style.flexWrap=wrap;
+  preview.style.alignContent=ac;
+  preview.style.gap=gap+'px';
+  
+  preview.innerHTML='';
+  for(let i=0;i<itemCount;i++){
+    const item=document.createElement('div');
+    item.className='item';
+    item.textContent=i+1;
+    item.style.width=itemSizes[i].w+'px';
+    item.style.height=itemSizes[i].h+'px';
+    preview.appendChild(item);
+  }
+  
+  let css=`.container {\n  display: flex;\n  flex-direction: ${dir};\n  justify-content: ${just};\n  align-items: ${ali};\n  flex-wrap: ${wrap};`;
+  if(ac!=='stretch')css+=`\n  align-content: ${ac};`;
+  if(gap!=='0')css+=`\n  gap: ${gap}px;`;
+  css+='\n}';
+  document.getElementById('code').textContent=css;
+}
+render();
+</script>
+</body>
+</html>
