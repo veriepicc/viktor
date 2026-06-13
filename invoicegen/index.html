@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Generator — Create Professional Invoices & Download PDF</title>
+<meta name="description" content="Create professional invoices online. Add line items, tax, discounts. Download as PDF. Free invoice generator — no signup.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h3{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:.6rem;font-weight:700}
+.row{display:flex;gap:.5rem;margin-bottom:.5rem}
+.field{flex:1;margin-bottom:.5rem}
+.field label{display:block;font-size:.65rem;font-weight:600;text-transform:uppercase;color:#94a3b8;margin-bottom:.2rem}
+.field input,.field textarea,.field select{width:100%;padding:.4rem;border:1px solid #e2e8f0;border-radius:5px;font-size:.82rem;outline:none;font-family:inherit}
+.field textarea{resize:vertical;min-height:50px}
+.items table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:.5rem}
+.items th{text-align:left;padding:.3rem .4rem;font-size:.6rem;text-transform:uppercase;color:#94a3b8;border-bottom:2px solid #e2e8f0;font-weight:700}
+.items td{padding:.3rem .4rem;border-bottom:1px solid #f1f5f9}
+.items td input{width:100%;border:1px solid #e2e8f0;border-radius:4px;padding:.25rem;font-size:.78rem;outline:none;font-family:inherit}
+.items td .amount{font-weight:700;text-align:right}
+.items .del{color:#ef4444;cursor:pointer;font-size:.9rem;padding:0 .3rem}
+.btn-sm{padding:.3rem .6rem;border-radius:5px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid #e2e8f0;color:#64748b;background:#f8fafc}
+.btn-primary{background:#3b82f6;color:#fff;border-color:#3b82f6;padding:.5rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;border:none}
+.totals{text-align:right;font-size:.82rem;line-height:2}
+.totals .grand{font-size:1.1rem;font-weight:800;color:#3b82f6}
+.actions{display:flex;gap:.5rem;justify-content:center}
+@media print{body{background:#fff}main{padding:0}.card{box-shadow:none;border:none}.btn-sm,.btn-primary,.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>Invoice Generator</h1>
+<div class="card">
+<div class="row">
+<div style="flex:1"><h3>From</h3>
+<div class="field"><input id="fromName" value="Your Company" oninput="render()"></div>
+<div class="field"><textarea id="fromAddr" rows="2" oninput="render()">123 Business St
+City, State 12345</textarea></div>
+</div>
+<div style="flex:1"><h3>Bill To</h3>
+<div class="field"><input id="toName" value="Client Name" oninput="render()"></div>
+<div class="field"><textarea id="toAddr" rows="2" oninput="render()">456 Client Ave
+City, State 67890</textarea></div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="row">
+<div class="field"><label>Invoice #</label><input id="invNum" value="INV-001" oninput="render()"></div>
+<div class="field"><label>Date</label><input type="date" id="invDate" oninput="render()"></div>
+<div class="field"><label>Due Date</label><input type="date" id="dueDate" oninput="render()"></div>
+</div>
+</div>
+<div class="card items">
+<h3>Line Items</h3>
+<table><thead><tr><th>Description</th><th style="width:60px">Qty</th><th style="width:80px">Price</th><th style="width:80px">Amount</th><th style="width:24px"></th></tr></thead>
+<tbody id="itemsBody"></tbody></table>
+<button class="btn-sm no-print" onclick="addItem()">+ Add Item</button>
+</div>
+<div class="card">
+<div class="row no-print">
+<div class="field"><label>Tax %</label><input type="number" id="taxRate" value="0" step="0.5" oninput="calc()"></div>
+<div class="field"><label>Discount %</label><input type="number" id="discount" value="0" step="0.5" oninput="calc()"></div>
+<div class="field"><label>Currency</label><select id="currency" onchange="calc()"><option>$</option><option>€</option><option>£</option><option>¥</option></select></div>
+</div>
+<div class="totals" id="totals"></div>
+</div>
+<div class="card">
+<div class="field"><label>Notes</label><textarea id="notes" rows="2" placeholder="Payment terms, bank details, etc.">Payment due within 30 days. Thank you for your business!</textarea></div>
+</div>
+<div class="actions no-print">
+<button class="btn-primary" onclick="window.print()">Print / Save PDF</button>
+</div>
+</main>
+<script>
+let items=[{desc:'Web Development',qty:1,price:2500},{desc:'Design Mockups',qty:3,price:150}];
+document.getElementById('invDate').value=new Date().toISOString().split('T')[0];
+const due=new Date();due.setDate(due.getDate()+30);
+document.getElementById('dueDate').value=due.toISOString().split('T')[0];
+
+function renderItems(){
+  document.getElementById('itemsBody').innerHTML=items.map((item,i)=>`<tr>
+    <td><input value="${item.desc}" oninput="items[${i}].desc=this.value;calc()"></td>
+    <td><input type="number" value="${item.qty}" min="0" oninput="items[${i}].qty=parseFloat(this.value)||0;calc()"></td>
+    <td><input type="number" value="${item.price}" step="0.01" oninput="items[${i}].price=parseFloat(this.value)||0;calc()"></td>
+    <td><div class="amount" id="amt_${i}"></div></td>
+    <td><span class="del no-print" onclick="items.splice(${i},1);renderItems()">×</span></td>
+  </tr>`).join('');
+  calc();
+}
+function addItem(){items.push({desc:'',qty:1,price:0});renderItems()}
+function calc(){
+  const cur=document.getElementById('currency').value;
+  const taxRate=parseFloat(document.getElementById('taxRate').value)||0;
+  const discRate=parseFloat(document.getElementById('discount').value)||0;
+  let subtotal=0;
+  items.forEach((item,i)=>{
+    const amt=item.qty*item.price;
+    subtotal+=amt;
+    const el=document.getElementById('amt_'+i);
+    if(el)el.textContent=cur+amt.toFixed(2);
+  });
+  const disc=subtotal*discRate/100;
+  const taxable=subtotal-disc;
+  const tax=taxable*taxRate/100;
+  const total=taxable+tax;
+  let html=`Subtotal: ${cur}${subtotal.toFixed(2)}<br>`;
+  if(discRate>0)html+=`Discount (${discRate}%): -${cur}${disc.toFixed(2)}<br>`;
+  if(taxRate>0)html+=`Tax (${taxRate}%): ${cur}${tax.toFixed(2)}<br>`;
+  html+=`<span class="grand">Total: ${cur}${total.toFixed(2)}</span>`;
+  document.getElementById('totals').innerHTML=html;
+}
+renderItems();
+</script>
+</body>
+</html>
