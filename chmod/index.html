@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chmod Calculator — Unix File Permission Calculator</title>
+<meta name="description" content="Convert between octal and symbolic chmod permissions. Visual Unix file permission calculator with rwx checkboxes. Free chmod calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#a78bfa;--text:#e5e5e5;--muted:#737373;--r:#ef4444;--w:#eab308;--x:#22c55e}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:550px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.perm-grid{display:grid;grid-template-columns:auto repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.perm-grid .cell{padding:.5rem .6rem;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);font-size:.78rem}
+.perm-grid .cell:nth-child(4n){border-right:none}
+.perm-grid .cell.header{background:rgba(167,139,250,.06);color:var(--muted);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em}
+.perm-grid .cell.label{background:rgba(255,255,255,.02);font-weight:600;color:var(--muted);justify-content:flex-start}
+.perm-grid .cell label{display:flex;align-items:center;gap:.3rem;cursor:pointer;font-size:.78rem;font-weight:600}
+.perm-grid .cell input{accent-color:var(--accent);width:15px;height:15px}
+.perm-grid .row-last .cell{border-bottom:none}
+.result{text-align:center;padding:1.5rem}
+.result .octal{font-size:3rem;font-weight:900;font-family:'SF Mono',monospace;color:var(--accent);letter-spacing:.1em}
+.result .symbolic{font-size:1.2rem;font-family:'SF Mono',monospace;color:var(--text);margin-top:.3rem;letter-spacing:.05em}
+.result .command{font-size:.85rem;font-family:'SF Mono',monospace;color:var(--muted);margin-top:.6rem;background:var(--bg);display:inline-block;padding:.4rem .8rem;border-radius:6px;border:1px solid var(--border)}
+.presets{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;margin-top:.8rem}
+.preset{padding:.3rem .6rem;border-radius:5px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--bg)}
+.preset:hover{border-color:var(--accent);color:var(--accent)}
+.input-row{display:flex;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem}
+.input-row input{width:80px;padding:.5rem;text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1.2rem;font-family:'SF Mono',monospace;font-weight:700;outline:none}
+.input-row input:focus{border-color:var(--accent)}
+.input-row span{color:var(--muted);font-size:.75rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Chmod Calculator</h1>
+<div class="card">
+<h3>Enter Octal</h3>
+<div class="input-row">
+<span>chmod</span>
+<input id="octalInput" maxlength="4" value="755" oninput="fromOctal()">
+<span>file.txt</span>
+</div>
+</div>
+<div class="card">
+<h3>Or Set Permissions</h3>
+<div class="perm-grid">
+<div class="cell header"></div><div class="cell header" style="color:var(--r)">Read</div><div class="cell header" style="color:var(--w)">Write</div><div class="cell header" style="color:var(--x)">Execute</div>
+<div class="cell label">Owner</div>
+<div class="cell"><label><input type="checkbox" id="or" onchange="fromCheckboxes()"> r</label></div>
+<div class="cell"><label><input type="checkbox" id="ow" onchange="fromCheckboxes()"> w</label></div>
+<div class="cell"><label><input type="checkbox" id="ox" onchange="fromCheckboxes()"> x</label></div>
+<div class="cell label">Group</div>
+<div class="cell"><label><input type="checkbox" id="gr" onchange="fromCheckboxes()"> r</label></div>
+<div class="cell"><label><input type="checkbox" id="gw" onchange="fromCheckboxes()"> w</label></div>
+<div class="cell"><label><input type="checkbox" id="gx" onchange="fromCheckboxes()"> x</label></div>
+<div class="cell label">Others</div>
+<div class="cell"><label><input type="checkbox" id="tr" onchange="fromCheckboxes()"> r</label></div>
+<div class="cell"><label><input type="checkbox" id="tw" onchange="fromCheckboxes()"> w</label></div>
+<div class="cell"><label><input type="checkbox" id="tx" onchange="fromCheckboxes()"> x</label></div>
+</div>
+</div>
+<div class="card">
+<div class="result">
+<div class="octal" id="octalResult">755</div>
+<div class="symbolic" id="symbolicResult">rwxr-xr-x</div>
+<div class="command" id="commandResult">chmod 755 file</div>
+</div>
+<div class="presets">
+<div class="preset" onclick="setOctal('644')">644 (files)</div>
+<div class="preset" onclick="setOctal('755')">755 (dirs)</div>
+<div class="preset" onclick="setOctal('600')">600 (private)</div>
+<div class="preset" onclick="setOctal('777')">777 (all)</div>
+<div class="preset" onclick="setOctal('400')">400 (readonly)</div>
+<div class="preset" onclick="setOctal('700')">700 (owner only)</div>
+</div>
+</div>
+</main>
+<script>
+const ids={o:['or','ow','ox'],g:['gr','gw','gx'],t:['tr','tw','tx']};
+function getVal(group){return(document.getElementById(ids[group][0]).checked?4:0)+(document.getElementById(ids[group][1]).checked?2:0)+(document.getElementById(ids[group][2]).checked?1:0)}
+function setVal(group,val){document.getElementById(ids[group][0]).checked=!!(val&4);document.getElementById(ids[group][1]).checked=!!(val&2);document.getElementById(ids[group][2]).checked=!!(val&1)}
+
+function fromCheckboxes(){
+  const o=getVal('o'),g=getVal('g'),t=getVal('t');
+  const octal=`${o}${g}${t}`;
+  document.getElementById('octalInput').value=octal;
+  update(o,g,t);
+}
+function fromOctal(){
+  const v=document.getElementById('octalInput').value.replace(/[^0-7]/g,'');
+  if(v.length<3)return;
+  const digits=v.slice(-3);
+  const o=parseInt(digits[0]),g=parseInt(digits[1]),t=parseInt(digits[2]);
+  setVal('o',o);setVal('g',g);setVal('t',t);
+  update(o,g,t);
+}
+function setOctal(v){document.getElementById('octalInput').value=v;fromOctal()}
+function update(o,g,t){
+  const octal=`${o}${g}${t}`;
+  const sym=toBits(o)+toBits(g)+toBits(t);
+  document.getElementById('octalResult').textContent=octal;
+  document.getElementById('symbolicResult').textContent=sym;
+  document.getElementById('commandResult').textContent=`chmod ${octal} file`;
+}
+function toBits(n){return((n&4)?'r':'-')+((n&2)?'w':'-')+((n&1)?'x':'-')}
+fromOctal();
+</script>
+</body>
+</html>
