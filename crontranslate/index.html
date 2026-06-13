@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CronTranslate — Cron Expression Translator & Generator</title>
+<meta name="description" content="Translate cron expressions to human-readable text and generate cron schedules visually. Free online cron tool.">
+<meta name="keywords" content="cron expression, cron translator, cron generator, crontab, cron schedule, cron syntax">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--accent:#f59e0b;--accent2:#fbbf24;--text:#e2e8f0;--muted:#64748b;--green:#34d399}
+body{font-family:'IBM Plex Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.15rem;font-weight:700;color:#f8fafc}.logo span{color:var(--accent)}
+main{max-width:680px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;margin-bottom:.3rem;color:#f8fafc}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.cron-input{display:flex;align-items:center;gap:0;background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:.3rem;margin-bottom:.8rem;transition:border-color .2s}
+.cron-input:focus-within{border-color:var(--accent)}
+.cron-input .label{padding:0 .8rem;font-size:.8rem;color:var(--muted);font-weight:600}
+.cron-input input{flex:1;background:none;border:none;color:var(--accent2);font-family:'SF Mono',monospace;font-size:1.3rem;padding:.7rem .5rem;outline:none;letter-spacing:.05em}
+.translation{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem;min-height:50px}
+.translation .human{font-size:1rem;color:var(--green);font-weight:600;line-height:1.5}
+.translation .human.err{color:#f87171}
+.field-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem;margin-bottom:1.5rem;text-align:center}
+.field-labels span{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:.3rem;background:var(--surface);border-radius:4px}
+.presets{margin-bottom:2rem}
+.presets h3{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.4rem}
+.preset{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.5rem .8rem;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:center}
+.preset:hover{border-color:var(--accent)}
+.preset .desc{font-size:.78rem;color:var(--text)}
+.preset .expr{font-family:monospace;font-size:.72rem;color:var(--accent)}
+.next-runs{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem}
+.next-runs h3{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.run-list{display:flex;flex-direction:column;gap:.3rem}
+.run-item{font-family:monospace;font-size:.8rem;color:var(--text);padding:.3rem 0;border-bottom:1px solid #1e293b}
+.run-item:last-child{border-bottom:none}
+.run-item .idx{color:var(--muted);margin-right:.5rem}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.7rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Cron<span>Translate</span></div></nav>
+<main>
+<h1>Cron Expression Tool</h1>
+<p class="sub">Translate cron expressions to plain English. See next run times.</p>
+<div class="cron-input"><span class="label">cron</span><input id="cronInput" value="*/15 * * * *" placeholder="* * * * *"></div>
+<div class="field-labels"><span>Minute</span><span>Hour</span><span>Day</span><span>Month</span><span>Weekday</span></div>
+<div class="translation"><div class="human" id="human"></div></div>
+<div class="presets">
+<h3>Common Schedules</h3>
+<div class="preset-grid" id="presets"></div>
+</div>
+<div class="next-runs">
+<h3>Next 5 Runs</h3>
+<div class="run-list" id="nextRuns"></div>
+</div>
+</main>
+<footer>&copy; 2026 CronTranslate &mdash; Cron expression translator. Runs in your browser.</footer>
+<script>
+const cronInput=document.getElementById('cronInput'),human=document.getElementById('human'),nextRuns=document.getElementById('nextRuns');
+const presetData=[
+['Every minute','* * * * *'],['Every 5 minutes','*/5 * * * *'],['Every 15 minutes','*/15 * * * *'],['Every hour','0 * * * *'],
+['Every day at midnight','0 0 * * *'],['Every day at noon','0 12 * * *'],['Every Monday','0 0 * * 1'],['Weekdays at 9 AM','0 9 * * 1-5'],
+['First of month','0 0 1 * *'],['Every Sunday at 6 PM','0 18 * * 0'],['Twice daily','0 6,18 * * *'],['Every 30 min','*/30 * * * *']
+];
+const presetsEl=document.getElementById('presets');
+presetData.forEach(([desc,expr])=>{const d=document.createElement('div');d.className='preset';d.innerHTML=`<span class="desc">${desc}</span><span class="expr">${expr}</span>`;d.onclick=()=>{cronInput.value=expr;translate()};presetsEl.appendChild(d)});
+cronInput.oninput=translate;
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function translate(){const parts=cronInput.value.trim().split(/\s+/);if(parts.length!==5){human.textContent='Enter a valid 5-part cron expression';human.className='human err';nextRuns.innerHTML='';return}
+const[min,hr,dom,mon,dow]=parts;let desc='';
+try{
+if(min==='*'&&hr==='*'&&dom==='*'&&mon==='*'&&dow==='*')desc='Every minute';
+else{
+let timeStr='';
+if(min.startsWith('*/')&&hr==='*')timeStr=`Every ${min.slice(2)} minutes`;
+else if(hr.startsWith('*/')&&min==='0')timeStr=`Every ${hr.slice(2)} hours`;
+else if(hr==='*'&&min!=='*')timeStr=`At minute ${min} of every hour`;
+else if(hr!=='*'&&min!=='*'){const hrs=hr.includes(',')?hr.split(',').join(', '):hr;const mins=min.padStart(2,'0');timeStr=`At ${hrs}:${mins}`}
+else timeStr=`minute=${min} hour=${hr}`;
+let dateStr='';
+if(dom!=='*'&&mon!=='*')dateStr=` on day ${dom} of month ${mon}`;
+else if(dom!=='*')dateStr=` on day ${dom} of every month`;
+else if(mon!=='*')dateStr=` in month ${mon}`;
+let dayStr='';
+if(dow!=='*'){const d=dow.split(',').map(v=>{if(v.includes('-')){const[a,b]=v.split('-');return`${days[a]||a} through ${days[b]||b}`}return days[v]||v}).join(', ');dayStr=` on ${d}`}
+desc=timeStr+dateStr+dayStr}
+human.textContent=desc;human.className='human';calcNextRuns(parts)}
+catch(e){human.textContent='Could not parse expression';human.className='human err'}}
+function calcNextRuns(parts){const[minE,hrE,domE,monE,dowE]=parts;
+const runs=[];let d=new Date();d.setSeconds(0);d.setMilliseconds(0);d=new Date(d.getTime()+60000);
+for(let i=0;i<10000&&runs.length<5;i++){const m=d.getMinutes(),h=d.getHours(),dm=d.getDate(),mo=d.getMonth()+1,dw=d.getDay();
+if(matchField(minE,m)&&matchField(hrE,h)&&matchField(domE,dm)&&matchField(monE,mo)&&matchField(dowE,dw))runs.push(new Date(d));
+d=new Date(d.getTime()+60000)}
+nextRuns.innerHTML='';runs.forEach((r,i)=>{const d=document.createElement('div');d.className='run-item';d.innerHTML=`<span class="idx">#${i+1}</span>${r.toLocaleString()}`;nextRuns.appendChild(d)})}
+function matchField(expr,val){if(expr==='*')return true;if(expr.startsWith('*/'))return val%parseInt(expr.slice(2))===0;
+return expr.split(',').some(part=>{if(part.includes('-')){const[a,b]=part.split('-').map(Number);return val>=a&&val<=b}return parseInt(part)===val})}
+translate();
+</script>
+</body>
+</html>
