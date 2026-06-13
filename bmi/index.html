@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI Calculator — Free Body Mass Index Calculator</title>
+<meta name="description" content="Calculate your BMI instantly. Metric and imperial. Free BMI calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f0fdf4;--surface:#fff;--border:#bbf7d0;--accent:#16a34a;--text:#14532d;--muted:#6b7280}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+.c{max-width:420px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;box-shadow:0 4px 20px rgba(22,163,74,.06)}
+h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.3rem}
+.sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
+.tabs{display:flex;gap:.3rem;margin-bottom:1.5rem;justify-content:center}
+.tab{padding:.4rem 1rem;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.72rem;font-weight:600;margin-bottom:.3rem;color:var(--muted)}
+.field input{width:100%;padding:.6rem;border:1px solid #d1d5db;border-radius:6px;font-size:1rem;outline:none}
+.field input:focus{border-color:var(--accent)}
+.row{display:flex;gap:.5rem}.row .field{flex:1}
+.result{text-align:center;padding:1.5rem;background:var(--bg);border-radius:12px;margin-top:1rem}
+.bmi-num{font-size:3rem;font-weight:900}
+.bmi-cat{font-size:1rem;font-weight:700;margin-top:.2rem}
+.bmi-bar{height:10px;background:#e5e7eb;border-radius:5px;margin:1rem 0 .3rem;position:relative}
+.bmi-bar div{position:absolute;height:100%;border-radius:5px}
+.bmi-labels{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="c">
+<h1>BMI Calculator</h1>
+<p class="sub">Calculate your Body Mass Index</p>
+<div class="tabs"><div class="tab active" onclick="su('m',this)">Metric</div><div class="tab" onclick="su('i',this)">Imperial</div></div>
+<div id="m"><div class="field"><label>Weight (kg)</label><input type="number" id="wkg" value="70" oninput="calc()"></div><div class="field"><label>Height (cm)</label><input type="number" id="hcm" value="175" oninput="calc()"></div></div>
+<div id="i" class="hidden"><div class="field"><label>Weight (lbs)</label><input type="number" id="wlb" value="154" oninput="calc()"></div><div class="row"><div class="field"><label>Feet</label><input type="number" id="hft" value="5" oninput="calc()"></div><div class="field"><label>Inches</label><input type="number" id="hin" value="9" oninput="calc()"></div></div></div>
+<div class="result" id="result"></div>
+</div>
+<script>
+let unit='m';
+function su(u,el){unit=u;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('m').classList.toggle('hidden',u!=='m');document.getElementById('i').classList.toggle('hidden',u!=='i');calc()}
+function calc(){let b;if(unit==='m'){const w=parseFloat(document.getElementById('wkg').value),h=parseFloat(document.getElementById('hcm').value)/100;b=w/(h*h)}else{const w=parseFloat(document.getElementById('wlb').value),h=parseFloat(document.getElementById('hft').value)*12+parseFloat(document.getElementById('hin').value);b=(w*703)/(h*h)}
+if(!isFinite(b)||b<=0)return;const cat=b<18.5?'Underweight':b<25?'Normal':b<30?'Overweight':'Obese';const c=b<18.5?'#3b82f6':b<25?'#22c55e':b<30?'#f59e0b':'#ef4444';const p=Math.min(100,Math.max(0,(b-10)/35*100));document.getElementById('result').innerHTML=`<div class="bmi-num" style="color:${c}">${b.toFixed(1)}</div><div class="bmi-cat" style="color:${c}">${cat}</div><div class="bmi-bar"><div style="width:${p}%;background:${c}"></div></div><div class="bmi-labels"><span>10</span><span>18.5</span><span>25</span><span>30</span><span>45</span></div>`}
+calc();
+</script>
+</body>
+</html>
