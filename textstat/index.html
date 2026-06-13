@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Statistics — Deep text analysis: readability, complexity, vocabulary | TinyTools</title>
+<meta name="description" content="Free online text statistics. Deep text analysis: readability, complexity, vocabulary. No signup, no tracking. 100% client-side.">
+<meta name="keywords" content="text statistics, readability score, flesch kincaid, text analysis">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050505;--surface:#0e0e0e;--surface2:#161616;--border:#1c1c1c;--border2:#2a2a2a;--text:#ededed;--text2:#a0a0a0;--muted:#666;--accent:#6366f1;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--yellow:#eab308}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 1rem}
+.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
+.tt-nav a{text-decoration:none;color:var(--text);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
+.tt-nav a:hover{opacity:.7}
+.tt-nav .tt-logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tt-nav .tt-back{color:var(--text2);font-size:.68rem}
+.hero{text-align:center;padding:2.5rem 1rem 1.5rem}
+.hero h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--text2);font-size:.9rem;max-width:500px;margin:0 auto}
+.container{max-width:800px;margin:0 auto;padding:0 1.5rem 3rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:.8rem}
+.card h3{font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--text2)}
+label{display:block;font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
+input[type="text"],input[type="number"],input[type="url"],input[type="email"],input[type="color"],select,textarea{width:100%;padding:.55rem .7rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.82rem;font-family:inherit;outline:none;transition:border-color .2s;margin-bottom:.5rem}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{min-height:100px;resize:vertical;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.78rem}
+button,.btn{padding:.5rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+button:hover,.btn:hover{filter:brightness(1.15)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent)}
+.btn-row{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0}
+.output{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.7rem;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.78rem;min-height:60px;white-space:pre-wrap;word-break:break-all;margin-top:.5rem;position:relative}
+.output:empty::before{content:'Output will appear here...';color:var(--muted)}
+.copy-btn{position:absolute;top:.4rem;right:.4rem;padding:.25rem .5rem;font-size:.65rem;background:var(--border2);border-radius:5px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+.tag{display:inline-block;padding:.2rem .5rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:.68rem;margin:.15rem;cursor:pointer;transition:all .15s}
+.tag:hover,.tag.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.slider-wrap{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.slider-wrap input[type="range"]{flex:1;accent-color:var(--accent)}
+.slider-val{font-size:.72rem;font-weight:700;color:var(--accent);min-width:35px;text-align:right}
+.preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;min-height:80px;display:flex;align-items:center;justify-content:center;margin:.5rem 0}
+.stat{text-align:center;padding:.5rem}
+.stat-num{font-size:1.3rem;font-weight:800;color:var(--accent)}
+.stat-label{font-size:.6rem;color:var(--muted);text-transform:uppercase}
+.stats-row{display:flex;justify-content:center;gap:1.5rem;margin:.5rem 0}
+footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.65rem;border-top:1px solid var(--border);margin-top:2rem}
+.checkboxes label{display:flex;align-items:center;gap:.4rem;font-size:.78rem;text-transform:none;letter-spacing:0;cursor:pointer;margin-bottom:.3rem;color:var(--text)}
+input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px}
+.color-preview{width:100%;height:50px;border-radius:8px;border:1px solid var(--border);margin:.5rem 0}
+.table-wrap{overflow-x:auto;margin:.5rem 0}
+table{width:100%;border-collapse:collapse;font-size:.75rem}
+th,td{padding:.4rem .6rem;border:1px solid var(--border);text-align:left}
+th{background:var(--surface2);font-weight:600;font-size:.68rem;text-transform:uppercase;color:var(--text2)}
+tr:hover td{background:var(--surface2)}
+</style>
+</head>
+<body style="padding-top:48px"><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
+<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+<div class="hero"><h1>📊 <em>Text Statistics</em></h1><p>Deep text analysis: readability, complexity, vocabulary</p></div>
+<div class="container">
+<div class="card">
+<label>Paste Text</label>
+<textarea id="txt" rows="8" placeholder="Paste text for analysis..." oninput="analyze()"></textarea>
+</div>
+<div class="stats-row">
+<div class="stat"><div class="stat-num" id="words">0</div><div class="stat-label">Words</div></div>
+<div class="stat"><div class="stat-num" id="unique">0</div><div class="stat-label">Unique</div></div>
+<div class="stat"><div class="stat-num" id="vocab">0%</div><div class="stat-label">Richness</div></div>
+<div class="stat"><div class="stat-num" id="read">-</div><div class="stat-label">Read Level</div></div>
+</div>
+<div class="card"><h3>Detailed Analysis</h3><div class="output" id="detail"></div></div>
+</div>
+<footer>Part of <a href="../" style="color:var(--accent);text-decoration:none;font-weight:600">TinyTools</a> — free tools for builders</footer>
+<script>
+function copyText(id){const el=document.getElementById(id);const t=el.innerText||el.value;navigator.clipboard.writeText(t);const btn=el.parentElement.querySelector('.copy-btn')||el.nextElementSibling;if(btn){const o=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=o,1200)}}
+function countSyllables(w){w=w.toLowerCase().replace(/[^a-z]/g,'');if(w.length<=3)return 1;
+w=w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'').replace(/^y/,'');
+const m=w.match(/[aeiouy]{1,2}/g);return m?m.length:1}
+function analyze(){const t=document.getElementById('txt').value;if(!t.trim()){return}
+const words=t.trim().split(/\s+/);const wc=words.length;
+const sentences=t.split(/[.!?]+/).filter(s=>s.trim()).length;
+const uniqueWords=new Set(words.map(w=>w.toLowerCase().replace(/[^a-z]/g,'')));
+const totalSyllables=words.reduce((s,w)=>s+countSyllables(w),0);
+const flesch=206.835-1.015*(wc/Math.max(1,sentences))-84.6*(totalSyllables/wc);
+const fk=0.39*(wc/Math.max(1,sentences))+11.8*(totalSyllables/wc)-15.59;
+let level;if(flesch>=90)level='Very Easy';else if(flesch>=70)level='Easy';else if(flesch>=50)level='Moderate';else if(flesch>=30)level='Difficult';else level='Very Difficult';
+document.getElementById('words').textContent=wc;
+document.getElementById('unique').textContent=uniqueWords.size;
+document.getElementById('vocab').textContent=((uniqueWords.size/wc)*100).toFixed(0)+'%';
+document.getElementById('read').textContent=level;
+const chars=t.length,charsNoSpace=t.replace(/\s/g,'').length;
+const avgWordLen=(charsNoSpace/wc).toFixed(1);const avgSentLen=(wc/Math.max(1,sentences)).toFixed(1);
+document.getElementById('detail').textContent=
+'Characters: '+chars+' ('+charsNoSpace+' w/o spaces)\nWords: '+wc+'\nSentences: '+sentences+
+'\nParagraphs: '+t.split(/\n\n+/).filter(s=>s.trim()).length+
+'\nAvg word length: '+avgWordLen+' chars\nAvg sentence length: '+avgSentLen+' words'+
+'\nTotal syllables: '+totalSyllables+'\nAvg syllables/word: '+(totalSyllables/wc).toFixed(1)+
+'\n\nFlesch Reading Ease: '+flesch.toFixed(1)+' ('+level+')\nFlesch-Kincaid Grade: '+fk.toFixed(1)+
+'\nReading time: ~'+Math.ceil(wc/200)+' min\nSpeaking time: ~'+Math.ceil(wc/130)+' min'+
+'\nVocabulary richness: '+((uniqueWords.size/wc)*100).toFixed(1)+'%'}
+</script>
+</body>
+</html>
