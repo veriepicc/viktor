@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paycheck Calculator — Salary to Hourly, Weekly, Monthly & Annual Income</title>
+<meta name="description" content="Convert between hourly, weekly, monthly, and annual salary. Factor in hours per week, tax estimates. Free paycheck calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💵</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
+main{max-width:500px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem;color:#fff}
+.card{background:#16213e;border:1px solid #0f3460;border-radius:14px;padding:1.5rem;margin-bottom:1rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#7e8ba5;font-weight:600;margin-bottom:.3rem}
+.field input,.field select{width:100%;padding:.55rem;background:#1a1a2e;border:1px solid #0f3460;border-radius:7px;color:#eee;font-size:1rem;font-weight:700;outline:none;font-family:inherit}
+.field input:focus{border-color:#e94560}
+.row{display:flex;gap:.5rem}.row .field{flex:1}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.result{padding:.8rem;background:#1a1a2e;border-radius:10px;text-align:center}
+.result .val{font-size:1.2rem;font-weight:800;color:#4ade80}
+.result .label{font-size:.62rem;color:#7e8ba5;text-transform:uppercase;letter-spacing:.04em;margin-top:.2rem}
+.result.tax .val{color:#f87171}
+.result.net .val{color:#38bdf8;font-size:1.4rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Paycheck Calculator</h1>
+<div class="card">
+<div class="row">
+<div class="field"><label>Amount</label><input type="number" id="amount" value="65000" oninput="calc()"></div>
+<div class="field"><label>Pay Period</label><select id="period" onchange="calc()"><option value="annual" selected>Annual</option><option value="monthly">Monthly</option><option value="biweekly">Bi-Weekly</option><option value="weekly">Weekly</option><option value="hourly">Hourly</option></select></div>
+</div>
+<div class="row">
+<div class="field"><label>Hours/Week</label><input type="number" id="hours" value="40" oninput="calc()"></div>
+<div class="field"><label>Weeks/Year</label><input type="number" id="weeks" value="52" oninput="calc()"></div>
+</div>
+<div class="field"><label>Estimated Tax Rate %</label><input type="range" id="tax" min="0" max="50" value="25" oninput="document.getElementById('taxLabel').textContent=this.value+'%';calc()"><div style="text-align:center;font-size:.8rem;color:#e94560;font-weight:700;margin-top:.2rem" id="taxLabel">25%</div></div>
+</div>
+<div class="card">
+<div class="results" id="results"></div>
+</div>
+</main>
+<script>
+function calc(){
+  const amount=parseFloat(document.getElementById('amount').value)||0;
+  const period=document.getElementById('period').value;
+  const hoursPerWeek=parseFloat(document.getElementById('hours').value)||40;
+  const weeksPerYear=parseFloat(document.getElementById('weeks').value)||52;
+  const taxRate=parseFloat(document.getElementById('tax').value)||0;
+  
+  let annual;
+  switch(period){
+    case'annual':annual=amount;break;
+    case'monthly':annual=amount*12;break;
+    case'biweekly':annual=amount*26;break;
+    case'weekly':annual=amount*weeksPerYear;break;
+    case'hourly':annual=amount*hoursPerWeek*weeksPerYear;break;
+  }
+  
+  const monthly=annual/12;
+  const biweekly=annual/26;
+  const weekly=annual/weeksPerYear;
+  const hourly=annual/(hoursPerWeek*weeksPerYear);
+  const daily=annual/(weeksPerYear*5);
+  
+  const taxAmount=annual*taxRate/100;
+  const net=annual-taxAmount;
+  const fmt=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  document.getElementById('results').innerHTML=`
+    <div class="result"><div class="val">${fmt(annual)}</div><div class="label">Annual (Gross)</div></div>
+    <div class="result net"><div class="val">${fmt(net)}</div><div class="label">Annual (Net)</div></div>
+    <div class="result"><div class="val">${fmt(monthly)}</div><div class="label">Monthly</div></div>
+    <div class="result"><div class="val">${fmt(net/12)}</div><div class="label">Monthly (Net)</div></div>
+    <div class="result"><div class="val">${fmt(biweekly)}</div><div class="label">Bi-Weekly</div></div>
+    <div class="result"><div class="val">${fmt(weekly)}</div><div class="label">Weekly</div></div>
+    <div class="result"><div class="val">${fmt(daily)}</div><div class="label">Daily</div></div>
+    <div class="result"><div class="val">${fmt(hourly)}</div><div class="label">Hourly</div></div>
+    <div class="result tax"><div class="val">${fmt(taxAmount)}</div><div class="label">Est. Tax</div></div>
+    <div class="result"><div class="val">${fmt(net/26)}</div><div class="label">Bi-Weekly (Net)</div></div>`;
+}
+calc();
+</script>
+</body>
+</html>
