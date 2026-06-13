@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaviconForge — Generate Favicons from Text, Emoji or Image</title>
+<meta name="description" content="Create favicons instantly from text, emoji, or uploaded images. Download as ICO, PNG in all sizes. Free favicon generator.">
+<meta name="keywords" content="favicon generator, favicon maker, create favicon, ico generator, website icon maker">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fffbf5;--surface:#fff;--border:#f0e6d6;--accent:#ea580c;--accent2:#fb923c;--text:#451a03;--muted:#a8856c}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:1rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:600px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.7rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.tabs{display:flex;gap:.3rem;margin-bottom:1.5rem}
+.tab{padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.input-row{margin-bottom:1rem}
+.input-row label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.3rem;font-weight:600}
+.input-row input[type=text]{width:100%;padding:.7rem;border:1px solid var(--border);border-radius:8px;font-size:1.2rem;text-align:center;outline:none;font-family:inherit}
+.input-row input:focus{border-color:var(--accent)}
+.color-row{display:flex;gap:.8rem}
+.color-row .field{flex:1}
+.color-row input[type=color]{width:100%;height:40px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:none}
+.shape-row{display:flex;gap:.4rem;margin-bottom:1rem}
+.shape-btn{padding:.45rem .9rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:var(--surface);font-size:.78rem;font-weight:600;color:var(--muted);transition:all .15s}
+.shape-btn.active{border-color:var(--accent);color:var(--accent);background:#fff7ed}
+.preview-area{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin:2rem 0;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.preview-item{text-align:center}
+.preview-item canvas{border:1px solid var(--border);border-radius:4px}
+.preview-item .size{font-size:.65rem;color:var(--muted);margin-top:.3rem}
+.dl-btns{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.dl-btn{background:var(--accent);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;transition:opacity .15s}
+.dl-btn:hover{opacity:.85}
+.dl-btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.upload-area{border:2px dashed var(--border);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s}
+.upload-area:hover{border-color:var(--accent)}
+.upload-area input{display:none}
+.upload-area p{color:var(--muted);font-size:.85rem}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Favicon<span>Forge</span></div></nav>
+<main>
+<h1>Favicon Generator</h1>
+<p class="sub">Create beautiful favicons from text, emoji, or images.</p>
+<div class="tabs">
+<div class="tab active" onclick="switchTab(0)">Text / Emoji</div>
+<div class="tab" onclick="switchTab(1)">Upload Image</div>
+</div>
+<div class="tab-content active" id="tab0">
+<div class="input-row"><label>Text or Emoji</label><input type="text" id="faviText" value="🔥" maxlength="3" oninput="renderAll()"></div>
+<div class="color-row">
+<div class="field"><label>Background</label><input type="color" id="bgColor" value="#1e293b" oninput="renderAll()"></div>
+<div class="field"><label>Text Color</label><input type="color" id="fgColor" value="#ffffff" oninput="renderAll()"></div>
+</div>
+<div class="input-row"><label>Shape</label>
+<div class="shape-row">
+<div class="shape-btn active" onclick="setShape('square',this)">Square</div>
+<div class="shape-btn" onclick="setShape('rounded',this)">Rounded</div>
+<div class="shape-btn" onclick="setShape('circle',this)">Circle</div>
+</div></div>
+</div>
+<div class="tab-content" id="tab1">
+<div class="upload-area" onclick="document.getElementById('fileIn').click()">
+<p>📁 Click to upload an image</p>
+<input type="file" id="fileIn" accept="image/*">
+</div>
+</div>
+<div class="preview-area" id="previews"></div>
+<div class="dl-btns">
+<button class="dl-btn" onclick="download(64)">Download 64×64</button>
+<button class="dl-btn sec" onclick="download(32)">32×32</button>
+<button class="dl-btn sec" onclick="download(16)">16×16</button>
+<button class="dl-btn sec" onclick="download(180)">180×180</button>
+</div>
+</main>
+<footer>&copy; 2026 FaviconForge &mdash; Favicon generator. Nothing uploaded anywhere.</footer>
+<script>
+let shape='square',uploadedImg=null,currentTab=0;
+const sizes=[16,32,48,64,180];
+function switchTab(i){currentTab=i;document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));document.querySelectorAll('.tab-content').forEach((t,j)=>t.classList.toggle('active',j===i));renderAll()}
+function setShape(s,el){shape=s;document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderAll()}
+document.getElementById('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{uploadedImg=img;renderAll()};img.src=URL.createObjectURL(f)};
+function renderAll(){const area=document.getElementById('previews');area.innerHTML='';sizes.forEach(s=>{const div=document.createElement('div');div.className='preview-item';const c=document.createElement('canvas');c.width=s;c.height=s;c.style.width=Math.max(s,48)+'px';c.style.height=Math.max(s,48)+'px';drawFavicon(c,s);div.appendChild(c);const lbl=document.createElement('div');lbl.className='size';lbl.textContent=s+'×'+s;div.appendChild(lbl);area.appendChild(div)})}
+function drawFavicon(canvas,size){const ctx=canvas.getContext('2d');
+if(currentTab===1&&uploadedImg){ctx.drawImage(uploadedImg,0,0,size,size);return}
+const bg=document.getElementById('bgColor').value,fg=document.getElementById('fgColor').value,text=document.getElementById('faviText').value||'A';
+ctx.clearRect(0,0,size,size);
+if(shape==='circle'){ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill()}
+else if(shape==='rounded'){const r=size*.18;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.fillStyle=bg;ctx.fill()}
+else{ctx.fillStyle=bg;ctx.fillRect(0,0,size,size)}
+ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';
+const isEmoji=/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]/u.test(text);
+ctx.font=`${isEmoji?size*.65:size*.55}px -apple-system, sans-serif`;
+ctx.fillText(text,size/2,size/2+(isEmoji?size*.03:0))}
+function download(size){const c=document.createElement('canvas');c.width=size;c.height=size;drawFavicon(c,size);c.toBlob(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`favicon-${size}x${size}.png`;a.click()},'image/png')}
+renderAll();
+</script>
+</body>
+</html>
