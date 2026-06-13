@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Explainer — Convert Regex to Plain English</title>
+<meta name="description" content="Paste any regular expression and get a plain English explanation. Understand complex regex patterns instantly. Free regex to English converter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fdf6e3;--surface:#fff;--border:#e5dfc9;--accent:#b58900;--text:#073642;--muted:#93a1a1;--green:#2aa198;--blue:#268bd2;--red:#dc322f}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.3rem}
+.field input{width:100%;padding:.7rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;font-family:'SF Mono',monospace;outline:none;background:var(--surface);color:var(--text)}
+.field input:focus{border-color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.6rem;font-weight:700}
+.explain{line-height:1.8;font-size:.88rem}
+.explain .token{display:inline-block;background:rgba(181,137,0,.08);border:1px solid rgba(181,137,0,.2);border-radius:4px;padding:0 .3rem;font-family:'SF Mono',monospace;font-size:.8rem;color:var(--accent);margin:0 .1rem}
+.explain .step{display:flex;gap:.6rem;padding:.4rem 0;border-bottom:1px solid rgba(0,0,0,.04);align-items:flex-start}
+.explain .step:last-child{border-bottom:none}
+.explain .step .num{min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:var(--accent);color:var(--bg);border-radius:50%;font-size:.65rem;font-weight:800;flex-shrink:0}
+.explain .step .desc{font-size:.82rem;line-height:1.5}
+.presets{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:1rem}
+.preset{padding:.25rem .5rem;border-radius:5px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface)}
+.preset:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<h1>Regex → English</h1>
+<div class="presets">
+<div class="preset" onclick="set('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')">Email</div>
+<div class="preset" onclick="set('^\\d{3}-\\d{3}-\\d{4}$')">US Phone</div>
+<div class="preset" onclick="set('^https?://[\\w.-]+(?:/[\\w.-]*)*$')">URL</div>
+<div class="preset" onclick="set('^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{8,}$')">Password</div>
+<div class="preset" onclick="set('^\\d{4}-\\d{2}-\\d{2}$')">Date</div>
+<div class="preset" onclick="set('^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')">Hex Color</div>
+<div class="preset" onclick="set('^(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$')">IPv4</div>
+</div>
+<div class="field"><label>Regular Expression</label><input id="input" value="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" oninput="explain()"></div>
+<div class="card"><h3>Explanation</h3><div class="explain" id="output"></div></div>
+</main>
+<script>
+function set(v){document.getElementById('input').value=v;explain()}
+
+function explain(){
+  const regex=document.getElementById('input').value;
+  if(!regex){document.getElementById('output').innerHTML='<em style="color:var(--muted)">Enter a regex above</em>';return}
+  
+  const steps=[];
+  let i=0;
+  const src=regex;
+  
+  while(i<src.length){
+    const c=src[i];
+    
+    if(c==='^'){steps.push({token:'^',desc:'Start of string'});i++;continue}
+    if(c==='$'){steps.push({token:'$',desc:'End of string'});i++;continue}
+    if(c==='.'){steps.push({token:'.',desc:'Any single character (except newline)'});i++;continue}
+    if(c==='*'){steps.push({token:'*',desc:'Zero or more of the previous'});i++;continue}
+    if(c==='+'){steps.push({token:'+',desc:'One or more of the previous'});i++;continue}
+    if(c==='?'&&src[i-1]!=='('){steps.push({token:'?',desc:'Zero or one of the previous (optional)'});i++;continue}
+    if(c==='|'){steps.push({token:'|',desc:'OR — match either side'});i++;continue}
+    
+    // Quantifier {n} {n,m}
+    if(c==='{'){
+      let j=i+1;while(j<src.length&&src[j]!=='}')j++;
+      const q=src.slice(i,j+1);
+      const inner=src.slice(i+1,j);
+      if(inner.includes(',')){
+        const[min,max]=inner.split(',');
+        if(max)steps.push({token:q,desc:`Between ${min} and ${max} times`});
+        else steps.push({token:q,desc:`${min} or more times`});
+      }else{steps.push({token:q,desc:`Exactly ${inner} times`})}
+      i=j+1;continue;
+    }
+    
+    // Character class [...]
+    if(c==='['){
+      let j=i+1;if(src[j]==='^')j++;if(src[j]===']')j++;
+      while(j<src.length&&src[j]!==']')j++;
+      const cls=src.slice(i,j+1);
+      const inner=cls.slice(1,-1);
+      const negated=inner.startsWith('^');
+      const content=negated?inner.slice(1):inner;
+      let desc=negated?'Any character NOT in: ':'Any character in: ';
+      // Common patterns
+      const parts=[];
+      if(content.includes('a-z'))parts.push('lowercase letters');
+      if(content.includes('A-Z'))parts.push('uppercase letters');
+      if(content.includes('0-9'))parts.push('digits');
+      const specials=content.replace(/[a-z]-[a-z]|[A-Z]-[A-Z]|[0-9]-[0-9]/g,'').replace(/[a-zA-Z0-9]/g,'');
+      if(specials){
+        const names={'.':'dot','_':'underscore','%':'percent','+':'plus','-':'hyphen','@':'at','#':'hash','!':'exclamation','$':'dollar','*':'asterisk','?':'question mark','&':'ampersand',' ':'space'};
+        const chars=specials.split('').map(c=>names[c]||`'${c}'`);
+        parts.push(chars.join(', '));
+      }
+      desc+=parts.join(', ')||`"${content}"`;
+      steps.push({token:cls,desc});
+      i=j+1;continue;
+    }
+    
+    // Groups (?...)
+    if(c==='('){
+      if(src[i+1]==='?'){
+        if(src[i+2]==='='){steps.push({token:'(?=...)',desc:'Lookahead — must be followed by...'});i+=3;continue}
+        if(src[i+2]==='!'){ steps.push({token:'(?!...)',desc:'Negative lookahead — must NOT be followed by...'});i+=3;continue}
+        if(src[i+2]==='<'&&src[i+3]==='='){steps.push({token:'(?<=...)',desc:'Lookbehind — must be preceded by...'});i+=4;continue}
+        if(src[i+2]==='<'&&src[i+3]==='!'){steps.push({token:'(?<!...)',desc:'Negative lookbehind — must NOT be preceded by...'});i+=4;continue}
+        if(src[i+2]===':'){steps.push({token:'(?:',desc:'Non-capturing group — group without capturing'});i+=3;continue}
+      }
+      steps.push({token:'(',desc:'Start capturing group'});i++;continue;
+    }
+    if(c===')'){steps.push({token:')',desc:'End group'});i++;continue}
+    
+    // Escape sequences
+    if(c==='\\'){
+      const next=src[i+1];
+      const escapes={d:'Any digit (0-9)',D:'Any non-digit',w:'Any word character (letter, digit, underscore)',W:'Any non-word character',s:'Any whitespace',S:'Any non-whitespace',b:'Word boundary',B:'Non-word boundary',n:'Newline',t:'Tab',r:'Carriage return','\\':'Literal backslash'};
+      if(escapes[next]){steps.push({token:'\\'+next,desc:escapes[next]});i+=2;continue}
+      steps.push({token:'\\'+next,desc:`Literal "${next}" character`});i+=2;continue;
+    }
+    
+    // Literal character
+    steps.push({token:c,desc:`Literal "${c}"`});i++;
+  }
+  
+  document.getElementById('output').innerHTML=steps.map((s,idx)=>`<div class="step"><div class="num">${idx+1}</div><div class="desc"><span class="token">${s.token.replace(/</g,'&lt;')}</span> ${s.desc}</div></div>`).join('');
+}
+explain();
+</script>
+</body>
+</html>
