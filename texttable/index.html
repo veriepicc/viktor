@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TextTable — ASCII Table Generator from Data</title>
+<meta name="description" content="Create beautiful ASCII tables, Markdown tables, and Reddit tables from your data. Free text table generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1e1e2e;--surface:#313244;--border:#45475a;--accent:#cba6f7;--text:#cdd6f4;--muted:#6c7086}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:1.5rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.3rem}
+textarea{width:100%;padding:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'SF Mono',monospace;font-size:.82rem;line-height:1.6;outline:none;resize:vertical}
+textarea:focus{border-color:var(--accent)}
+.opts{display:flex;gap:.3rem;margin-bottom:1rem;flex-wrap:wrap}
+.opt{padding:.4rem .8rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.opt.active{border-color:var(--accent);color:var(--accent)}
+.output{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.output-head{display:flex;justify-content:space-between;padding:.4rem .8rem;border-bottom:1px solid var(--border)}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.output-head button{background:var(--accent);color:#1e1e2e;border:none;padding:.2rem .7rem;border-radius:4px;font-size:.7rem;font-weight:700;cursor:pointer}
+.output pre{padding:.8rem;font-family:'SF Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;white-space:pre;color:var(--accent)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#1e1e2e;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<main>
+<h1>Text Table Generator</h1>
+<div class="field"><label>Data (CSV format, first row = headers)</label><textarea id="input" rows="6" oninput="gen()">Name, Age, City, Language
+Alice, 28, NYC, Python
+Bob, 34, London, JavaScript
+Charlie, 22, Tokyo, Rust
+Diana, 31, Berlin, Go</textarea></div>
+<div class="opts">
+<div class="opt active" onclick="setFmt('ascii',this)">ASCII</div>
+<div class="opt" onclick="setFmt('markdown',this)">Markdown</div>
+<div class="opt" onclick="setFmt('unicode',this)">Unicode</div>
+<div class="opt" onclick="setFmt('reddit',this)">Reddit</div>
+<div class="opt" onclick="setFmt('html',this)">HTML</div>
+</div>
+<div class="output">
+<div class="output-head"><span id="fmtLabel">ASCII Table</span><button onclick="cp()">Copy</button></div>
+<pre id="output"></pre>
+</div>
+</main>
+<div class="toast" id="toast">Copied!</div>
+<script>
+let fmt='ascii';
+function setFmt(f,el){fmt=f;document.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');gen()}
+
+function gen(){
+  const lines=document.getElementById('input').value.trim().split('\n').filter(Boolean);
+  const rows=lines.map(l=>l.split(',').map(c=>c.trim()));
+  if(!rows.length)return;
+
+  const cols=Math.max(...rows.map(r=>r.length));
+  rows.forEach(r=>{while(r.length<cols)r.push('')});
+  const widths=Array(cols).fill(0);
+  rows.forEach(r=>r.forEach((c,i)=>{widths[i]=Math.max(widths[i],c.length)}));
+
+  let result='';
+  const pad=(s,w)=>s+' '.repeat(w-s.length);
+
+  if(fmt==='ascii'){
+    const sep='+'+widths.map(w=>'-'.repeat(w+2)).join('+')+'+';
+    const row=r=>'| '+r.map((c,i)=>pad(c,widths[i])).join(' | ')+' |';
+    result=sep+'\n'+row(rows[0])+'\n'+sep+'\n'+rows.slice(1).map(r=>row(r)).join('\n')+'\n'+sep;
+  }else if(fmt==='markdown'){
+    const row=r=>'| '+r.map((c,i)=>pad(c,widths[i])).join(' | ')+' |';
+    const sep='| '+widths.map(w=>'-'.repeat(w)).join(' | ')+' |';
+    result=row(rows[0])+'\n'+sep+'\n'+rows.slice(1).map(r=>row(r)).join('\n');
+  }else if(fmt==='unicode'){
+    const h='─',v='│',tl='┌',tr='┐',bl='└',br='┘',ml='├',mr='┤',mt='┬',mb='┴',cx='┼';
+    const top=tl+widths.map(w=>h.repeat(w+2)).join(mt)+tr;
+    const mid=ml+widths.map(w=>h.repeat(w+2)).join(cx)+mr;
+    const bot=bl+widths.map(w=>h.repeat(w+2)).join(mb)+br;
+    const row=r=>v+' '+r.map((c,i)=>pad(c,widths[i])).join(' '+v+' ')+' '+v;
+    result=top+'\n'+row(rows[0])+'\n'+mid+'\n'+rows.slice(1).map(r=>row(r)).join('\n')+'\n'+bot;
+  }else if(fmt==='reddit'){
+    const row=r=>r.map((c,i)=>pad(c,widths[i])).join(' | ');
+    const sep=widths.map(w=>'-'.repeat(w)).join(' | ');
+    result=row(rows[0])+'\n'+sep+'\n'+rows.slice(1).map(r=>row(r)).join('\n');
+  }else if(fmt==='html'){
+    result='<table>\n  <thead>\n    <tr>\n'+rows[0].map(c=>`      <th>${c}</th>`).join('\n')+'\n    </tr>\n  </thead>\n  <tbody>\n'+rows.slice(1).map(r=>'    <tr>\n'+r.map(c=>`      <td>${c}</td>`).join('\n')+'\n    </tr>').join('\n')+'\n  </tbody>\n</table>';
+  }
+  document.getElementById('output').textContent=result;
+  document.getElementById('fmtLabel').textContent=fmt.charAt(0).toUpperCase()+fmt.slice(1)+' Table';
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)}
+gen();
+</script>
+</body>
+</html>
