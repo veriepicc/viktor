@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV Cleaner — Remove Duplicates, Empty Rows, Fix & Sort CSV Files</title>
+<meta name="description" content="Clean CSV files online. Remove duplicate rows, empty rows, trim whitespace, sort columns, remove columns. Free CSV cleaner tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧹</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--accent:#0ea5e9;--text:#0f172a;--muted:#94a3b8}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:800px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.6rem;font-weight:700}
+textarea{width:100%;padding:.6rem;border:1px solid var(--border);border-radius:6px;font-family:'SF Mono',monospace;font-size:.78rem;line-height:1.5;outline:none;resize:vertical;color:var(--text)}
+textarea:focus{border-color:var(--accent)}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem}
+.opt{display:flex;align-items:center;gap:.3rem;font-size:.78rem;cursor:pointer}
+.opt input{accent-color:var(--accent)}
+.actions{display:flex;gap:.4rem;flex-wrap:wrap}
+.btn{padding:.45rem .9rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;transition:opacity .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.stats{display:flex;gap:1rem;font-size:.72rem;color:var(--muted);margin-top:.5rem;flex-wrap:wrap}
+.stats .stat{font-weight:600}
+.stats .stat strong{color:var(--accent)}
+.preview{max-height:300px;overflow:auto;margin-top:.5rem}
+.preview table{width:100%;border-collapse:collapse;font-size:.72rem}
+.preview th{background:var(--bg);padding:.3rem .5rem;text-align:left;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);position:sticky;top:0}
+.preview td{padding:.3rem .5rem;border-bottom:1px solid var(--border)}
+.preview tr:hover td{background:rgba(14,165,233,.04)}
+</style>
+</head>
+<body>
+<main>
+<h1>CSV Cleaner</h1>
+<div class="card">
+<h3>Paste CSV Data</h3>
+<textarea id="input" rows="8" oninput="preview()">Name, Email, City, Age
+Alice, alice@example.com, NYC, 28
+Bob, bob@example.com, London, 34
+, , , 
+Alice, alice@example.com, NYC, 28
+Charlie, charlie@example.com, Tokyo, 22
+  Bob  ,  bob@example.com  ,  London  ,  34  
+Diana, diana@example.com, Berlin, 31
+, , ,</textarea>
+</div>
+<div class="card">
+<h3>Clean Operations</h3>
+<div class="opts">
+<label class="opt"><input type="checkbox" id="trimWs" checked onchange="preview()"> Trim whitespace</label>
+<label class="opt"><input type="checkbox" id="rmEmpty" checked onchange="preview()"> Remove empty rows</label>
+<label class="opt"><input type="checkbox" id="rmDupes" checked onchange="preview()"> Remove duplicates</label>
+<label class="opt"><input type="checkbox" id="rmHeader" onchange="preview()"> Remove header</label>
+</div>
+<div class="actions">
+<button class="btn btn-primary" onclick="apply()">Apply & Copy</button>
+<button class="btn btn-secondary" onclick="download()">Download CSV</button>
+</div>
+<div class="stats" id="stats"></div>
+</div>
+<div class="card">
+<h3>Preview</h3>
+<div class="preview" id="preview"></div>
+</div>
+</main>
+<script>
+function parseCSV(text){return text.trim().split('\n').map(l=>l.split(','))}
+function cleanRows(rows){
+  let result=[...rows.map(r=>[...r])];
+  const origCount=result.length;
+  
+  if(document.getElementById('trimWs').checked)result=result.map(r=>r.map(c=>c.trim()));
+  if(document.getElementById('rmEmpty').checked)result=result.filter(r=>r.some(c=>c.trim()!==''));
+  if(document.getElementById('rmDupes').checked){
+    const seen=new Set();const start=document.getElementById('rmHeader').checked?0:1;
+    const header=result[0];
+    const unique=start===1?[header]:[];
+    result.slice(start).forEach(r=>{const key=r.join('|');if(!seen.has(key)){seen.add(key);unique.push(r)}});
+    result=unique;
+  }
+  if(document.getElementById('rmHeader').checked&&result.length)result=result.slice(1);
+  
+  return{rows:result,removed:origCount-result.length};
+}
+
+function preview(){
+  const raw=document.getElementById('input').value;
+  if(!raw.trim()){document.getElementById('preview').innerHTML='';document.getElementById('stats').innerHTML='';return}
+  const rows=parseCSV(raw);
+  const{rows:clean,removed}=cleanRows(rows);
+  
+  document.getElementById('stats').innerHTML=`<span class="stat">Original: <strong>${rows.length}</strong> rows</span><span class="stat">After: <strong>${clean.length}</strong> rows</span><span class="stat">Removed: <strong>${removed}</strong> rows</span>`;
+  
+  if(!clean.length){document.getElementById('preview').innerHTML='<em style="color:var(--muted);font-size:.82rem">No rows after cleaning</em>';return}
+  
+  let html='<table><tr>';
+  const maxCols=Math.max(...clean.map(r=>r.length));
+  for(let c=0;c<maxCols;c++)html+=`<th>Col ${c+1}</th>`;
+  html+='</tr>';
+  clean.forEach(r=>{html+='<tr>';for(let c=0;c<maxCols;c++)html+=`<td>${(r[c]||'').replace(/</g,'&lt;')}</td>`;html+='</tr>'});
+  html+='</table>';
+  document.getElementById('preview').innerHTML=html;
+}
+
+function apply(){
+  const raw=document.getElementById('input').value;
+  const rows=parseCSV(raw);
+  const{rows:clean}=cleanRows(rows);
+  const csv=clean.map(r=>r.join(', ')).join('\n');
+  navigator.clipboard.writeText(csv);
+  document.getElementById('input').value=csv;
+  preview();
+}
+
+function download(){
+  const raw=document.getElementById('input').value;
+  const rows=parseCSV(raw);
+  const{rows:clean}=cleanRows(rows);
+  const csv=clean.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cleaned.csv';a.click();
+}
+preview();
+</script>
+</body>
+</html>
