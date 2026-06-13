@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeedTest — Website Performance & Page Speed Analyzer</title>
+<meta name="description" content="Analyze your website's loading performance, resource sizes, and get optimization tips. Free browser-based speed analyzer.">
+<meta name="keywords" content="page speed test, website speed checker, website performance, loading time, web performance, site speed">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2a2a2a;--accent:#fbbf24;--text:#e5e5e5;--muted:#737373;--green:#4ade80;--orange:#fb923c;--red:#f87171}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.info-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+.info-box h2{font-size:1rem;font-weight:700;margin-bottom:.5rem;color:var(--accent)}
+.info-box p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:.8rem}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:2rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center}
+.metric .num{font-size:1.5rem;font-weight:800;font-family:'SF Mono',monospace}
+.metric .label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem}
+.metric .good{color:var(--green)}
+.metric .ok{color:var(--orange)}
+.metric .bad{color:var(--red)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.section h3{padding:.7rem 1rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:700}
+.row{display:flex;padding:.5rem 1rem;border-bottom:1px solid #222;font-size:.82rem;align-items:center}
+.row:last-child{border-bottom:none}
+.row .key{flex:1;color:var(--muted)}
+.row .val{font-family:'SF Mono',monospace;font-weight:600}
+.tip{padding:.7rem 1rem;font-size:.82rem;border-bottom:1px solid #222;display:flex;gap:.5rem}
+.tip:last-child{border-bottom:none}
+.tip .icon{flex-shrink:0}
+.tip .text{color:var(--muted);line-height:1.5}
+.tip .text strong{color:var(--text)}
+.run-btn{display:block;margin:0 auto 2rem;background:var(--accent);color:#000;border:none;padding:.7rem 2rem;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;transition:opacity .15s}
+.run-btn:hover{opacity:.85}
+.run-btn:disabled{opacity:.4;cursor:default}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Speed<span>Test</span></div></nav>
+<main>
+<h1>Page Speed Analyzer</h1>
+<p class="sub">Analyze this page's loading performance and your browser's capabilities.</p>
+<button class="run-btn" id="runBtn" onclick="runTest()">Run Analysis</button>
+<div id="results"></div>
+</main>
+<footer>&copy; 2026 SpeedTest &mdash; Page performance analyzer. Runs in your browser.</footer>
+<script>
+function runTest(){
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true;btn.textContent='Analyzing...';
+  const results=document.getElementById('results');
+
+  setTimeout(()=>{
+    const perf=performance;
+    const nav=perf.getEntriesByType('navigation')[0]||{};
+    const paint=perf.getEntriesByType('paint');
+    const resources=perf.getEntriesByType('resource');
+
+    const fp=paint.find(p=>p.name==='first-paint');
+    const fcp=paint.find(p=>p.name==='first-contentful-paint');
+    const loadTime=nav.loadEventEnd-nav.startTime;
+    const domReady=nav.domContentLoadedEventEnd-nav.startTime;
+    const ttfb=nav.responseStart-nav.requestStart;
+    const dnsTime=nav.domainLookupEnd-nav.domainLookupStart;
+    const connectTime=nav.connectEnd-nav.connectStart;
+    const totalSize=resources.reduce((a,r)=>a+(r.transferSize||0),0);
+
+    function grade(ms,good,ok){return ms<=good?'good':ms<=ok?'ok':'bad'}
+    function fmt(ms){return ms>=0?Math.round(ms)+'ms':'N/A'}
+
+    let html=`<div class="metrics">
+      <div class="metric"><div class="num ${grade(loadTime,1000,3000)}">${fmt(loadTime)}</div><div class="label">Page Load</div></div>
+      <div class="metric"><div class="num ${grade(fcp?.startTime||0,1800,3000)}">${fcp?fmt(fcp.startTime):'N/A'}</div><div class="label">First Paint</div></div>
+      <div class="metric"><div class="num ${grade(domReady,800,2000)}">${fmt(domReady)}</div><div class="label">DOM Ready</div></div>
+      <div class="metric"><div class="num ${grade(ttfb,200,600)}">${fmt(ttfb)}</div><div class="label">TTFB</div></div>
+    </div>`;
+
+    // Connection info
+    const conn=navigator.connection||{};
+    html+=`<div class="section"><h3>Connection & Browser</h3>
+      <div class="row"><span class="key">Connection Type</span><span class="val">${conn.effectiveType||'Unknown'}</span></div>
+      <div class="row"><span class="key">Downlink Speed</span><span class="val">${conn.downlink?conn.downlink+' Mbps':'Unknown'}</span></div>
+      <div class="row"><span class="key">Round Trip Time</span><span class="val">${conn.rtt?conn.rtt+'ms':'Unknown'}</span></div>
+      <div class="row"><span class="key">CPU Cores</span><span class="val">${navigator.hardwareConcurrency||'Unknown'}</span></div>
+      <div class="row"><span class="key">Memory</span><span class="val">${navigator.deviceMemory?navigator.deviceMemory+'GB':'Unknown'}</span></div>
+      <div class="row"><span class="key">Screen</span><span class="val">${screen.width}×${screen.height} @${devicePixelRatio}x</span></div>
+    </div>`;
+
+    // Timing breakdown
+    html+=`<div class="section"><h3>Timing Breakdown</h3>
+      <div class="row"><span class="key">DNS Lookup</span><span class="val">${fmt(dnsTime)}</span></div>
+      <div class="row"><span class="key">TCP Connect</span><span class="val">${fmt(connectTime)}</span></div>
+      <div class="row"><span class="key">TTFB</span><span class="val">${fmt(ttfb)}</span></div>
+      <div class="row"><span class="key">Content Download</span><span class="val">${fmt(nav.responseEnd-nav.responseStart)}</span></div>
+      <div class="row"><span class="key">DOM Processing</span><span class="val">${fmt(nav.domComplete-nav.responseEnd)}</span></div>
+      <div class="row"><span class="key">Total Resources</span><span class="val">${resources.length} files</span></div>
+      <div class="row"><span class="key">Total Transfer Size</span><span class="val">${(totalSize/1024).toFixed(1)} KB</span></div>
+    </div>`;
+
+    // Resource breakdown
+    const byType={};
+    resources.forEach(r=>{const ext=r.name.split('.').pop().split('?')[0].toLowerCase();const type=ext==='js'?'JavaScript':ext==='css'?'CSS':['png','jpg','jpeg','gif','webp','svg','ico'].includes(ext)?'Images':['woff','woff2','ttf','otf','eot'].includes(ext)?'Fonts':'Other';byType[type]=(byType[type]||{count:0,size:0});byType[type].count++;byType[type].size+=(r.transferSize||0)});
+    html+=`<div class="section"><h3>Resources by Type</h3>`;
+    for(const[type,data]of Object.entries(byType)){
+      html+=`<div class="row"><span class="key">${type} (${data.count})</span><span class="val">${(data.size/1024).toFixed(1)} KB</span></div>`;
+    }
+    html+=`</div>`;
+
+    // Tips
+    const tips=[];
+    if(loadTime>3000)tips.push({icon:'🐌',text:'<strong>Page load is slow</strong> (>3s). Consider lazy loading images and deferring non-critical JavaScript.'});
+    if(ttfb>600)tips.push({icon:'🔴',text:'<strong>High TTFB</strong> (>600ms). Server response is slow — consider CDN or caching.'});
+    if(resources.length>50)tips.push({icon:'📦',text:`<strong>${resources.length} resources loaded.</strong> Bundle/combine files to reduce HTTP requests.`});
+    if(totalSize>1048576)tips.push({icon:'⚖️',text:`<strong>Page weighs ${(totalSize/1048576).toFixed(1)}MB.</strong> Compress images and minify code.`});
+    if(!tips.length)tips.push({icon:'✅',text:'<strong>Looking good!</strong> No major performance issues detected on this page.'});
+
+    html+=`<div class="section"><h3>Optimization Tips</h3>${tips.map(t=>`<div class="tip"><span class="icon">${t.icon}</span><div class="text">${t.text}</div></div>`).join('')}</div>`;
+
+    results.innerHTML=html;
+    btn.disabled=false;btn.textContent='Run Again';
+  },500);
+}
+</script>
+</body>
+</html>
