@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoiseMachine — White Noise, Brown Noise, Rain & Nature Sounds</title>
+<meta name="description" content="Free white noise generator for focus, sleep, and relaxation. White, pink, brown noise. No downloads, works in browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{text-align:center;max-width:400px;padding:2rem;width:100%}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:#737373;font-size:.85rem;margin-bottom:2.5rem}
+.sounds{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:2rem}
+.sound{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:1.2rem .8rem;cursor:pointer;transition:all .2s;text-align:center}
+.sound:hover{border-color:#525252}
+.sound.active{border-color:#a78bfa;background:rgba(167,139,250,.08)}
+.sound .icon{font-size:2rem;margin-bottom:.3rem}
+.sound .name{font-size:.82rem;font-weight:600}
+.volume{margin-bottom:2rem}
+.volume label{font-size:.72rem;color:#737373;text-transform:uppercase;letter-spacing:.05em}
+.volume input{width:100%;margin-top:.5rem;accent-color:#a78bfa}
+.play-btn{width:80px;height:80px;border-radius:50%;border:2px solid #a78bfa;background:transparent;color:#a78bfa;font-size:2rem;cursor:pointer;transition:all .2s;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.play-btn:hover{background:rgba(167,139,250,.1)}
+.play-btn.active{background:#a78bfa;color:#0a0a0a}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Noise Machine</h1>
+<p class="sub">Background noise for focus, sleep & relaxation</p>
+<div class="sounds">
+<div class="sound active" onclick="selectSound('white',this)"><div class="icon">⚪</div><div class="name">White Noise</div></div>
+<div class="sound" onclick="selectSound('pink',this)"><div class="icon">🩷</div><div class="name">Pink Noise</div></div>
+<div class="sound" onclick="selectSound('brown',this)"><div class="icon">🟤</div><div class="name">Brown Noise</div></div>
+<div class="sound" onclick="selectSound('rain',this)"><div class="icon">🌧️</div><div class="name">Rain</div></div>
+</div>
+<div class="volume">
+<label>Volume</label>
+<input type="range" id="vol" min="0" max="100" value="50" oninput="setVol()">
+</div>
+<button class="play-btn" id="playBtn" onclick="toggle()">▶</button>
+</div>
+<script>
+let audioCtx=null,source=null,playing=false,currentSound='white';
+
+function createNoise(type){
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const bufferSize=2*audioCtx.sampleRate;
+  const buffer=audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
+  const data=buffer.getChannelData(0);
+
+  if(type==='white'){
+    for(let i=0;i<bufferSize;i++)data[i]=Math.random()*2-1;
+  }else if(type==='pink'){
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(let i=0;i<bufferSize;i++){
+      const w=Math.random()*2-1;
+      b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;b2=0.96900*b2+w*0.1538520;
+      b3=0.86650*b3+w*0.3104856;b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
+      data[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;b6=w*0.115926;
+    }
+  }else if(type==='brown'){
+    let last=0;
+    for(let i=0;i<bufferSize;i++){
+      const w=Math.random()*2-1;last=(last+(0.02*w))/1.02;data[i]=last*3.5;
+    }
+  }else if(type==='rain'){
+    // Rain-like: filtered white noise bursts
+    let last=0;
+    for(let i=0;i<bufferSize;i++){
+      const w=Math.random()*2-1;
+      const burst=Math.random()>0.98?Math.random()*0.5:0;
+      last=(last+(0.05*w))/1.05;
+      data[i]=(last*2+burst)*1.5;
+    }
+  }
+
+  source=audioCtx.createBufferSource();
+  source.buffer=buffer;source.loop=true;
+  const gain=audioCtx.createGain();
+  gain.gain.value=document.getElementById('vol').value/100;
+  source.connect(gain);gain.connect(audioCtx.destination);
+  source.gainNode=gain;
+  source.start();
+}
+
+function selectSound(type,el){
+  currentSound=type;
+  document.querySelectorAll('.sound').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  if(playing){stop();play()}
+}
+
+function toggle(){playing?stop():play()}
+function play(){
+  createNoise(currentSound);playing=true;
+  document.getElementById('playBtn').textContent='⏸';
+  document.getElementById('playBtn').classList.add('active');
+}
+function stop(){
+  if(source){source.stop();source=null}playing=false;
+  document.getElementById('playBtn').textContent='▶';
+  document.getElementById('playBtn').classList.remove('active');
+}
+function setVol(){if(source&&source.gainNode)source.gainNode.gain.value=document.getElementById('vol').value/100}
+</script>
+</body>
+</html>
