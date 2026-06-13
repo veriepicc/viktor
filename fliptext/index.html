@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlipText — Upside Down, Mirror, Zalgo & Fancy Text Generator</title>
+<meta name="description" content="Transform text into upside down, mirror, zalgo, bubble, strikethrough, and fancy unicode styles. Free text transformer.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#2a2a2a;--accent:#f472b6;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:.3rem}
+.sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+textarea{width:100%;min-height:80px;padding:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;outline:none;font-family:inherit;resize:vertical;margin-bottom:1.5rem}
+textarea:focus{border-color:var(--accent)}
+.outputs{display:grid;gap:.5rem}
+.output{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;transition:border-color .15s}
+.output:hover{border-color:var(--accent)}
+.output .label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);min-width:80px;flex-shrink:0}
+.output .text{flex:1;font-size:.92rem;word-break:break-all;line-height:1.4}
+.output .copy{font-size:.65rem;color:var(--accent);flex-shrink:0;opacity:.5}
+.output:hover .copy{opacity:1}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#0f0f0f;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<main>
+<h1>Fancy Text Generator</h1>
+<p class="sub">Type text and click any style to copy it.</p>
+<textarea id="input" oninput="transform()" placeholder="Type something...">Hello World</textarea>
+<div class="outputs" id="outputs"></div>
+</main>
+<div class="toast" id="toast">Copied!</div>
+<script>
+const flipMap={'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z','A':'∀','B':'q','C':'Ɔ','D':'p','E':'Ǝ','F':'Ⅎ','G':'פ','H':'H','I':'I','J':'ſ','K':'ʞ','L':'˥','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Q','R':'ɹ','S':'S','T':'┴','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z','1':'Ɩ','2':'ᄅ','3':'Ɛ','4':'ㄣ','5':'ϛ','6':'9','7':'ㄥ','8':'8','9':'6','0':'0','.':'˙',',':'\'','!':'¡','?':'¿','\'':',','"':'„','(':')',')':'('};
+const boldMap={};'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('').forEach((c,i)=>{const base=i<26?0x1D400:i<52?0x1D41A-26:0x1D7CE-52;boldMap[c]=String.fromCodePoint(base+i)});
+const italicMap={};'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('').forEach((c,i)=>{const base=i<26?0x1D434:0x1D44E-26;const cp=base+i;italicMap[c]=String.fromCodePoint(cp==='h'.charCodeAt(0)+0x1D44E-26-97?0x210E:cp)});
+const bubbleMap={};'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('').forEach((c,i)=>{const base=i<26?0x24B6:i<52?0x24D0-26:i===52?0x24EA:0x2460-53;bubbleMap[c]=String.fromCodePoint(base+i)});
+
+const transforms=[
+  {name:'Upside Down',fn:t=>[...t].map(c=>flipMap[c]||c).reverse().join('')},
+  {name:'Mirror',fn:t=>[...t].reverse().join('')},
+  {name:'Bold',fn:t=>[...t].map(c=>boldMap[c]||c).join('')},
+  {name:'Strikethrough',fn:t=>[...t].map(c=>c+'\u0336').join('')},
+  {name:'Underline',fn:t=>[...t].map(c=>c+'\u0332').join('')},
+  {name:'Bubble',fn:t=>[...t].map(c=>bubbleMap[c]||c).join('')},
+  {name:'UPPER',fn:t=>t.toUpperCase()},
+  {name:'lower',fn:t=>t.toLowerCase()},
+  {name:'sPoNgEbOb',fn:t=>[...t].map((c,i)=>i%2?c.toUpperCase():c.toLowerCase()).join('')},
+  {name:'Spaced',fn:t=>[...t].join(' ')},
+  {name:'Dotted',fn:t=>[...t].join('.')},
+  {name:'Zalgo',fn:t=>{const z='̖̗̘̙̜̝̞̟̠̤̥̦̩̪̫̬̭̮̯̰̱̲̳̹̺̻̼ͅ';return[...t].map(c=>{let r=c;for(let i=0;i<3;i++)r+=z[Math.floor(Math.random()*z.length)];return r}).join('')}},
+];
+
+function transform(){
+  const text=document.getElementById('input').value;
+  const el=document.getElementById('outputs');
+  el.innerHTML=transforms.map((tr,i)=>{
+    const result=tr.fn(text);
+    return`<div class="output" onclick="cp('${i}')"><span class="label">${tr.name}</span><span class="text" id="r${i}">${escHtml(result)}</span><span class="copy">copy</span></div>`;
+  }).join('');
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cp(i){const t=document.getElementById('r'+i).textContent;navigator.clipboard.writeText(t);const toast=document.getElementById('toast');toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),800)}
+transform();
+</script>
+</body>
+</html>
