@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScreenSizer — Responsive Design Tester & Screen Size Checker</title>
+<meta name="description" content="Test how your website looks on different screen sizes. Preview desktop, tablet, and mobile layouts. Free responsive design tester.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#818cf8;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.toolbar{padding:.6rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.logo{font-size:1rem;font-weight:800;margin-right:auto}.logo span{color:var(--accent)}
+.url-input{flex:1;min-width:200px;padding:.4rem .7rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit}
+.url-input:focus{border-color:var(--accent)}
+.go-btn{background:var(--accent);color:#fff;border:none;padding:.4rem 1rem;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer}
+.devices{display:flex;gap:.3rem}
+.device{padding:.3rem .6rem;border-radius:6px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.device.active{border-color:var(--accent);color:var(--accent)}
+.custom-size{display:flex;align-items:center;gap:.3rem}
+.custom-size input{width:55px;padding:.3rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.75rem;text-align:center;outline:none}
+.custom-size span{color:var(--muted);font-size:.75rem}
+.preview-area{display:flex;justify-content:center;align-items:flex-start;padding:1.5rem;min-height:calc(100vh - 52px);background:repeating-conic-gradient(#1a1a1a 0% 25%, #161616 0% 50%) 50% / 20px 20px}
+.frame-wrapper{background:#222;border-radius:12px;padding:8px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.frame-top{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem .3rem .6rem;background:#2a2a2a;border-radius:6px 6px 0 0}
+.dots{display:flex;gap:4px}
+.dot{width:8px;height:8px;border-radius:50%;background:#444}
+.dots .dot:nth-child(1){background:#ff5f57}
+.dots .dot:nth-child(2){background:#febc2e}
+.dots .dot:nth-child(3){background:#28c840}
+.frame-url{flex:1;text-align:center;font-size:.65rem;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frame-size{font-size:.65rem;color:var(--accent);font-weight:600;white-space:nowrap}
+iframe{display:block;border:none;background:#fff;border-radius:0 0 6px 6px}
+.no-url{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;text-align:center;border-radius:0 0 6px 6px;background:#fff}
+</style>
+</head>
+<body>
+<div class="toolbar">
+<div class="logo">Screen<span>Sizer</span></div>
+<input class="url-input" id="urlInput" placeholder="Enter URL to preview (e.g. https://example.com)" value="">
+<button class="go-btn" onclick="loadURL()">Load</button>
+<div class="devices">
+<div class="device" onclick="setSize(375,812,'iPhone',this)">iPhone</div>
+<div class="device" onclick="setSize(390,844,'iPhone Pro',this)">iPhone Pro</div>
+<div class="device" onclick="setSize(768,1024,'iPad',this)">iPad</div>
+<div class="device" onclick="setSize(1024,768,'iPad Land',this)">iPad ↔</div>
+<div class="device active" onclick="setSize(1280,800,'Laptop',this)">Laptop</div>
+<div class="device" onclick="setSize(1440,900,'Desktop',this)">Desktop</div>
+<div class="device" onclick="setSize(1920,1080,'Full HD',this)">1080p</div>
+<div class="device" onclick="setSize(2560,1440,'QHD',this)">1440p</div>
+</div>
+<div class="custom-size">
+<input type="number" id="cw" value="1280" min="100" max="3840" oninput="customSize()">
+<span>×</span>
+<input type="number" id="ch" value="800" min="100" max="2160" oninput="customSize()">
+</div>
+</div>
+<div class="preview-area">
+<div class="frame-wrapper" id="frameWrapper">
+<div class="frame-top">
+<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+<div class="frame-url" id="frameUrl">Enter a URL above</div>
+<div class="frame-size" id="frameSize">1280 × 800</div>
+</div>
+<div class="no-url" id="placeholder" style="width:1280px;height:800px;max-width:calc(100vw - 3rem - 16px);max-height:calc(100vh - 120px)">
+Enter a URL above and click Load<br>to preview it at different screen sizes
+</div>
+</div>
+</div>
+<script>
+let currentW=1280,currentH=800;
+function setSize(w,h,name,el){
+  currentW=w;currentH=h;
+  document.getElementById('cw').value=w;
+  document.getElementById('ch').value=h;
+  document.querySelectorAll('.device').forEach(d=>d.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('frameSize').textContent=w+' × '+h;
+  updateFrame();
+}
+function customSize(){
+  currentW=parseInt(document.getElementById('cw').value)||320;
+  currentH=parseInt(document.getElementById('ch').value)||480;
+  document.querySelectorAll('.device').forEach(d=>d.classList.remove('active'));
+  document.getElementById('frameSize').textContent=currentW+' × '+currentH;
+  updateFrame();
+}
+function updateFrame(){
+  const iframe=document.querySelector('iframe');
+  const ph=document.getElementById('placeholder');
+  if(iframe){
+    iframe.style.width=Math.min(currentW,window.innerWidth-48-16)+'px';
+    iframe.style.height=Math.min(currentH,window.innerHeight-120)+'px';
+  }
+  if(ph){
+    ph.style.width=Math.min(currentW,window.innerWidth-48-16)+'px';
+    ph.style.height=Math.min(currentH,window.innerHeight-120)+'px';
+  }
+}
+function loadURL(){
+  let url=document.getElementById('urlInput').value.trim();
+  if(!url)return;
+  if(!url.startsWith('http'))url='https://'+url;
+  document.getElementById('urlInput').value=url;
+  document.getElementById('frameUrl').textContent=url;
+  const wrapper=document.getElementById('frameWrapper');
+  const ph=document.getElementById('placeholder');
+  if(ph)ph.remove();
+  let iframe=wrapper.querySelector('iframe');
+  if(!iframe){iframe=document.createElement('iframe');wrapper.appendChild(iframe)}
+  iframe.style.width=Math.min(currentW,window.innerWidth-48-16)+'px';
+  iframe.style.height=Math.min(currentH,window.innerHeight-120)+'px';
+  iframe.src=url;
+}
+document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')loadURL()});
+</script>
+</body>
+</html>
