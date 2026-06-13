@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON to Code — Generate TypeScript, Python, Go, Rust Types from JSON</title>
+<meta name="description" content="Paste JSON and instantly generate TypeScript interfaces, Python dataclasses, Go structs, Rust structs, and more. Free JSON to code converter.">
+<meta name="keywords" content="json to typescript, json to python, json to go struct, json to rust, type generator, json schema, code generator">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1e1e2e;--surface:#181825;--border:#313244;--accent:#cba6f7;--green:#a6e3a1;--red:#f38ba8;--text:#cdd6f4;--muted:#6c7086;--blue:#89b4fa;--yellow:#f9e2af}
+body{font-family:'JetBrains Mono','SF Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.8rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.1rem;font-weight:700;font-family:'Inter',sans-serif}.logo span{color:var(--accent)}
+.langs{display:flex;gap:.3rem;flex-wrap:wrap}
+.lang{padding:.3rem .7rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s;font-family:'Inter',sans-serif}
+.lang.active{border-color:var(--accent);color:var(--accent);background:rgba(203,166,247,.08)}
+.workspace{display:flex;height:calc(100vh - 48px);min-height:400px}
+.pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.pane+.pane{border-left:1px solid var(--border)}
+.pane-head{padding:.4rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);font-size:.72rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between;font-family:'Inter',sans-serif}
+.pane-head button{background:none;border:1px solid var(--border);color:var(--muted);padding:.2rem .6rem;border-radius:4px;font-size:.68rem;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.pane-head button:hover{border-color:var(--accent);color:var(--accent)}
+textarea{flex:1;padding:1rem;background:var(--bg);border:none;color:var(--green);font-family:inherit;font-size:.82rem;line-height:1.7;resize:none;outline:none;tab-size:2}
+textarea::placeholder{color:#45475a}
+.output{flex:1;padding:1rem;overflow:auto;font-size:.82rem;line-height:1.7;white-space:pre-wrap;color:var(--text)}
+.output .err{color:var(--red)}
+.output .kw{color:var(--accent)}
+.output .ty{color:var(--blue)}
+.output .str{color:var(--green)}
+.output .cm{color:var(--muted)}
+@media(max-width:700px){.workspace{flex-direction:column}.pane+.pane{border-left:none;border-top:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<nav>
+<div class="logo">JSON<span>toCode</span></div>
+<div class="langs" id="langs"></div>
+</nav>
+<div class="workspace">
+<div class="pane">
+<div class="pane-head"><span>INPUT (JSON)</span><button onclick="prettify()">Prettify</button></div>
+<textarea id="input" placeholder='{"name":"John","age":30,"active":true}' oninput="generate()">{
+  "user": {
+    "name": "John Doe",
+    "age": 30,
+    "email": "john@example.com",
+    "active": true,
+    "scores": [95, 87, 92],
+    "address": {
+      "street": "123 Main St",
+      "city": "NYC",
+      "zip": "10001"
+    },
+    "tags": ["admin", "user"]
+  }
+}</textarea>
+</div>
+<div class="pane">
+<div class="pane-head"><span>OUTPUT</span><button onclick="copyOutput()">Copy</button></div>
+<div class="output" id="output"></div>
+</div>
+</div>
+<script>
+const languages=[
+{name:'TypeScript',id:'ts'},
+{name:'Python',id:'py'},
+{name:'Go',id:'go'},
+{name:'Rust',id:'rs'},
+{name:'Java',id:'java'},
+{name:'C#',id:'cs'},
+{name:'Zod',id:'zod'},
+];
+let currentLang='ts';
+const langsEl=document.getElementById('langs');
+languages.forEach(l=>{const d=document.createElement('div');d.className='lang'+(l.id===currentLang?' active':'');d.textContent=l.name;d.onclick=()=>{currentLang=l.id;document.querySelectorAll('.lang').forEach(e=>e.classList.remove('active'));d.classList.add('active');generate()};langsEl.appendChild(d)});
+
+function prettify(){try{const v=JSON.parse(document.getElementById('input').value);document.getElementById('input').value=JSON.stringify(v,null,2);generate()}catch(e){}}
+
+function generate(){
+const out=document.getElementById('output');
+try{
+  const json=JSON.parse(document.getElementById('input').value);
+  const code=genCode(json,currentLang);
+  out.innerHTML=highlight(code,currentLang);
+}catch(e){
+  out.innerHTML=`<span class="err">Invalid JSON: ${esc(e.message)}</span>`;
+}
+}
+
+function inferType(val,lang){
+  if(val===null)return{ts:'null',py:'None',go:'interface{}',rs:'Option<String>',java:'Object',cs:'object?',zod:'z.null()'}[lang];
+  if(typeof val==='string')return{ts:'string',py:'str',go:'string',rs:'String',java:'String',cs:'string',zod:'z.string()'}[lang];
+  if(typeof val==='number')return Number.isInteger(val)?{ts:'number',py:'int',go:'int',rs:'i64',java:'int',cs:'int',zod:'z.number()'}[lang]:{ts:'number',py:'float',go:'float64',rs:'f64',java:'double',cs:'double',zod:'z.number()'}[lang];
+  if(typeof val==='boolean')return{ts:'boolean',py:'bool',go:'bool',rs:'bool',java:'boolean',cs:'bool',zod:'z.boolean()'}[lang];
+  return'any';
+}
+
+function pascal(s){return s.replace(/(^|[_\-\s])(\w)/g,(_,__,c)=>c.toUpperCase())}
+function snake(s){return s.replace(/([a-z])([A-Z])/g,'$1_$2').toLowerCase()}
+
+function genCode(json,lang,name='Root'){
+  const structs=[];
+  function process(obj,name){
+    if(typeof obj!=='object'||obj===null||Array.isArray(obj))return inferType(obj,lang);
+    const fields=[];
+    for(const[key,val]of Object.entries(obj)){
+      let type;
+      if(Array.isArray(val)){
+        if(val.length===0)type=lang==='ts'?'any[]':lang==='py'?'list':lang==='go'?'[]interface{}':lang==='rs'?'Vec<String>':lang==='java'?'List<Object>':lang==='cs'?'List<object>':'z.array(z.any())';
+        else if(typeof val[0]==='object'&&val[0]!==null){const inner=pascal(key)+'Item';process(val[0],inner);type=lang==='ts'?inner+'[]':lang==='py'?`list[${inner}]`:lang==='go'?`[]${inner}`:lang==='rs'?`Vec<${inner}>`:lang==='java'?`List<${inner}>`:lang==='cs'?`List<${inner}>`:`z.array(${inner}Schema)`}
+        else{const inner=inferType(val[0],lang);type=lang==='ts'?inner+'[]':lang==='py'?`list[${inner}]`:lang==='go'?`[]${inner}`:lang==='rs'?`Vec<${inner}>`:lang==='java'?`List<${inner}>`:lang==='cs'?`List<${inner}>`:`z.array(${inner})`}
+      }else if(typeof val==='object'&&val!==null){const inner=pascal(key);process(val,inner);type=inner}
+      else type=inferType(val,lang);
+      fields.push({key,type});
+    }
+    structs.push({name:pascal(name),fields});
+  }
+  process(json,name);
+
+  return structs.map(s=>{
+    switch(lang){
+      case'ts':return`interface ${s.name} {\n${s.fields.map(f=>`  ${f.key}: ${f.type};`).join('\n')}\n}`;
+      case'py':return`@dataclass\nclass ${s.name}:\n${s.fields.map(f=>`    ${snake(f.key)}: ${f.type}`).join('\n')}`;
+      case'go':return`type ${s.name} struct {\n${s.fields.map(f=>`\t${pascal(f.key)} ${f.type} \`json:"${f.key}"\``).join('\n')}\n}`;
+      case'rs':return`#[derive(Debug, Deserialize, Serialize)]\nstruct ${s.name} {\n${s.fields.map(f=>`    ${snake(f.key)}: ${f.type},`).join('\n')}\n}`;
+      case'java':return`public class ${s.name} {\n${s.fields.map(f=>`    private ${f.type} ${f.key};`).join('\n')}\n}`;
+      case'cs':return`public class ${s.name}\n{\n${s.fields.map(f=>`    public ${f.type} ${pascal(f.key)} { get; set; }`).join('\n')}\n}`;
+      case'zod':return`const ${s.name.charAt(0).toLowerCase()+s.name.slice(1)}Schema = z.object({\n${s.fields.map(f=>`  ${f.key}: ${f.type},`).join('\n')}\n});`;
+    }
+  }).join('\n\n');
+}
+
+function highlight(code,lang){
+  let h=esc(code);
+  // Keywords
+  const kws={ts:'interface|type|export|const|let|string|number|boolean|null|any',py:'class|def|int|str|float|bool|None|list|dataclass',go:'type|struct|string|int|float64|bool|interface',rs:'struct|derive|Debug|Deserialize|Serialize|String|Vec|Option|i64|f64|bool|pub',java:'public|private|class|int|double|boolean|String|List|Object|void',cs:'public|class|string|int|double|bool|List|object|get|set',zod:'const|z\\.object|z\\.string|z\\.number|z\\.boolean|z\\.array|z\\.null|z\\.any'}[lang]||'';
+  if(kws)h=h.replace(new RegExp('\\b('+kws+')\\b','g'),'<span class="kw">$1</span>');
+  // Strings
+  h=h.replace(/(["'`])([^"'`]*)\1/g,'<span class="str">$1$2$1</span>');
+  // Comments
+  h=h.replace(/(\/\/.*$|#.*$)/gm,'<span class="cm">$1</span>');
+  return h;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function copyOutput(){const t=document.getElementById('output').textContent;navigator.clipboard.writeText(t)}
+generate();
+</script>
+</body>
+</html>
