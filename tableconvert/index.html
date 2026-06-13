@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TableConvert — CSV to JSON, HTML, Markdown Table Converter</title>
+<meta name="description" content="Convert CSV data to JSON, HTML tables, Markdown tables, and more. Free online table converter tool.">
+<meta name="keywords" content="csv to json, csv to html, csv to markdown, table converter, data converter, csv converter">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f0fdf4;--surface:#fff;--border:#d1fae5;--accent:#059669;--accent2:#10b981;--text:#064e3b;--muted:#6b7280}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.logo{font-size:1.15rem;font-weight:800;letter-spacing:-.01em}.logo span{color:var(--accent)}
+main{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
+.panel-head{padding:.5rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-head h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.panel-head select{font-size:.78rem;padding:.25rem .5rem;border:1px solid var(--border);border-radius:4px;font-family:inherit;color:var(--text);background:var(--bg)}
+textarea{width:100%;min-height:220px;padding:.8rem;border:none;font-family:'SF Mono',monospace;font-size:.82rem;line-height:1.6;resize:vertical;outline:none;color:var(--text)}
+textarea::placeholder{color:#aaa}
+.output{width:100%;min-height:220px;padding:.8rem;font-family:'SF Mono',monospace;font-size:.82rem;line-height:1.6;overflow:auto;white-space:pre-wrap;word-break:break-all;background:#f8fdf9;color:var(--text)}
+.actions{display:flex;gap:.5rem;justify-content:center}
+.actions button{background:var(--accent);color:#fff;border:none;padding:.55rem 1.3rem;border-radius:7px;font-weight:700;font-size:.82rem;cursor:pointer;transition:opacity .15s}
+.actions button:hover{opacity:.85}
+.actions button.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.table-preview{margin-top:1rem;overflow-x:auto}
+.table-preview table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:8px;overflow:hidden}
+.table-preview th{background:#ecfdf5;font-size:.78rem;padding:.5rem .7rem;text-align:left;border:1px solid var(--border);color:var(--accent);font-weight:700}
+.table-preview td{font-size:.82rem;padding:.45rem .7rem;border:1px solid var(--border)}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Table<span>Convert</span></div></nav>
+<main>
+<h1>Table Converter</h1>
+<p class="sub">Paste CSV data and convert to JSON, HTML, Markdown, or SQL.</p>
+<div class="grid">
+<div class="panel">
+<div class="panel-head"><h3>Input (CSV)</h3></div>
+<textarea id="input" placeholder="name,age,city&#10;Alice,30,NYC&#10;Bob,25,London&#10;Charlie,35,Tokyo">name,age,city
+Alice,30,NYC
+Bob,25,London
+Charlie,35,Tokyo</textarea>
+</div>
+<div class="panel">
+<div class="panel-head"><h3>Output</h3><select id="format" onchange="convert()"><option value="json">JSON</option><option value="html">HTML Table</option><option value="markdown">Markdown</option><option value="sql">SQL INSERT</option><option value="tsv">TSV</option><option value="xml">XML</option></select></div>
+<div class="output" id="output"></div>
+</div>
+</div>
+<div class="actions">
+<button onclick="convert()">Convert</button>
+<button class="sec" onclick="copyOutput()">Copy Output</button>
+</div>
+<div class="table-preview" id="tablePreview"></div>
+</main>
+<footer>&copy; 2026 TableConvert &mdash; Table format converter. Everything runs in your browser.</footer>
+<script>
+const input=document.getElementById('input'),output=document.getElementById('output'),format=document.getElementById('format'),preview=document.getElementById('tablePreview');
+input.addEventListener('input',convert);
+function parseCSV(text){const lines=text.trim().split('\n').map(l=>{const result=[];let cur='',inQ=false;for(let i=0;i<l.length;i++){if(l[i]==='"')inQ=!inQ;else if(l[i]===','&&!inQ){result.push(cur.trim());cur=''}else cur+=l[i]}result.push(cur.trim());return result});
+return{headers:lines[0]||[],rows:lines.slice(1)}}
+function convert(){const{headers,rows}=parseCSV(input.value);const fmt=format.value;let out='';
+if(fmt==='json'){const arr=rows.map(r=>{const obj={};headers.forEach((h,i)=>obj[h]=r[i]||'');return obj});out=JSON.stringify(arr,null,2)}
+else if(fmt==='html'){out=`<table>\n  <thead>\n    <tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>\n  </thead>\n  <tbody>\n${rows.map(r=>`    <tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('\n')}\n  </tbody>\n</table>`}
+else if(fmt==='markdown'){const sep=headers.map(()=>'---');out=`| ${headers.join(' | ')} |\n| ${sep.join(' | ')} |\n${rows.map(r=>`| ${r.join(' | ')} |`).join('\n')}`}
+else if(fmt==='sql'){const table='my_table';out=rows.map(r=>`INSERT INTO ${table} (${headers.join(', ')}) VALUES (${r.map(v=>`'${v}'`).join(', ')});`).join('\n')}
+else if(fmt==='tsv'){out=[headers.join('\t'),...rows.map(r=>r.join('\t'))].join('\n')}
+else if(fmt==='xml'){out=`<rows>\n${rows.map(r=>`  <row>\n${headers.map((h,i)=>`    <${h}>${r[i]||''}</${h}>`).join('\n')}\n  </row>`).join('\n')}\n</rows>`}
+output.textContent=out;
+preview.innerHTML='';if(rows.length){const t=document.createElement('table');t.innerHTML=`<thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>`;preview.appendChild(t)}}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function copyOutput(){navigator.clipboard.writeText(output.textContent)}
+convert();
+</script>
+</body>
+</html>
