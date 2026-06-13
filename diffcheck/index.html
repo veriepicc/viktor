@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiffCheck — Text Comparison & Diff Tool</title>
+<meta name="description" content="Compare two texts and see the differences highlighted. Free online text diff and comparison tool.">
+<meta name="keywords" content="text diff, compare text, text comparison, diff checker, text difference">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔀</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1b1d23;--surface:#23262e;--border:#2e323c;--accent:#61afef;--green:#98c379;--red:#e06c75;--yellow:#e5c07b;--text:#abb2bf;--muted:#5c6370;--green-bg:rgba(152,195,121,.12);--red-bg:rgba(224,108,117,.12)}
+body{font-family:'SF Mono','Fira Code',monospace;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+nav{padding:.8rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.1rem;font-weight:700;color:#e5e5e5}.logo span{color:var(--accent)}
+.compare-btn{background:var(--accent);color:#282c34;border:none;padding:.45rem 1.2rem;border-radius:6px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.compare-btn:hover{opacity:.85}
+.editor-wrap{display:flex;flex:1;min-height:0}
+.editor{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+.editor:last-child{border-right:none}
+.editor .head{padding:.5rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);font-size:.75rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.editor .head .dot{width:8px;height:8px;border-radius:50%;margin-right:.5rem}
+.editor textarea{flex:1;padding:.8rem 1rem;background:var(--bg);border:none;color:var(--text);font-family:inherit;font-size:.82rem;line-height:1.7;resize:none;outline:none}
+.result-wrap{display:flex;flex:1;min-height:0;display:none}
+.result{flex:1;padding:.8rem 1rem;overflow:auto;font-size:.82rem;line-height:1.7;border-right:1px solid var(--border)}
+.result:last-child{border-right:none}
+.diff-line{padding:.05rem .4rem;border-radius:2px;white-space:pre-wrap;word-break:break-all}
+.diff-add{background:var(--green-bg);border-left:3px solid var(--green);color:var(--green)}
+.diff-remove{background:var(--red-bg);border-left:3px solid var(--red);color:var(--red)}
+.diff-same{border-left:3px solid transparent;color:var(--muted)}
+.stats{padding:.5rem 1.5rem;background:var(--surface);border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);display:flex;gap:1.5rem}
+.stats .s{display:flex;align-items:center;gap:.3rem}
+.stats .dot-g{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.stats .dot-r{width:8px;height:8px;border-radius:50%;background:var(--red)}
+footer{padding:.8rem;text-align:center;color:var(--muted);font-size:.68rem;border-top:1px solid var(--border)}
+@media(max-width:700px){.editor-wrap,.result-wrap{flex-direction:column}.editor,.result{border-right:none;border-bottom:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<nav><div class="logo">Diff<span>Check</span></div><button class="compare-btn" onclick="compare()">Compare</button></nav>
+<div class="editor-wrap" id="editors">
+<div class="editor">
+<div class="head"><span><span class="dot" style="background:var(--red);display:inline-block"></span>Original</span><button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem" onclick="document.getElementById('left').value=''">Clear</button></div>
+<textarea id="left" placeholder="Paste original text here...">The quick brown fox jumps over the lazy dog.
+Lorem ipsum dolor sit amet.
+This line stays the same.
+This line will be removed.</textarea>
+</div>
+<div class="editor">
+<div class="head"><span><span class="dot" style="background:var(--green);display:inline-block"></span>Modified</span><button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem" onclick="document.getElementById('right').value=''">Clear</button></div>
+<textarea id="right" placeholder="Paste modified text here...">The quick brown fox leaps over the lazy dog.
+Lorem ipsum dolor sit amet.
+This line stays the same.
+This is a new line that was added.</textarea>
+</div>
+</div>
+<div class="result-wrap" id="resultWrap">
+<div class="result" id="resultLeft"></div>
+<div class="result" id="resultRight"></div>
+</div>
+<div class="stats" id="stats"></div>
+<footer>&copy; 2026 DiffCheck &mdash; Text comparison tool. Everything runs in your browser.</footer>
+<script>
+function compare(){const l=document.getElementById('left').value.split('\n'),r=document.getElementById('right').value.split('\n');
+const dp=Array(l.length+1).fill(null).map(()=>Array(r.length+1).fill(0));
+for(let i=1;i<=l.length;i++)for(let j=1;j<=r.length;j++)dp[i][j]=l[i-1]===r[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+const leftLines=[],rightLines=[];let i=l.length,j=r.length;
+const pairs=[];
+while(i>0||j>0){if(i>0&&j>0&&l[i-1]===r[j-1]){pairs.unshift({type:'same',left:l[i-1],right:r[j-1]});i--;j--}else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){pairs.unshift({type:'add',right:r[j-1]});j--}else{pairs.unshift({type:'remove',left:l[i-1]});i--}}
+const rl=document.getElementById('resultLeft'),rr=document.getElementById('resultRight');
+rl.innerHTML='';rr.innerHTML='';
+let adds=0,removes=0;
+pairs.forEach(p=>{if(p.type==='same'){rl.innerHTML+=`<div class="diff-line diff-same">${esc(p.left)}</div>`;rr.innerHTML+=`<div class="diff-line diff-same">${esc(p.right)}</div>`}
+else if(p.type==='remove'){rl.innerHTML+=`<div class="diff-line diff-remove">- ${esc(p.left)}</div>`;rr.innerHTML+=`<div class="diff-line diff-same">&nbsp;</div>`;removes++}
+else{rl.innerHTML+=`<div class="diff-line diff-same">&nbsp;</div>`;rr.innerHTML+=`<div class="diff-line diff-add">+ ${esc(p.right)}</div>`;adds++}});
+document.getElementById('editors').style.display='none';document.getElementById('resultWrap').style.display='flex';
+document.getElementById('stats').innerHTML=`<div class="s"><div class="dot-g"></div>${adds} added</div><div class="s"><div class="dot-r"></div>${removes} removed</div><div class="s">${pairs.filter(p=>p.type==='same').length} unchanged</div><button style="background:none;border:1px solid var(--border);color:var(--muted);padding:.2rem .6rem;border-radius:4px;cursor:pointer;font-size:.72rem;margin-left:auto" onclick="backToEdit()">← Edit</button>`}
+function backToEdit(){document.getElementById('editors').style.display='flex';document.getElementById('resultWrap').style.display='none';document.getElementById('stats').innerHTML=''}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+</script>
+</body>
+</html>
