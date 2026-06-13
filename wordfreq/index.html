@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WordFreq — Word Frequency Counter & Text Analyzer</title>
+<meta name="description" content="Analyze word frequency in any text. Find most common words, phrases. Free word frequency counter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#18181b;--surface:#27272a;--border:#3f3f46;--accent:#a78bfa;--text:#e4e4e7;--muted:#71717a}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
+textarea{width:100%;min-height:150px;padding:.8rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;line-height:1.6;outline:none;resize:vertical;font-family:inherit;margin-bottom:1rem}
+textarea:focus{border-color:var(--accent)}
+.opts{display:flex;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.opt{display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:var(--muted);cursor:pointer}
+.opt input{accent-color:var(--accent)}
+.opt select{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:.2rem .4rem;font-size:.78rem}
+.results{display:grid;gap:.8rem}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.section h3{padding:.5rem .8rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:700}
+.word-row{display:flex;align-items:center;padding:.35rem .8rem;border-bottom:1px solid rgba(63,63,70,.5);font-size:.82rem;gap:.5rem}
+.word-row:last-child{border-bottom:none}
+.word-row .rank{color:var(--muted);font-size:.7rem;min-width:20px}
+.word-row .word{font-weight:600;flex:1;font-family:'SF Mono',monospace}
+.word-row .count{color:var(--accent);font-family:'SF Mono',monospace;font-size:.78rem;min-width:30px;text-align:right}
+.word-row .bar{flex:2;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.word-row .bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+</style>
+</head>
+<body>
+<main>
+<h1>Word Frequency Counter</h1>
+<p class="sub">Paste text to see which words appear most often.</p>
+<textarea id="input" oninput="analyze()" placeholder="Paste your text here...">The quick brown fox jumps over the lazy dog. The dog barked at the fox. The fox ran away from the dog. Dogs and foxes are natural enemies, but this dog and this fox were actually friends. The end of the story about the dog and the fox.</textarea>
+<div class="opts">
+<label class="opt"><input type="checkbox" id="stopwords" onchange="analyze()"> Hide common words (the, a, is...)</label>
+<label class="opt">Show top <select id="topN" onchange="analyze()"><option>10</option><option>20</option><option selected>30</option><option>50</option><option>100</option></select></label>
+<label class="opt">Min length <select id="minLen" onchange="analyze()"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+</div>
+<div class="results" id="results"></div>
+</main>
+<script>
+const stopWords=new Set('the a an and or but in on at to for of is it its that this with from by as are was were be been being have has had do does did will would shall should may might can could'.split(' '));
+function analyze(){
+  const text=document.getElementById('input').value;
+  const hideStop=document.getElementById('stopwords').checked;
+  const topN=parseInt(document.getElementById('topN').value);
+  const minLen=parseInt(document.getElementById('minLen').value);
+  const words=text.toLowerCase().replace(/[^a-z0-9\s'-]/g,'').split(/\s+/).filter(w=>w.length>=minLen);
+  if(!words.length){document.getElementById('results').innerHTML='';return}
+
+  const freq={};
+  words.forEach(w=>{if(!hideStop||!stopWords.has(w))freq[w]=(freq[w]||0)+1});
+
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,topN);
+  const maxCount=sorted[0]?sorted[0][1]:1;
+  const totalWords=words.length;
+  const uniqueWords=new Set(words).size;
+
+  let html=`<div class="section"><h3>Stats</h3>
+    <div class="word-row"><span class="word">Total words</span><span class="count">${totalWords}</span></div>
+    <div class="word-row"><span class="word">Unique words</span><span class="count">${uniqueWords}</span></div>
+    <div class="word-row"><span class="word">Diversity ratio</span><span class="count">${(uniqueWords/totalWords*100).toFixed(1)}%</span></div>
+  </div>`;
+
+  html+=`<div class="section"><h3>Top ${sorted.length} Words</h3>`;
+  sorted.forEach(([word,count],i)=>{
+    const pct=(count/maxCount)*100;
+    html+=`<div class="word-row"><span class="rank">${i+1}</span><span class="word">${word}</span><div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div><span class="count">${count}</span></div>`;
+  });
+  html+='</div>';
+  document.getElementById('results').innerHTML=html;
+}
+analyze();
+</script>
+</body>
+</html>
