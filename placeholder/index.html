@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placeholder Image Generator — Custom Size, Color & Text</title>
+<meta name="description" content="Generate placeholder images with custom dimensions, colors, and text. Download PNG or copy data URL. Free placeholder image maker.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#1a1a2e;color:#e5e5e5;min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#16213e;border:1px solid #0f3460;border-radius:14px;padding:1.2rem;margin-bottom:1rem}
+.card h3{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#7e8ba5;margin-bottom:.6rem;font-weight:700}
+.row{display:flex;gap:.5rem;margin-bottom:.6rem}.row .field{flex:1}
+.field{margin-bottom:.6rem}
+.field label{display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;color:#7e8ba5;font-weight:600;margin-bottom:.2rem}
+.field input,.field select{width:100%;padding:.4rem;background:#1a1a2e;border:1px solid #0f3460;border-radius:6px;color:#e5e5e5;font-size:.85rem;outline:none;font-family:inherit}
+.field input:focus{border-color:#e94560}
+.presets{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.8rem}
+.preset{padding:.25rem .5rem;border-radius:5px;font-size:.65rem;font-weight:600;cursor:pointer;border:1px solid #0f3460;color:#7e8ba5;background:#1a1a2e}
+.preset:hover{border-color:#e94560;color:#e94560}
+.preview{text-align:center;margin-bottom:.5rem}
+.preview canvas{max-width:100%;border-radius:8px;border:1px solid #0f3460}
+.actions{display:flex;gap:.4rem}
+.btn{flex:1;padding:.5rem;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;text-align:center}
+.btn-primary{background:#e94560;color:#fff}
+.btn-secondary{background:#0f3460;color:#e5e5e5}
+</style>
+</head>
+<body>
+<main>
+<h1>Placeholder Image</h1>
+<div class="card">
+<h3>Presets</h3>
+<div class="presets">
+<div class="preset" onclick="setSize(1920,1080)">1920×1080</div>
+<div class="preset" onclick="setSize(1280,720)">1280×720</div>
+<div class="preset" onclick="setSize(800,600)">800×600</div>
+<div class="preset" onclick="setSize(400,300)">400×300</div>
+<div class="preset" onclick="setSize(300,250)">300×250 Ad</div>
+<div class="preset" onclick="setSize(728,90)">728×90 Banner</div>
+<div class="preset" onclick="setSize(1200,630)">OG Image</div>
+<div class="preset" onclick="setSize(1080,1080)">1080² IG</div>
+<div class="preset" onclick="setSize(150,150)">150² Avatar</div>
+<div class="preset" onclick="setSize(16,16)">16² Favicon</div>
+</div>
+<div class="row">
+<div class="field"><label>Width</label><input type="number" id="w" value="800" oninput="gen()"></div>
+<div class="field"><label>Height</label><input type="number" id="h" value="600" oninput="gen()"></div>
+</div>
+<div class="row">
+<div class="field"><label>Background</label><input type="color" id="bg" value="#cccccc" oninput="gen()"></div>
+<div class="field"><label>Text Color</label><input type="color" id="fg" value="#666666" oninput="gen()"></div>
+</div>
+<div class="field"><label>Text (leave blank for dimensions)</label><input type="text" id="text" placeholder="800 × 600" oninput="gen()"></div>
+<div class="field"><label>Format</label><select id="fmt" onchange="gen()"><option value="png">PNG</option><option value="jpeg">JPEG</option><option value="webp">WebP</option></select></div>
+</div>
+<div class="card">
+<div class="preview"><canvas id="canvas"></canvas></div>
+<div class="actions">
+<button class="btn btn-primary" onclick="download()">Download</button>
+<button class="btn btn-secondary" onclick="copyURL()">Copy Data URL</button>
+</div>
+</div>
+</main>
+<script>
+function setSize(w,h){document.getElementById('w').value=w;document.getElementById('h').value=h;gen()}
+function gen(){
+  const w=Math.min(parseInt(document.getElementById('w').value)||100,4096);
+  const h=Math.min(parseInt(document.getElementById('h').value)||100,4096);
+  const bg=document.getElementById('bg').value;
+  const fg=document.getElementById('fg').value;
+  const text=document.getElementById('text').value||`${w} × ${h}`;
+  
+  const canvas=document.getElementById('canvas');
+  canvas.width=w;canvas.height=h;
+  // Display at max 100% width
+  canvas.style.width=Math.min(w,canvas.parentElement.clientWidth)+'px';
+  
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+  
+  // Cross lines
+  ctx.strokeStyle=fg;ctx.globalAlpha=.15;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w,0);ctx.lineTo(0,h);ctx.stroke();
+  ctx.globalAlpha=1;
+  
+  // Text
+  const fontSize=Math.max(12,Math.min(w,h)/8);
+  ctx.fillStyle=fg;ctx.font=`bold ${fontSize}px Inter, sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(text,w/2,h/2);
+}
+function download(){
+  const fmt=document.getElementById('fmt').value;
+  const canvas=document.getElementById('canvas');
+  const a=document.createElement('a');
+  a.download=`placeholder-${canvas.width}x${canvas.height}.${fmt}`;
+  a.href=canvas.toDataURL(`image/${fmt}`,0.9);
+  a.click();
+}
+function copyURL(){
+  const fmt=document.getElementById('fmt').value;
+  navigator.clipboard.writeText(document.getElementById('canvas').toDataURL(`image/${fmt}`,0.9));
+}
+gen();
+</script>
+</body>
+</html>
