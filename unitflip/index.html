@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UnitFlip — Universal Unit Converter</title>
+<meta name="description" content="Convert between units of length, weight, temperature, speed, data, time, and more. Fast, free, no ads. Runs in your browser.">
+<meta name="keywords" content="unit converter, convert units, length converter, weight converter, temperature converter, metric imperial">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--accent:#6366f1;--accent2:#818cf8;--text:#1e293b;--muted:#94a3b8}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.logo{font-size:1.2rem;font-weight:800;letter-spacing:-.02em}.logo span{color:var(--accent)}
+main{max-width:600px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:.3rem;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.categories{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem}
+.cat{padding:.4rem .9rem;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+.cat.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cat:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.converter{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem}
+.conv-row{display:flex;gap:.8rem;align-items:center;margin-bottom:1rem}
+.conv-row:last-child{margin-bottom:0}
+.conv-field{flex:1;display:flex;flex-direction:column;gap:.3rem}
+.conv-field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.conv-field input{padding:.65rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:1.1rem;font-weight:600;color:var(--text);font-family:inherit;outline:none;transition:border-color .15s}
+.conv-field input:focus{border-color:var(--accent)}
+.conv-field select{padding:.65rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;color:var(--text);font-family:inherit;background:var(--surface);cursor:pointer}
+.swap-btn{background:var(--accent);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:transform .2s;margin-top:1.2rem;flex-shrink:0}
+.swap-btn:hover{transform:rotate(180deg)}
+.formula{margin-top:.8rem;font-size:.78rem;color:var(--muted);text-align:center;font-style:italic}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Unit<span>Flip</span></div></nav>
+<main>
+<h1>Unit Converter</h1>
+<p class="sub">Convert between any units instantly.</p>
+<div class="categories" id="cats"></div>
+<div class="converter">
+<div class="conv-row">
+<div class="conv-field"><label>From</label><input type="number" id="fromVal" value="1"><select id="fromUnit"></select></div>
+<button class="swap-btn" onclick="swap()">⇄</button>
+<div class="conv-field"><label>To</label><input type="number" id="toVal" readonly><select id="toUnit"></select></div>
+</div>
+</div>
+<div class="formula" id="formula"></div>
+</main>
+<footer>&copy; 2026 UnitFlip &mdash; Universal unit converter. Runs locally in your browser.</footer>
+<script>
+const data={
+Length:{m:1,km:1000,cm:.01,mm:.001,mi:1609.344,yd:.9144,ft:.3048,in:.0254,nm:1852,μm:.000001},
+Weight:{kg:1,g:.001,mg:.000001,lb:.453592,oz:.0283495,ton:1000,st:6.35029},
+Temperature:{_custom:true,units:['°C','°F','K']},
+Speed:{'m/s':1,'km/h':.277778,'mph':.44704,knot:.514444,'ft/s':.3048},
+Data:{byte:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776,bit:.125,Kbit:128,Mbit:131072},
+Time:{s:1,ms:.001,min:60,h:3600,day:86400,week:604800,year:31557600},
+Area:{m²:1,km²:1e6,cm²:1e-4,ha:1e4,acre:4046.86,ft²:.0929,'in²':.000645},
+Volume:{L:1,mL:.001,gal:3.78541,qt:.946353,pt:.473176,cup:.236588,'fl oz':.0295735,m³:1000}
+};
+let currentCat='Length';
+const cats=document.getElementById('cats'),fromVal=document.getElementById('fromVal'),toVal=document.getElementById('toVal'),fromUnit=document.getElementById('fromUnit'),toUnit=document.getElementById('toUnit'),formula=document.getElementById('formula');
+Object.keys(data).forEach(c=>{const d=document.createElement('div');d.className='cat'+(c===currentCat?' active':'');d.textContent=c;d.onclick=()=>{currentCat=c;document.querySelectorAll('.cat').forEach(e=>e.classList.remove('active'));d.classList.add('active');loadUnits()};cats.appendChild(d)});
+function loadUnits(){const cat=data[currentCat];const units=cat._custom?cat.units:Object.keys(cat);
+fromUnit.innerHTML=toUnit.innerHTML='';units.forEach((u,i)=>{fromUnit.add(new Option(u,u));toUnit.add(new Option(u,u))});
+if(units.length>1)toUnit.selectedIndex=1;convert()}
+fromVal.oninput=fromUnit.onchange=toUnit.onchange=convert;
+function convert(){const cat=data[currentCat],f=fromUnit.value,t=toUnit.value,v=parseFloat(fromVal.value);
+if(isNaN(v)){toVal.value='';formula.textContent='';return}
+let result;
+if(cat._custom&&currentCat==='Temperature'){
+if(f===t)result=v;
+else if(f==='°C'&&t==='°F')result=v*9/5+32;
+else if(f==='°F'&&t==='°C')result=(v-32)*5/9;
+else if(f==='°C'&&t==='K')result=v+273.15;
+else if(f==='K'&&t==='°C')result=v-273.15;
+else if(f==='°F'&&t==='K')result=(v-32)*5/9+273.15;
+else if(f==='K'&&t==='°F')result=(v-273.15)*9/5+32;
+}else{result=v*cat[f]/cat[t]}
+toVal.value=Number.isInteger(result)?result:result.toPrecision(10).replace(/\.?0+$/,'');
+formula.textContent=`1 ${f} = ${(cat._custom?'':((cat[f]/cat[t]).toPrecision(6).replace(/\.?0+$/,'')))+' '}${t}`}
+function swap(){const f=fromUnit.value,t=toUnit.value,v=toVal.value;fromUnit.value=t;toUnit.value=f;fromVal.value=v;convert()}
+loadUnits();
+</script>
+</body>
+</html>
