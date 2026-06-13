@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP Builder — Content Security Policy Header Generator</title>
+<meta name="description" content="Build Content-Security-Policy headers visually. Configure script-src, style-src, img-src, and more. Free CSP generator tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--accent:#38bdf8;--text:#e2e8f0;--muted:#64748b;--warn:#f59e0b}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:.5rem}
+.sub{font-size:.82rem;color:var(--muted);margin-bottom:1.5rem}
+.directive{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem}
+.directive .head{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.directive .name{font-size:.82rem;font-weight:700;font-family:'SF Mono',monospace;color:var(--accent)}
+.directive .desc{font-size:.65rem;color:var(--muted)}
+.directive .values{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.chip{padding:.2rem .5rem;border-radius:4px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--bg);transition:all .15s}
+.chip.active{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.08)}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.custom-input{display:flex;gap:.3rem;margin-top:.3rem}
+.custom-input input{flex:1;padding:.3rem .5rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.75rem;outline:none;font-family:inherit}
+.custom-input button{background:var(--accent);color:var(--bg);border:none;padding:.3rem .5rem;border-radius:5px;font-size:.7rem;font-weight:700;cursor:pointer}
+.output{background:#020617;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1rem}
+.output-head{display:flex;justify-content:space-between;padding:.5rem .8rem;border-bottom:1px solid var(--border);align-items:center}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.btn{background:var(--accent);color:#0f172a;border:none;padding:.35rem .7rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer}
+.output pre{padding:.8rem;font-size:.75rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--accent);font-family:'SF Mono',monospace}
+.tabs{display:flex;gap:.3rem;margin-bottom:.3rem}
+.tab{padding:.3rem .6rem;border-radius:5px;font-size:.7rem;font-weight:600;cursor:pointer;color:var(--muted);border:1px solid var(--border);background:var(--surface)}
+.tab.active{color:var(--accent);border-color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<h1>CSP Header Builder</h1>
+<p class="sub">Build your Content-Security-Policy header by selecting sources for each directive.</p>
+<div id="directives"></div>
+<div class="tabs">
+<div class="tab active" onclick="setMode('header',this)">HTTP Header</div>
+<div class="tab" onclick="setMode('meta',this)">Meta Tag</div>
+<div class="tab" onclick="setMode('nginx',this)">Nginx</div>
+<div class="tab" onclick="setMode('apache',this)">Apache</div>
+</div>
+<div class="output">
+<div class="output-head"><span id="modeLabel">HTTP Header</span><button class="btn" onclick="cp()">Copy</button></div>
+<pre id="output"></pre>
+</div>
+</main>
+<script>
+const directives=[
+  {name:'default-src',desc:'Fallback for other directives',sources:["'none'","'self'","'unsafe-inline'","'unsafe-eval'","https:","data:","blob:","*"]},
+  {name:'script-src',desc:'JavaScript sources',sources:["'none'","'self'","'unsafe-inline'","'unsafe-eval'","https:","data:","blob:","*.googleapis.com","*.cloudflare.com","cdn.jsdelivr.net"]},
+  {name:'style-src',desc:'CSS sources',sources:["'none'","'self'","'unsafe-inline'","https:","fonts.googleapis.com","cdn.jsdelivr.net"]},
+  {name:'img-src',desc:'Image sources',sources:["'none'","'self'","https:","data:","blob:","*.imgur.com","*.cloudinary.com","*"]},
+  {name:'font-src',desc:'Font sources',sources:["'none'","'self'","https:","data:","fonts.gstatic.com","cdn.jsdelivr.net"]},
+  {name:'connect-src',desc:'Fetch, XHR, WebSocket',sources:["'none'","'self'","https:","wss:","*.googleapis.com","*.sentry.io"]},
+  {name:'media-src',desc:'Audio/video sources',sources:["'none'","'self'","https:","blob:","data:"]},
+  {name:'frame-src',desc:'Iframe sources',sources:["'none'","'self'","https:","*.youtube.com","*.vimeo.com","*.google.com"]},
+  {name:'object-src',desc:'Plugin sources (Flash etc)',sources:["'none'","'self'"]},
+  {name:'base-uri',desc:'Base URL restriction',sources:["'none'","'self'"]},
+  {name:'form-action',desc:'Form submission targets',sources:["'none'","'self'","https:"]},
+  {name:'frame-ancestors',desc:'Who can embed this page',sources:["'none'","'self'","https:"]},
+];
+
+let state={};
+directives.forEach(d=>state[d.name]=[]);
+let mode='header';
+let customSources={};
+directives.forEach(d=>customSources[d.name]=[]);
+
+function setMode(m,el){mode=m;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');gen()}
+
+function renderDirectives(){
+  document.getElementById('directives').innerHTML=directives.map(d=>{
+    const allSources=[...d.sources,...customSources[d.name]];
+    return`<div class="directive"><div class="head"><div><span class="name">${d.name}</span> <span class="desc">${d.desc}</span></div></div><div class="values">${allSources.map(s=>`<div class="chip ${state[d.name].includes(s)?'active':''} ${(s==="'unsafe-inline'"||s==="'unsafe-eval'"||s==='*')&&state[d.name].includes(s)?'warn':''}" onclick="toggle('${d.name}','${s}')">${s}</div>`).join('')}</div><div class="custom-input"><input id="custom_${d.name}" placeholder="custom source (e.g. cdn.example.com)"><button onclick="addCustom('${d.name}')">Add</button></div></div>`;
+  }).join('');
+}
+
+function toggle(dir,src){
+  const idx=state[dir].indexOf(src);
+  if(idx>=0)state[dir].splice(idx,1);else state[dir].push(src);
+  renderDirectives();gen();
+}
+
+function addCustom(dir){
+  const input=document.getElementById('custom_'+dir);
+  const val=input.value.trim();
+  if(!val)return;
+  customSources[dir].push(val);
+  state[dir].push(val);
+  input.value='';
+  renderDirectives();gen();
+}
+
+function gen(){
+  const parts=[];
+  directives.forEach(d=>{if(state[d.name].length)parts.push(`${d.name} ${state[d.name].join(' ')}`)});
+  const policy=parts.join('; ');
+  let out='';
+  if(!policy){out='# Select sources above to build your CSP';}
+  else if(mode==='header')out=`Content-Security-Policy: ${policy}`;
+  else if(mode==='meta')out=`<meta http-equiv="Content-Security-Policy" content="${policy}">`;
+  else if(mode==='nginx')out=`add_header Content-Security-Policy "${policy}" always;`;
+  else if(mode==='apache')out=`Header set Content-Security-Policy "${policy}"`;
+  document.getElementById('output').textContent=out;
+  document.getElementById('modeLabel').textContent=mode==='header'?'HTTP Header':mode==='meta'?'HTML Meta Tag':mode==='nginx'?'Nginx Config':'Apache Config';
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+renderDirectives();gen();
+</script>
+</body>
+</html>
