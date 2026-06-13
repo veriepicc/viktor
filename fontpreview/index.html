@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Preview — Test Google Fonts with Custom Text Free</title>
+<meta name="description" content="Preview and compare Google Fonts with your own text. Test font sizes, weights, colors. Find perfect font pairings. Free font tester.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.row{display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:end}
+.field{flex:1;min-width:120px}.field label{display:block;font-size:.6rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
+.field input,.field select{width:100%;padding:.4rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.8rem;outline:none;font-family:inherit}
+.field input[type=range]{accent-color:#f59e0b}
+.field input[type=color]{height:32px;padding:2px}
+.fonts{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem}
+.font-card{background:#111;border:1px solid #222;border-radius:10px;padding:1rem;cursor:pointer;transition:all .15s}
+.font-card:hover{border-color:#f59e0b}
+.font-card .name{font-size:.6rem;color:#888;font-weight:600;text-transform:uppercase;margin-bottom:.4rem;display:flex;justify-content:space-between}
+.font-card .sample{line-height:1.3;word-wrap:break-word}
+.font-card .copy{font-size:.55rem;color:#555;margin-top:.3rem;text-align:right}
+</style>
+</head>
+<body>
+<main>
+<h1>🔤 Font Preview</h1>
+<div class="card">
+<div class="row">
+<div class="field" style="flex:3"><label>Preview Text</label><input type="text" id="text" value="The quick brown fox jumps over the lazy dog" oninput="render()"></div>
+</div>
+<div class="row">
+<div class="field"><label>Size: <span id="sizeVal">32px</span></label><input type="range" id="size" min="12" max="120" value="32" oninput="document.getElementById('sizeVal').textContent=this.value+'px';render()"></div>
+<div class="field"><label>Weight</label><select id="weight" onchange="render()"><option value="300">Light</option><option value="400" selected>Regular</option><option value="500">Medium</option><option value="600">Semi Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option><option value="900">Black</option></select></div>
+<div class="field"><label>Color</label><input type="color" id="color" value="#ffffff" oninput="render()"></div>
+<div class="field"><label>BG</label><input type="color" id="bg" value="#111111" oninput="render()"></div>
+</div>
+<div class="row">
+<div class="field"><label>Category</label><select id="category" onchange="render()"><option value="all">All</option><option value="serif">Serif</option><option value="sans">Sans-Serif</option><option value="mono">Monospace</option><option value="display">Display</option><option value="handwriting">Handwriting</option></select></div>
+</div>
+</div>
+<div class="fonts" id="fonts"></div>
+</main>
+<script>
+const fonts=[
+  {name:'Inter',cat:'sans',import:'Inter:wght@300;400;500;600;700;800;900'},
+  {name:'Roboto',cat:'sans',import:'Roboto:wght@300;400;500;700;900'},
+  {name:'Open Sans',cat:'sans',import:'Open+Sans:wght@300;400;600;700;800'},
+  {name:'Poppins',cat:'sans',import:'Poppins:wght@300;400;500;600;700;800;900'},
+  {name:'Montserrat',cat:'sans',import:'Montserrat:wght@300;400;500;600;700;800;900'},
+  {name:'Lato',cat:'sans',import:'Lato:wght@300;400;700;900'},
+  {name:'Nunito',cat:'sans',import:'Nunito:wght@300;400;600;700;800;900'},
+  {name:'Raleway',cat:'sans',import:'Raleway:wght@300;400;500;600;700;800;900'},
+  {name:'Ubuntu',cat:'sans',import:'Ubuntu:wght@300;400;500;700'},
+  {name:'Outfit',cat:'sans',import:'Outfit:wght@300;400;500;600;700;800;900'},
+  {name:'Space Grotesk',cat:'sans',import:'Space+Grotesk:wght@300;400;500;600;700'},
+  {name:'DM Sans',cat:'sans',import:'DM+Sans:wght@300;400;500;600;700'},
+  {name:'Playfair Display',cat:'serif',import:'Playfair+Display:wght@400;500;600;700;800;900'},
+  {name:'Merriweather',cat:'serif',import:'Merriweather:wght@300;400;700;900'},
+  {name:'Lora',cat:'serif',import:'Lora:wght@400;500;600;700'},
+  {name:'PT Serif',cat:'serif',import:'PT+Serif:wght@400;700'},
+  {name:'Crimson Text',cat:'serif',import:'Crimson+Text:wght@400;600;700'},
+  {name:'Libre Baskerville',cat:'serif',import:'Libre+Baskerville:wght@400;700'},
+  {name:'Cormorant Garamond',cat:'serif',import:'Cormorant+Garamond:wght@300;400;500;600;700'},
+  {name:'Fira Code',cat:'mono',import:'Fira+Code:wght@300;400;500;600;700'},
+  {name:'JetBrains Mono',cat:'mono',import:'JetBrains+Mono:wght@300;400;500;600;700;800'},
+  {name:'Source Code Pro',cat:'mono',import:'Source+Code+Pro:wght@300;400;500;600;700;800;900'},
+  {name:'IBM Plex Mono',cat:'mono',import:'IBM+Plex+Mono:wght@300;400;500;600;700'},
+  {name:'Space Mono',cat:'mono',import:'Space+Mono:wght@400;700'},
+  {name:'Lobster',cat:'display',import:'Lobster'},
+  {name:'Pacifico',cat:'display',import:'Pacifico'},
+  {name:'Bebas Neue',cat:'display',import:'Bebas+Neue'},
+  {name:'Anton',cat:'display',import:'Anton'},
+  {name:'Righteous',cat:'display',import:'Righteous'},
+  {name:'Bungee',cat:'display',import:'Bungee'},
+  {name:'Permanent Marker',cat:'handwriting',import:'Permanent+Marker'},
+  {name:'Caveat',cat:'handwriting',import:'Caveat:wght@400;500;600;700'},
+  {name:'Dancing Script',cat:'handwriting',import:'Dancing+Script:wght@400;500;600;700'},
+  {name:'Satisfy',cat:'handwriting',import:'Satisfy'},
+  {name:'Indie Flower',cat:'handwriting',import:'Indie+Flower'},
+  {name:'Kalam',cat:'handwriting',import:'Kalam:wght@300;400;700'},
+];
+
+// Load all fonts
+const link=document.createElement('link');
+link.rel='stylesheet';
+link.href='https://fonts.googleapis.com/css2?'+fonts.map(f=>'family='+f.import).join('&')+'&display=swap';
+document.head.appendChild(link);
+
+function render(){
+  const text=document.getElementById('text').value||'The quick brown fox jumps over the lazy dog';
+  const size=document.getElementById('size').value;
+  const weight=document.getElementById('weight').value;
+  const color=document.getElementById('color').value;
+  const bg=document.getElementById('bg').value;
+  const cat=document.getElementById('category').value;
+  
+  const filtered=cat==='all'?fonts:fonts.filter(f=>f.cat===cat);
+  
+  document.getElementById('fonts').innerHTML=filtered.map(f=>{
+    const importUrl=`@import url('https://fonts.googleapis.com/css2?family=${f.import}&display=swap');`;
+    return `<div class="font-card" style="background:${bg}" onclick="navigator.clipboard.writeText(\`${importUrl}\nfont-family: '${f.name}', sans-serif;\`)">
+      <div class="name"><span>${f.name}</span><span style="color:#555">${f.cat}</span></div>
+      <div class="sample" style="font-family:'${f.name}',sans-serif;font-size:${size}px;font-weight:${weight};color:${color}">${text}</div>
+      <div class="copy">click to copy @import + font-family</div>
+    </div>`;
+  }).join('');
+}
+render();
+</script>
+</body>
+</html>
