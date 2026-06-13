@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixSqueeze — Compress Images Instantly in Your Browser</title>
+<meta name="description" content="Free online image compressor. Reduce image file size without losing quality. No upload needed — everything runs in your browser.">
+<meta name="keywords" content="image compressor, compress image online, reduce image size, image optimizer, free image compression">
+<meta property="og:title" content="PixSqueeze — Free Online Image Compressor">
+<meta property="og:description" content="Compress images instantly in your browser. No uploads, no servers, 100% private.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗜️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--surface:#13131a;--border:#1e1e2a;--accent:#6c5ce7;--accent2:#a29bfe;--text:#e2e2e8;--muted:#6b6b80}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.grain{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.03;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+nav{padding:1.2rem 2rem;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid var(--border)}
+nav .logo{font-size:1.3rem;font-weight:700;letter-spacing:-.02em}
+nav .logo span{color:var(--accent)}
+.hero{text-align:center;padding:3.5rem 1rem 2rem}
+.hero h1{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:.7rem}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:480px;margin:0 auto}
+.drop-zone{max-width:640px;margin:2rem auto;border:2px dashed var(--border);border-radius:16px;padding:3rem 2rem;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface)}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:#17172a}
+.drop-zone input{display:none}
+.drop-zone .icon{font-size:2.8rem;margin-bottom:.8rem}
+.drop-zone p{color:var(--muted);font-size:.95rem}
+.drop-zone p strong{color:var(--accent2)}
+.controls{max-width:640px;margin:0 auto 1.5rem;display:none;padding:0 1rem}
+.slider-row{display:flex;align-items:center;gap:1rem;margin-bottom:.5rem}
+.slider-row label{font-size:.85rem;color:var(--muted);min-width:60px}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);height:6px}
+.slider-row .val{font-size:.85rem;font-weight:600;min-width:40px;text-align:right}
+.results{max-width:640px;margin:0 auto 3rem;display:none;padding:0 1rem}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.2rem}
+.result-card .thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#222}
+.result-card .info{flex:1}
+.result-card .name{font-size:.9rem;font-weight:600;margin-bottom:.25rem;word-break:break-all}
+.result-card .stats{font-size:.8rem;color:var(--muted)}
+.result-card .stats .saved{color:#00b894;font-weight:600}
+.result-card .stats .bigger{color:#e17055;font-weight:600}
+.result-card .dl-btn{background:var(--accent);color:#fff;border:none;padding:.55rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.result-card .dl-btn:hover{opacity:.85}
+.batch-dl{text-align:center;margin-top:.5rem}
+.batch-dl button{background:transparent;color:var(--accent2);border:1px solid var(--accent);padding:.6rem 1.8rem;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:600;transition:all .2s}
+.batch-dl button:hover{background:var(--accent);color:#fff}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border)}
+@media(max-width:600px){.hero h1{font-size:1.6rem}.result-card{flex-wrap:wrap}.result-card .thumb{width:44px;height:44px}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<nav><div class="logo">Pix<span>Squeeze</span></div></nav>
+<div class="hero">
+<h1>Compress images <em>instantly</em></h1>
+<p>Drop your images below. Everything runs in your browser — nothing gets uploaded anywhere.</p>
+</div>
+<div class="drop-zone" id="dropZone">
+<div class="icon">📁</div>
+<p>Drag & drop images here or <strong>click to browse</strong></p>
+<p style="margin-top:.4rem;font-size:.8rem">PNG, JPG, WebP — up to 50MB each</p>
+<input type="file" id="fileInput" accept="image/*" multiple>
+</div>
+<div class="controls" id="controls">
+<div class="slider-row">
+<label>Quality</label>
+<input type="range" id="quality" min="10" max="100" value="75">
+<span class="val" id="qualityVal">75%</span>
+</div>
+<div class="slider-row">
+<label>Max width</label>
+<input type="range" id="maxWidth" min="100" max="4000" value="2000" step="100">
+<span class="val" id="maxWidthVal">2000px</span>
+</div>
+</div>
+<div class="results" id="results"></div>
+<footer>&copy; 2026 PixSqueeze &mdash; Free online image compressor. No data leaves your browser.</footer>
+
+<script>
+const dropZone=document.getElementById('dropZone'),fileInput=document.getElementById('fileInput'),controls=document.getElementById('controls'),results=document.getElementById('results'),quality=document.getElementById('quality'),qualityVal=document.getElementById('qualityVal'),maxWidth=document.getElementById('maxWidth'),maxWidthVal=document.getElementById('maxWidthVal');
+let files=[];
+quality.oninput=()=>{qualityVal.textContent=quality.value+'%';recompress()};
+maxWidth.oninput=()=>{maxWidthVal.textContent=maxWidth.value+'px';recompress()};
+dropZone.onclick=()=>fileInput.click();
+dropZone.ondragover=e=>{e.preventDefault();dropZone.classList.add('drag')};
+dropZone.ondragleave=()=>dropZone.classList.remove('drag');
+dropZone.ondrop=e=>{e.preventDefault();dropZone.classList.remove('drag');handleFiles(e.dataTransfer.files)};
+fileInput.onchange=()=>handleFiles(fileInput.files);
+function handleFiles(f){files=[...f].filter(f=>f.type.startsWith('image/'));if(!files.length)return;controls.style.display='block';recompress()}
+function recompress(){results.style.display='block';results.innerHTML='';const q=quality.value/100,mw=parseInt(maxWidth.value);files.forEach((file,i)=>{const card=document.createElement('div');card.className='result-card';card.innerHTML=`<div class="thumb" id="t${i}"></div><div class="info"><div class="name">${file.name}</div><div class="stats">Processing...</div></div><button class="dl-btn" id="d${i}" disabled>Wait...</button>`;results.appendChild(card);compress(file,q,mw,i)})}
+function compress(file,q,mw,i){const img=new Image(),reader=new FileReader();reader.onload=e=>{img.onload=()=>{let w=img.width,h=img.height;if(w>mw){h=Math.round(h*(mw/w));w=mw}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);const type=file.type==='image/png'?'image/png':'image/jpeg';c.toBlob(blob=>{const orig=file.size,comp=blob.size,pct=((1-comp/orig)*100).toFixed(1);const thumb=document.getElementById('t'+i);thumb.style.backgroundImage=`url(${URL.createObjectURL(blob)})`;thumb.style.backgroundSize='cover';const card=thumb.parentElement;const stats=card.querySelector('.stats');const isBigger=comp>=orig;stats.innerHTML=`${fmt(orig)} → ${fmt(comp)} <span class="${isBigger?'bigger':'saved'}">${isBigger?'+':'-'}${Math.abs(pct)}%</span>`;const btn=document.getElementById('d'+i);btn.disabled=false;btn.textContent='Download';btn.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='compressed_'+file.name;a.click()}},type,q)};img.src=e.target.result};reader.readAsDataURL(file)}
+function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB'}
+</script>
+</body>
+</html>
