@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTAccess Generator — Apache Redirect & Rewrite Rule Builder</title>
+<meta name="description" content="Generate .htaccess redirect rules, rewrite rules, force HTTPS, www redirect, custom error pages. Free Apache .htaccess generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1a1625;--surface:#231f31;--border:#362f4a;--accent:#c084fc;--text:#e8e0f0;--muted:#8b7fa8}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.toggles{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.toggle{display:flex;align-items:center;gap:.6rem;cursor:pointer;font-size:.85rem}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.redirect-row{display:flex;gap:.4rem;margin-bottom:.5rem;align-items:center}
+.redirect-row input{flex:1;padding:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;font-family:inherit;outline:none}
+.redirect-row input:focus{border-color:var(--accent)}
+.redirect-row select{padding:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;outline:none}
+.redirect-row button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.2rem .4rem}
+.btn{background:var(--accent);color:#1a1625;border:none;padding:.4rem .8rem;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer}
+.btn-sm{background:var(--bg);color:var(--accent);border:1px solid var(--border);padding:.3rem .6rem;border-radius:5px;font-size:.7rem;font-weight:600;cursor:pointer}
+.output{background:#0d0a14;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1rem}
+.output-head{display:flex;justify-content:space-between;padding:.4rem .8rem;border-bottom:1px solid var(--border);align-items:center}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.output pre{padding:.8rem;font-size:.78rem;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--accent);font-family:'SF Mono','Fira Code',monospace}
+.error-row{display:flex;gap:.4rem;margin-bottom:.4rem}
+.error-row input,.error-row select{padding:.4rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.8rem;outline:none}
+.error-row select{width:100px}
+.error-row input{flex:1}
+</style>
+</head>
+<body>
+<main>
+<h1>.htaccess Generator</h1>
+<div class="card">
+<h3>Common Rules</h3>
+<div class="toggles">
+<label class="toggle"><input type="checkbox" id="forceHttps" onchange="gen()"> Force HTTPS</label>
+<label class="toggle"><input type="checkbox" id="forceWww" onchange="gen()"> Force www</label>
+<label class="toggle"><input type="checkbox" id="removeWww" onchange="gen()"> Remove www</label>
+<label class="toggle"><input type="checkbox" id="trailingSlash" onchange="gen()"> Force trailing slash</label>
+<label class="toggle"><input type="checkbox" id="removeTrailing" onchange="gen()"> Remove trailing slash</label>
+<label class="toggle"><input type="checkbox" id="blockHotlink" onchange="gen()"> Block hotlinking</label>
+<label class="toggle"><input type="checkbox" id="gzip" onchange="gen()"> Enable GZIP compression</label>
+<label class="toggle"><input type="checkbox" id="caching" onchange="gen()"> Browser caching headers</label>
+<label class="toggle"><input type="checkbox" id="indexOff" onchange="gen()"> Disable directory listing</label>
+</div>
+</div>
+<div class="card">
+<h3>Redirects</h3>
+<div id="redirects"></div>
+<button class="btn-sm" onclick="addRedirect()">+ Add Redirect</button>
+</div>
+<div class="card">
+<h3>Custom Error Pages</h3>
+<div id="errors"></div>
+<button class="btn-sm" onclick="addError()">+ Add Error Page</button>
+</div>
+<div class="output">
+<div class="output-head"><span>.htaccess</span><button class="btn" onclick="cp()">Copy</button></div>
+<pre id="output"></pre>
+</div>
+</main>
+<script>
+let redirects=[{from:'/old-page',to:'/new-page',type:'301'}];
+let errors=[{code:'404',page:'/404.html'}];
+
+function render(){
+  document.getElementById('redirects').innerHTML=redirects.map((r,i)=>`<div class="redirect-row"><select onchange="redirects[${i}].type=this.value;gen()"><option value="301" ${r.type==='301'?'selected':''}>301</option><option value="302" ${r.type==='302'?'selected':''}>302</option></select><input placeholder="/old-path" value="${r.from}" oninput="redirects[${i}].from=this.value;gen()"><input placeholder="/new-path" value="${r.to}" oninput="redirects[${i}].to=this.value;gen()"><button onclick="redirects.splice(${i},1);render();gen()">×</button></div>`).join('');
+  document.getElementById('errors').innerHTML=errors.map((e,i)=>`<div class="error-row"><select onchange="errors[${i}].code=this.value;gen()"><option value="400" ${e.code==='400'?'selected':''}>400</option><option value="401" ${e.code==='401'?'selected':''}>401</option><option value="403" ${e.code==='403'?'selected':''}>403</option><option value="404" ${e.code==='404'?'selected':''}>404</option><option value="500" ${e.code==='500'?'selected':''}>500</option></select><input placeholder="/404.html" value="${e.page}" oninput="errors[${i}].page=this.value;gen()"><button style="background:none;border:none;color:var(--muted);cursor:pointer" onclick="errors.splice(${i},1);render();gen()">×</button></div>`).join('');
+}
+
+function addRedirect(){redirects.push({from:'',to:'',type:'301'});render();gen()}
+function addError(){errors.push({code:'404',page:''});render();gen()}
+
+function gen(){
+  let lines=[];
+  const chk=id=>document.getElementById(id).checked;
+
+  if(chk('forceHttps')){lines.push('# Force HTTPS','RewriteEngine On','RewriteCond %{HTTPS} off','RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]','');}
+  if(chk('forceWww')){lines.push('# Force www','RewriteEngine On','RewriteCond %{HTTP_HOST} !^www\\. [NC]','RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]','');}
+  if(chk('removeWww')){lines.push('# Remove www','RewriteEngine On','RewriteCond %{HTTP_HOST} ^www\\.(.+)$ [NC]','RewriteRule ^(.*)$ https://%1/$1 [R=301,L]','');}
+  if(chk('trailingSlash')){lines.push('# Force trailing slash','RewriteEngine On','RewriteCond %{REQUEST_FILENAME} !-f','RewriteCond %{REQUEST_URI} !(.*)/$','RewriteRule ^(.*)$ %{REQUEST_URI}/ [L,R=301]','');}
+  if(chk('removeTrailing')){lines.push('# Remove trailing slash','RewriteEngine On','RewriteCond %{REQUEST_FILENAME} !-d','RewriteCond %{REQUEST_URI} (.+)/$','RewriteRule ^(.+)/$ /$1 [R=301,L]','');}
+  if(chk('blockHotlink')){lines.push('# Block hotlinking','RewriteEngine On','RewriteCond %{HTTP_REFERER} !^$','RewriteCond %{HTTP_REFERER} !^https?://(www\\.)?yourdomain\\.com [NC]','RewriteRule \\.(jpg|jpeg|png|gif|svg|webp)$ - [F,NC,L]','');}
+  if(chk('indexOff')){lines.push('# Disable directory listing','Options -Indexes','');}
+  if(chk('gzip')){lines.push('# GZIP Compression','<IfModule mod_deflate.c>','  AddOutputFilterByType DEFLATE text/html text/plain text/css','  AddOutputFilterByType DEFLATE text/javascript application/javascript application/json','  AddOutputFilterByType DEFLATE application/xml text/xml image/svg+xml','</IfModule>','');}
+  if(chk('caching')){lines.push('# Browser Caching','<IfModule mod_expires.c>','  ExpiresActive On','  ExpiresByType image/jpeg "access plus 1 year"','  ExpiresByType image/png "access plus 1 year"','  ExpiresByType image/svg+xml "access plus 1 year"','  ExpiresByType text/css "access plus 1 month"','  ExpiresByType application/javascript "access plus 1 month"','  ExpiresByType text/html "access plus 1 hour"','</IfModule>','');}
+
+  const validRedirects=redirects.filter(r=>r.from&&r.to);
+  if(validRedirects.length){lines.push('# Redirects');validRedirects.forEach(r=>{lines.push(`Redirect ${r.type} ${r.from} ${r.to}`)});lines.push('')}
+
+  const validErrors=errors.filter(e=>e.code&&e.page);
+  if(validErrors.length){lines.push('# Custom Error Pages');validErrors.forEach(e=>{lines.push(`ErrorDocument ${e.code} ${e.page}`)});lines.push('')}
+
+  document.getElementById('output').textContent=lines.join('\n')||'# Select options above to generate .htaccess rules';
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+render();gen();
+</script>
+</body>
+</html>
