@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service Generator — Free ToS for Websites & Apps</title>
+<meta name="description" content="Generate free terms of service for your website or app. Customizable, legally structured. No signup. Free ToS generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.field{margin-bottom:.8rem}.field label{display:block;font-size:.6rem;text-transform:uppercase;color:#888;font-weight:600;margin-bottom:.3rem}
+.field input,.field select{width:100%;padding:.45rem;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:.82rem;outline:none;font-family:inherit}
+.checks{display:flex;flex-wrap:wrap;gap:.5rem}
+.check{display:flex;align-items:center;gap:.3rem;font-size:.75rem;color:#ccc;cursor:pointer}
+.check input{accent-color:#10b981}
+.btn{width:100%;padding:.6rem;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;border:none;background:#10b981;color:#fff;margin-bottom:1rem}
+.output{background:#111;border:1px solid #222;border-radius:12px;padding:1.2rem;font-size:.78rem;line-height:1.7;color:#ccc;max-height:500px;overflow-y:auto;display:none}
+.output h2{font-size:1rem;color:#fff;margin:1rem 0 .5rem}
+.copy-btn{width:100%;padding:.4rem;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid #333;background:#1a1a1a;color:#888;margin-top:.5rem;display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>📜 Terms of Service Generator</h1>
+<div class="card">
+<div class="field"><label>Website/App Name</label><input type="text" id="name" placeholder="My Awesome Site"></div>
+<div class="field"><label>Website URL</label><input type="text" id="url" placeholder="https://example.com"></div>
+<div class="field"><label>Contact Email</label><input type="text" id="email" placeholder="legal@example.com"></div>
+<div class="field"><label>Country/Jurisdiction</label><input type="text" id="jurisdiction" placeholder="United States" value="United States"></div>
+<div class="field"><label>Include Sections</label>
+<div class="checks">
+<label class="check"><input type="checkbox" id="s_accounts" checked>User Accounts</label>
+<label class="check"><input type="checkbox" id="s_payment">Payments/Billing</label>
+<label class="check"><input type="checkbox" id="s_content" checked>User Content</label>
+<label class="check"><input type="checkbox" id="s_ip" checked>Intellectual Property</label>
+<label class="check"><input type="checkbox" id="s_termination" checked>Termination</label>
+<label class="check"><input type="checkbox" id="s_disclaimer" checked>Disclaimers</label>
+<label class="check"><input type="checkbox" id="s_limitation" checked>Limitation of Liability</label>
+<label class="check"><input type="checkbox" id="s_indemnity">Indemnification</label>
+</div></div>
+</div>
+<button class="btn" onclick="generate()">📜 Generate Terms of Service</button>
+<div class="output" id="output"></div>
+<button class="copy-btn" id="copyBtn" onclick="copyTos()">📋 Copy to Clipboard</button>
+</main>
+<script>
+function generate(){
+  const n=document.getElementById('name').value||'Our Service';
+  const u=document.getElementById('url').value||'https://example.com';
+  const e=document.getElementById('email').value||'legal@example.com';
+  const j=document.getElementById('jurisdiction').value||'United States';
+  const d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  
+  let h=`<h2>Terms of Service for ${n}</h2><p><em>Last updated: ${d}</em></p>`;
+  h+=`<p>Welcome to ${n}. By accessing or using our service at ${u}, you agree to be bound by these Terms of Service ("Terms"). If you do not agree, please do not use our service.</p>`;
+  
+  if(document.getElementById('s_accounts').checked){
+    h+=`<h2>1. User Accounts</h2><p>When you create an account with us, you must provide accurate and complete information. You are responsible for maintaining the security of your account and password. You agree to notify us immediately of any unauthorized use of your account. We reserve the right to refuse service, terminate accounts, or remove content at our sole discretion.</p>`;
+  }
+  
+  h+=`<h2>2. Acceptable Use</h2><p>You agree not to use ${n} to:</p><ul><li>Violate any applicable laws or regulations</li><li>Infringe on the rights of others</li><li>Transmit harmful, offensive, or illegal content</li><li>Attempt to gain unauthorized access to our systems</li><li>Use the service for spam, phishing, or malicious purposes</li><li>Interfere with the proper functioning of the service</li></ul>`;
+  
+  if(document.getElementById('s_content').checked){
+    h+=`<h2>3. User Content</h2><p>You retain ownership of content you submit to ${n}. By submitting content, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content in connection with the service. You are solely responsible for your content and represent that you have the right to share it.</p>`;
+  }
+  
+  if(document.getElementById('s_ip').checked){
+    h+=`<h2>4. Intellectual Property</h2><p>The service, including its design, features, and content created by us, is owned by ${n} and protected by intellectual property laws. You may not copy, modify, distribute, or create derivative works from our service without our written permission.</p>`;
+  }
+  
+  if(document.getElementById('s_payment').checked){
+    h+=`<h2>5. Payments & Billing</h2><p>Certain features may require payment. All fees are stated in the applicable currency and are non-refundable unless otherwise stated. We reserve the right to change pricing with reasonable notice. You are responsible for all charges incurred under your account.</p>`;
+  }
+  
+  if(document.getElementById('s_termination').checked){
+    h+=`<h2>6. Termination</h2><p>We may suspend or terminate your access to the service at any time, with or without cause, with or without notice. Upon termination, your right to use the service ceases immediately. Sections that by their nature should survive termination will remain in effect.</p>`;
+  }
+  
+  if(document.getElementById('s_disclaimer').checked){
+    h+=`<h2>7. Disclaimers</h2><p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE.</p>`;
+  }
+  
+  if(document.getElementById('s_limitation').checked){
+    h+=`<h2>8. Limitation of Liability</h2><p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, ${n.toUpperCase()} SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY.</p>`;
+  }
+  
+  if(document.getElementById('s_indemnity').checked){
+    h+=`<h2>9. Indemnification</h2><p>You agree to indemnify and hold harmless ${n} and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses arising from your use of the service or violation of these Terms.</p>`;
+  }
+  
+  h+=`<h2>Governing Law</h2><p>These Terms shall be governed by and construed in accordance with the laws of ${j}, without regard to conflict of law principles.</p>`;
+  h+=`<h2>Changes to Terms</h2><p>We reserve the right to modify these Terms at any time. We will provide notice of significant changes by posting the updated Terms and updating the "Last updated" date.</p>`;
+  h+=`<h2>Contact</h2><p>Questions about these Terms? Contact us at ${e}.</p>`;
+  
+  const out=document.getElementById('output');out.innerHTML=h;out.style.display='block';
+  document.getElementById('copyBtn').style.display='block';
+}
+function copyTos(){navigator.clipboard.writeText(document.getElementById('output').innerText);document.getElementById('copyBtn').textContent='✅ Copied!';setTimeout(()=>document.getElementById('copyBtn').textContent='📋 Copy to Clipboard',2000)}
+</script>
+</body>
+</html>
