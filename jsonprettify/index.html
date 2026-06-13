@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSONPrettify — Format, Validate & Minify JSON Online</title>
+<meta name="description" content="Free JSON formatter, validator and minifier. Paste your JSON and instantly format, validate or compress it. Runs entirely in your browser.">
+<meta name="keywords" content="json formatter, json validator, json prettify, json minify, format json online">
+<meta property="og:title" content="JSONPrettify — Format & Validate JSON Online">
+<meta property="og:description" content="Instantly format, validate, and minify JSON in your browser. Free, fast, private.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>{ }</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#faf9f7;--surface:#fff;--border:#e8e5e0;--accent:#d35400;--accent2:#e67e22;--text:#2c2c2c;--muted:#8a8680;--code-bg:#fdfcfa}
+body{font-family:'SF Mono','Fira Code','Cascadia Code',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}
+.tag{font-size:.65rem;background:var(--accent);color:#fff;padding:.2rem .5rem;border-radius:4px;font-weight:600;letter-spacing:.04em}
+.workspace{display:flex;height:calc(100vh - 110px);gap:0}
+.panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+.panel:last-child{border-right:none}
+.panel-head{padding:.6rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-head h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.panel-head button{background:none;border:1px solid var(--border);padding:.3rem .7rem;border-radius:5px;font-size:.7rem;cursor:pointer;font-family:inherit;color:var(--text);transition:all .15s}
+.panel-head button:hover{border-color:var(--accent);color:var(--accent)}
+textarea{flex:1;width:100%;border:none;padding:1rem;font-family:inherit;font-size:.85rem;background:var(--code-bg);color:var(--text);resize:none;outline:none;line-height:1.6;tab-size:2}
+textarea::placeholder{color:var(--muted)}
+.output{flex:1;width:100%;padding:1rem;font-family:inherit;font-size:.85rem;background:var(--code-bg);color:var(--text);overflow:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+.toolbar{padding:.7rem 1rem;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.toolbar button{background:var(--accent);color:#fff;border:none;padding:.45rem 1rem;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.toolbar button:hover{opacity:.85}
+.toolbar button.sec{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.toolbar .spacer{flex:1}
+.toolbar .status{font-size:.75rem;color:var(--muted)}
+.status.valid{color:#27ae60}.status.invalid{color:#e74c3c}
+footer{text-align:center;padding:.8rem;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border)}
+@media(max-width:700px){.workspace{flex-direction:column;height:auto}.panel{min-height:40vh;border-right:none;border-bottom:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<nav><div class="logo">JSON<span>Prettify</span></div><span class="tag">FREE TOOL</span></nav>
+<div class="workspace">
+<div class="panel">
+<div class="panel-head"><h3>Input</h3><button onclick="clearInput()">Clear</button></div>
+<textarea id="input" placeholder='Paste your JSON here...&#10;&#10;{"name": "example", "value": 42}'></textarea>
+</div>
+<div class="panel">
+<div class="panel-head"><h3>Output</h3><button onclick="copyOutput()">Copy</button></div>
+<div class="output" id="output"><span style="color:var(--muted)">Formatted JSON will appear here...</span></div>
+</div>
+</div>
+<div class="toolbar">
+<button onclick="format(2)">Prettify (2 sp)</button>
+<button onclick="format(4)">Prettify (4 sp)</button>
+<button onclick="format('\t')">Prettify (tab)</button>
+<button class="sec" onclick="minify()">Minify</button>
+<div class="spacer"></div>
+<span class="status" id="status"></span>
+</div>
+<footer>&copy; 2026 JSONPrettify &mdash; Format and validate JSON in your browser. Nothing is sent to any server.</footer>
+<script>
+const input=document.getElementById('input'),output=document.getElementById('output'),status=document.getElementById('status');
+input.addEventListener('input',()=>validate());
+function validate(){try{JSON.parse(input.value);status.textContent='✓ Valid JSON';status.className='status valid';return true}catch(e){status.textContent='✗ '+e.message.replace('JSON.parse: ','');status.className='status invalid';return false}}
+function format(indent){try{const obj=JSON.parse(input.value);output.textContent=JSON.stringify(obj,null,indent);status.textContent='✓ Formatted';status.className='status valid'}catch(e){output.textContent='Error: '+e.message;status.textContent='✗ Invalid JSON';status.className='status invalid'}}
+function minify(){try{const obj=JSON.parse(input.value);output.textContent=JSON.stringify(obj);status.textContent='✓ Minified';status.className='status valid'}catch(e){output.textContent='Error: '+e.message;status.textContent='✗ Invalid JSON';status.className='status invalid'}}
+function clearInput(){input.value='';output.innerHTML='<span style="color:var(--muted)">Formatted JSON will appear here...</span>';status.textContent=''}
+function copyOutput(){navigator.clipboard.writeText(output.textContent);const btn=document.querySelector('.panel:last-child .panel-head button');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
+</script>
+</body>
+</html>
