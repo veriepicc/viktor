@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aspect — Image & Video Aspect Ratio Calculator</title>
+<meta name="description" content="Calculate aspect ratios, resize dimensions, and find the right resolution for any screen. Free aspect ratio calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#06b6d4;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.input-row{display:flex;gap:1rem;align-items:end;margin-bottom:1.5rem}
+.field{flex:1}
+.field label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.3rem}
+.field input{width:100%;padding:.6rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;font-family:inherit;outline:none;text-align:center}
+.field input:focus{border-color:var(--accent)}
+.x{color:var(--muted);font-size:1.2rem;padding-bottom:.6rem;font-weight:300}
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1.5rem}
+.ratio-big{font-size:2.5rem;font-weight:900;color:var(--accent);font-family:'SF Mono',monospace}
+.ratio-label{font-size:.72rem;color:var(--muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.05em}
+.presets h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.4rem}
+.preset{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem;cursor:pointer;text-align:center;transition:all .15s}
+.preset:hover{border-color:var(--accent)}
+.preset .name{font-size:.78rem;font-weight:600}
+.preset .dims{font-size:.65rem;color:var(--muted)}
+.resize-section{margin-top:2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem}
+.resize-section h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.resize-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;font-size:.85rem}
+.resize-row label{min-width:80px;color:var(--muted);font-size:.78rem}
+.resize-row input{flex:1;padding:.4rem;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.85rem;outline:none;text-align:center}
+.resize-row input:focus{border-color:var(--accent)}
+.resize-row .arrow{color:var(--accent)}
+.resize-row .output{font-weight:600;color:var(--accent);min-width:60px;text-align:center}
+.preview{margin-top:1rem;display:flex;justify-content:center}
+.preview-box{border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.7rem;max-width:100%;max-height:200px}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Asp<span>ect</span></div></nav>
+<main>
+<h1>Aspect Ratio Calculator</h1>
+<p class="sub">Calculate ratios, resize dimensions, and find the right resolution.</p>
+<div class="input-row">
+<div class="field"><label>Width</label><input type="number" id="w" value="1920" oninput="calc()"></div>
+<span class="x">×</span>
+<div class="field"><label>Height</label><input type="number" id="h" value="1080" oninput="calc()"></div>
+</div>
+<div class="result-box">
+<div class="ratio-big" id="ratio">16:9</div>
+<div class="ratio-label">Aspect Ratio</div>
+</div>
+<div class="resize-section">
+<h3>Resize (lock ratio)</h3>
+<div class="resize-row"><label>New Width</label><input type="number" id="nw" value="1280" oninput="resizeW()"><span class="arrow">→</span><span class="output" id="nh">720</span><span style="font-size:.75rem;color:var(--muted)">height</span></div>
+<div class="resize-row"><label>New Height</label><input type="number" id="nh2" value="720" oninput="resizeH()"><span class="arrow">→</span><span class="output" id="nw2">1280</span><span style="font-size:.75rem;color:var(--muted)">width</span></div>
+</div>
+<div class="preview"><div class="preview-box" id="previewBox">16:9</div></div>
+<div class="presets" style="margin-top:2rem">
+<h3>Common Presets</h3>
+<div class="preset-grid">
+<div class="preset" onclick="setDims(1920,1080)"><div class="name">1080p</div><div class="dims">1920×1080</div></div>
+<div class="preset" onclick="setDims(2560,1440)"><div class="name">1440p</div><div class="dims">2560×1440</div></div>
+<div class="preset" onclick="setDims(3840,2160)"><div class="name">4K UHD</div><div class="dims">3840×2160</div></div>
+<div class="preset" onclick="setDims(1080,1920)"><div class="name">9:16 Vertical</div><div class="dims">1080×1920</div></div>
+<div class="preset" onclick="setDims(1080,1080)"><div class="name">1:1 Square</div><div class="dims">1080×1080</div></div>
+<div class="preset" onclick="setDims(1200,628)"><div class="name">OG Image</div><div class="dims">1200×628</div></div>
+<div class="preset" onclick="setDims(1280,720)"><div class="name">720p</div><div class="dims">1280×720</div></div>
+<div class="preset" onclick="setDims(2048,1080)"><div class="name">2K Cinema</div><div class="dims">2048×1080</div></div>
+<div class="preset" onclick="setDims(1024,768)"><div class="name">4:3</div><div class="dims">1024×768</div></div>
+<div class="preset" onclick="setDims(2560,1080)"><div class="name">21:9 Ultra</div><div class="dims">2560×1080</div></div>
+<div class="preset" onclick="setDims(1200,1500)"><div class="name">4:5 Portrait</div><div class="dims">1200×1500</div></div>
+<div class="preset" onclick="setDims(1920,800)"><div class="name">2.4:1 Cinema</div><div class="dims">1920×800</div></div>
+</div>
+</div>
+</main>
+<footer>&copy; 2026 Aspect &mdash; Aspect ratio calculator.</footer>
+<script>
+function gcd(a,b){return b?gcd(b,a%b):a}
+function calc(){
+  const w=parseInt(document.getElementById('w').value)||1;
+  const h=parseInt(document.getElementById('h').value)||1;
+  const d=gcd(w,h);
+  document.getElementById('ratio').textContent=`${w/d}:${h/d}`;
+  resizeW();resizeH();updatePreview(w,h);
+}
+function resizeW(){
+  const w=parseInt(document.getElementById('w').value)||1;
+  const h=parseInt(document.getElementById('h').value)||1;
+  const nw=parseInt(document.getElementById('nw').value)||0;
+  document.getElementById('nh').textContent=Math.round(nw*(h/w));
+}
+function resizeH(){
+  const w=parseInt(document.getElementById('w').value)||1;
+  const h=parseInt(document.getElementById('h').value)||1;
+  const nh=parseInt(document.getElementById('nh2').value)||0;
+  document.getElementById('nw2').textContent=Math.round(nh*(w/h));
+}
+function setDims(w,h){document.getElementById('w').value=w;document.getElementById('h').value=h;calc()}
+function updatePreview(w,h){
+  const box=document.getElementById('previewBox');
+  const maxW=300,maxH=200;
+  const scale=Math.min(maxW/w,maxH/h);
+  box.style.width=Math.round(w*scale)+'px';
+  box.style.height=Math.round(h*scale)+'px';
+  const d=gcd(w,h);
+  box.textContent=`${w/d}:${h/d}`;
+}
+calc();
+</script>
+</body>
+</html>
