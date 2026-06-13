@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPScan — What's My IP Address, Location & Browser Info</title>
+<meta name="description" content="Find your public IP address, location, ISP, browser info, and device details. Free IP lookup tool.">
+<meta name="keywords" content="what is my ip, ip address lookup, my ip address, ip location, whats my ip, ip checker">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a192f;--surface:#112240;--border:#1d3557;--accent:#64ffda;--text:#ccd6f6;--muted:#8892b0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:650px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.ip-box{text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;margin-bottom:1.5rem}
+.ip-box .ip{font-size:2.2rem;font-weight:900;color:var(--accent);font-family:'SF Mono',monospace;letter-spacing:.02em;cursor:pointer}
+.ip-box .ip:hover{text-decoration:underline}
+.ip-box .label{font-size:.72rem;color:var(--muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.06em}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.section h3{padding:.6rem 1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:700}
+.row{display:flex;padding:.5rem 1rem;border-bottom:1px solid rgba(29,53,87,.5);font-size:.82rem}
+.row:last-child{border-bottom:none}
+.row .key{flex:1;color:var(--muted)}
+.row .val{font-family:'SF Mono',monospace;font-weight:500;text-align:right;max-width:60%;word-break:break-all}
+.loading{text-align:center;padding:2rem;color:var(--muted)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#0a192f;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">IP<span>Scan</span></div></nav>
+<main>
+<h1>What's My IP?</h1>
+<p class="sub">Your IP address, location, and device information.</p>
+<div class="ip-box">
+<div class="ip" id="ipAddr" onclick="copyIP()" title="Click to copy">Loading...</div>
+<div class="label">Your public IP address (click to copy)</div>
+</div>
+<div id="info"><div class="loading">Fetching your information...</div></div>
+</main>
+<div class="toast" id="toast">Copied!</div>
+<footer>&copy; 2026 IPScan &mdash; IP lookup tool. We don't store any data.</footer>
+<script>
+async function init(){
+  const infoEl=document.getElementById('info');
+  try{
+    const res=await fetch('https://ipapi.co/json/');
+    const d=await res.json();
+    document.getElementById('ipAddr').textContent=d.ip;
+    let html=`<div class="section"><h3>Location</h3>
+      <div class="row"><span class="key">City</span><span class="val">${d.city||'Unknown'}</span></div>
+      <div class="row"><span class="key">Region</span><span class="val">${d.region||'Unknown'}</span></div>
+      <div class="row"><span class="key">Country</span><span class="val">${d.country_name||'Unknown'} ${d.country_code?'('+d.country_code+')':''}</span></div>
+      <div class="row"><span class="key">Timezone</span><span class="val">${d.timezone||'Unknown'}</span></div>
+      <div class="row"><span class="key">Coordinates</span><span class="val">${d.latitude}, ${d.longitude}</span></div>
+      <div class="row"><span class="key">Postal Code</span><span class="val">${d.postal||'Unknown'}</span></div>
+    </div>`;
+    html+=`<div class="section"><h3>Network</h3>
+      <div class="row"><span class="key">ISP</span><span class="val">${d.org||'Unknown'}</span></div>
+      <div class="row"><span class="key">ASN</span><span class="val">${d.asn||'Unknown'}</span></div>
+      <div class="row"><span class="key">IP Version</span><span class="val">${d.version||'IPv4'}</span></div>
+    </div>`;
+    // Browser info
+    const ua=navigator.userAgent;
+    const conn=navigator.connection||{};
+    html+=`<div class="section"><h3>Your Device</h3>
+      <div class="row"><span class="key">Browser</span><span class="val">${getBrowser(ua)}</span></div>
+      <div class="row"><span class="key">OS</span><span class="val">${getOS(ua)}</span></div>
+      <div class="row"><span class="key">Screen</span><span class="val">${screen.width}×${screen.height} @${devicePixelRatio}x</span></div>
+      <div class="row"><span class="key">CPU Cores</span><span class="val">${navigator.hardwareConcurrency||'?'}</span></div>
+      <div class="row"><span class="key">Memory</span><span class="val">${navigator.deviceMemory?navigator.deviceMemory+' GB':'N/A'}</span></div>
+      <div class="row"><span class="key">Connection</span><span class="val">${conn.effectiveType||'Unknown'}</span></div>
+      <div class="row"><span class="key">Language</span><span class="val">${navigator.language}</span></div>
+      <div class="row"><span class="key">Platform</span><span class="val">${navigator.platform||'Unknown'}</span></div>
+      <div class="row"><span class="key">Touch Support</span><span class="val">${'ontouchstart' in window?'Yes':'No'}</span></div>
+      <div class="row"><span class="key">Do Not Track</span><span class="val">${navigator.doNotTrack==='1'?'Enabled':'Disabled'}</span></div>
+    </div>`;
+    infoEl.innerHTML=html;
+  }catch(e){
+    document.getElementById('ipAddr').textContent='Error';
+    infoEl.innerHTML=`<div class="section"><h3>Error</h3><div class="row"><span class="key">Could not fetch IP info</span><span class="val">${e.message}</span></div></div>`;
+  }
+}
+function getBrowser(ua){if(ua.includes('Firefox/'))return'Firefox';if(ua.includes('Edg/'))return'Edge';if(ua.includes('Chrome/'))return'Chrome';if(ua.includes('Safari/'))return'Safari';return'Unknown'}
+function getOS(ua){if(ua.includes('Windows'))return'Windows';if(ua.includes('Mac'))return'macOS';if(ua.includes('Linux'))return'Linux';if(ua.includes('Android'))return'Android';if(ua.includes('iPhone')||ua.includes('iPad'))return'iOS';return'Unknown'}
+function copyIP(){const ip=document.getElementById('ipAddr').textContent;if(ip&&ip!=='Loading...')navigator.clipboard.writeText(ip);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)}
+init();
+</script>
+</body>
+</html>
