@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkShorten — URL Shortener & Link Formatter</title>
+<meta name="description" content="Clean, format and analyze URLs. Extract parameters, encode/decode URLs, create mailto and tel links. Free URL tools.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--accent:#38bdf8;--text:#e2e8f0;--muted:#64748b;--green:#4ade80}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.tabs{display:flex;gap:.3rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:.4rem .9rem;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.tab.active{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.08)}
+.pane{display:none}.pane.active{display:block}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.3rem}
+textarea,input[type=text]{width:100%;padding:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'SF Mono',monospace;font-size:.85rem;outline:none;resize:vertical}
+textarea:focus,input:focus{border-color:var(--accent)}
+textarea{min-height:80px}
+.btn{background:var(--accent);color:#0f172a;border:none;padding:.55rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;transition:opacity .15s;margin-right:.3rem;margin-bottom:.3rem}
+.btn:hover{opacity:.85}
+.btn.outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.output{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.8rem;font-family:'SF Mono',monospace;font-size:.82rem;line-height:1.7;word-break:break-all;margin-top:1rem;min-height:40px;white-space:pre-wrap}
+.params-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:1rem}
+.params-table th{text-align:left;padding:.4rem .6rem;background:rgba(56,189,248,.05);color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.params-table td{padding:.4rem .6rem;border-bottom:1px solid rgba(51,65,85,.5);word-break:break-all}
+.params-table td:first-child{color:var(--accent);font-weight:600}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#0f172a;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Link<span>Shorten</span></div></nav>
+<main>
+<h1>URL Tools</h1>
+<p class="sub">Parse, encode, decode, and analyze URLs.</p>
+<div class="tabs">
+<div class="tab active" onclick="showTab('parse',this)">Parse URL</div>
+<div class="tab" onclick="showTab('encode',this)">Encode/Decode</div>
+<div class="tab" onclick="showTab('build',this)">Build URL</div>
+<div class="tab" onclick="showTab('clean',this)">Clean URL</div>
+</div>
+
+<div class="pane active" id="pane-parse">
+<div class="field"><label>URL</label><input type="text" id="parseUrl" value="https://example.com/page?utm_source=google&utm_medium=cpc&ref=abc&id=123#section" oninput="parseURL()"></div>
+<div class="output" id="parseOutput"></div>
+</div>
+
+<div class="pane" id="pane-encode">
+<div class="field"><label>Input</label><textarea id="encodeInput" placeholder="Text to encode/decode...">Hello World! This is a test & it has special chars: spaces, @, #, $</textarea></div>
+<button class="btn" onclick="doEncode()">Encode</button>
+<button class="btn outline" onclick="doDecode()">Decode</button>
+<button class="btn outline" onclick="doBase64Enc()">Base64 Encode</button>
+<button class="btn outline" onclick="doBase64Dec()">Base64 Decode</button>
+<div class="output" id="encodeOutput"></div>
+</div>
+
+<div class="pane" id="pane-build">
+<div class="field"><label>Base URL</label><input type="text" id="buildBase" value="https://example.com/page" oninput="buildURL()"></div>
+<div class="field"><label>Parameters (one per line: key=value)</label><textarea id="buildParams" oninput="buildURL()">utm_source=newsletter
+utm_medium=email
+ref=homepage</textarea></div>
+<div class="field"><label>Fragment/Hash</label><input type="text" id="buildHash" value="" oninput="buildURL()" placeholder="section-name"></div>
+<div class="output" id="buildOutput"></div>
+<button class="btn" onclick="copyText(document.getElementById('buildOutput').textContent)" style="margin-top:.5rem">Copy</button>
+</div>
+
+<div class="pane" id="pane-clean">
+<div class="field"><label>Dirty URL (with tracking params)</label><textarea id="cleanInput" placeholder="Paste URL with tracking parameters...">https://example.com/product?utm_source=facebook&utm_medium=social&utm_campaign=summer&fbclid=abc123&gclid=xyz789&ref=sidebar&id=42</textarea></div>
+<button class="btn" onclick="cleanURL()">Remove Tracking Params</button>
+<div class="output" id="cleanOutput"></div>
+</div>
+</main>
+<div class="toast" id="toast">Copied!</div>
+<footer>&copy; 2026 LinkShorten &mdash; URL tools. Runs entirely in your browser.</footer>
+<script>
+function showTab(id,el){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));document.getElementById('pane-'+id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
+
+function parseURL(){
+  const url=document.getElementById('parseUrl').value;
+  try{
+    const u=new URL(url);
+    let html=`<strong>Protocol:</strong> ${u.protocol}\n<strong>Host:</strong> ${u.hostname}\n<strong>Port:</strong> ${u.port||'(default)'}\n<strong>Path:</strong> ${u.pathname}\n<strong>Hash:</strong> ${u.hash||'(none)'}\n`;
+    if(u.searchParams.toString()){
+      html+='\n<strong>Parameters:</strong>\n';
+      u.searchParams.forEach((v,k)=>{html+=`  ${k} = ${v}\n`});
+    }
+    document.getElementById('parseOutput').innerHTML=html;
+  }catch(e){document.getElementById('parseOutput').textContent='Invalid URL'}
+}
+
+function doEncode(){const t=document.getElementById('encodeInput').value;document.getElementById('encodeOutput').textContent=encodeURIComponent(t);copyText(encodeURIComponent(t))}
+function doDecode(){const t=document.getElementById('encodeInput').value;try{document.getElementById('encodeOutput').textContent=decodeURIComponent(t);copyText(decodeURIComponent(t))}catch(e){document.getElementById('encodeOutput').textContent='Invalid encoded string'}}
+function doBase64Enc(){const t=document.getElementById('encodeInput').value;const b=btoa(unescape(encodeURIComponent(t)));document.getElementById('encodeOutput').textContent=b;copyText(b)}
+function doBase64Dec(){const t=document.getElementById('encodeInput').value;try{const d=decodeURIComponent(escape(atob(t)));document.getElementById('encodeOutput').textContent=d;copyText(d)}catch(e){document.getElementById('encodeOutput').textContent='Invalid Base64 string'}}
+
+function buildURL(){
+  const base=document.getElementById('buildBase').value;
+  const params=document.getElementById('buildParams').value.trim().split('\n').filter(Boolean);
+  const hash=document.getElementById('buildHash').value;
+  let url=base;
+  if(params.length){url+='?'+params.map(p=>{const[k,...v]=p.split('=');return encodeURIComponent(k.trim())+'='+encodeURIComponent(v.join('=').trim())}).join('&')}
+  if(hash)url+='#'+hash;
+  document.getElementById('buildOutput').textContent=url;
+}
+
+function cleanURL(){
+  const url=document.getElementById('cleanInput').value.trim();
+  const tracking=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid','gad_source','mc_cid','mc_eid','ref','_ga','_gl','yclid','msclkid','twclid','igshid','s_cid','zanpid','dclid','soc_src','soc_trk','_hsenc','_hsmi','mkt_tok','vero_conv','vero_id','wickedid'];
+  try{
+    const u=new URL(url);
+    tracking.forEach(t=>u.searchParams.delete(t));
+    document.getElementById('cleanOutput').textContent=u.toString();
+  }catch(e){document.getElementById('cleanOutput').textContent='Invalid URL'}
+}
+
+function copyText(t){navigator.clipboard.writeText(t);const toast=document.getElementById('toast');toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1000)}
+parseURL();buildURL();
+</script>
+</body>
+</html>
