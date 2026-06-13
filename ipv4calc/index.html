@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPv4Calc — Subnet Calculator & CIDR to IP Range</title>
+<meta name="description" content="Calculate subnet masks, CIDR notation, IP ranges, broadcast addresses. Free IPv4 subnet calculator for network engineers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--accent:#58a6ff;--text:#c9d1d9;--muted:#8b949e;--green:#3fb950}
+body{font-family:'SF Mono','Fira Code',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:1.5rem;font-family:'Inter',sans-serif}
+.input-row{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.input-row input{flex:1;padding:.6rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;font-family:inherit;outline:none}
+.input-row input:focus{border-color:var(--accent)}
+.input-row button{background:var(--accent);color:#0d1117;border:none;padding:.6rem 1.2rem;border-radius:6px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'Inter',sans-serif}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:.8rem;overflow:hidden}
+.section h3{padding:.5rem .8rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:700;font-family:'Inter',sans-serif}
+.row{display:flex;padding:.4rem .8rem;border-bottom:1px solid rgba(48,54,61,.5);font-size:.82rem}
+.row:last-child{border-bottom:none}
+.row .key{flex:1;color:var(--muted)}
+.row .val{font-weight:600;color:var(--green)}
+.binary{word-break:break-all;font-size:.78rem}
+</style>
+</head>
+<body>
+<main>
+<h1 style="font-family:'Inter',sans-serif">IPv4 Subnet Calculator</h1>
+<div class="input-row">
+<input id="cidr" placeholder="192.168.1.0/24" value="192.168.1.0/24">
+<button onclick="calc()">Calculate</button>
+</div>
+<div id="results"></div>
+</main>
+<script>
+function calc(){
+  const input=document.getElementById('cidr').value.trim();
+  const match=input.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/);
+  if(!match){document.getElementById('results').innerHTML='<div class="section"><div class="row"><span class="key">Invalid format. Use CIDR notation: 192.168.1.0/24</span></div></div>';return}
+
+  const octets=[parseInt(match[1]),parseInt(match[2]),parseInt(match[3]),parseInt(match[4])];
+  const prefix=parseInt(match[5]);
+  if(octets.some(o=>o>255)||prefix>32){document.getElementById('results').innerHTML='<div class="section"><div class="row"><span class="key">Invalid IP or prefix length</span></div></div>';return}
+
+  const ip=(octets[0]<<24|octets[1]<<16|octets[2]<<8|octets[3])>>>0;
+  const mask=prefix===0?0:(0xFFFFFFFF<<(32-prefix))>>>0;
+  const network=(ip&mask)>>>0;
+  const broadcast=(network|(~mask>>>0))>>>0;
+  const firstHost=prefix>=31?network:(network+1)>>>0;
+  const lastHost=prefix>=31?broadcast:(broadcast-1)>>>0;
+  const totalHosts=prefix>=31?Math.pow(2,32-prefix):Math.pow(2,32-prefix)-2;
+  const wildcard=(~mask)>>>0;
+
+  const toIP=n=>`${(n>>>24)&255}.${(n>>>16)&255}.${(n>>>8)&255}.${n&255}`;
+  const toBin=n=>(n>>>0).toString(2).padStart(32,'0').replace(/(.{8})/g,'$1.').slice(0,-1);
+
+  let html=`<div class="section"><h3>Network Info</h3>
+    <div class="row"><span class="key">Network Address</span><span class="val">${toIP(network)}</span></div>
+    <div class="row"><span class="key">Broadcast Address</span><span class="val">${toIP(broadcast)}</span></div>
+    <div class="row"><span class="key">Subnet Mask</span><span class="val">${toIP(mask)}</span></div>
+    <div class="row"><span class="key">Wildcard Mask</span><span class="val">${toIP(wildcard)}</span></div>
+    <div class="row"><span class="key">CIDR Notation</span><span class="val">/${prefix}</span></div>
+    <div class="row"><span class="key">Usable Host Range</span><span class="val">${toIP(firstHost)} — ${toIP(lastHost)}</span></div>
+    <div class="row"><span class="key">Total Addresses</span><span class="val">${Math.pow(2,32-prefix).toLocaleString()}</span></div>
+    <div class="row"><span class="key">Usable Hosts</span><span class="val">${totalHosts.toLocaleString()}</span></div>
+    <div class="row"><span class="key">IP Class</span><span class="val">${octets[0]<128?'A':octets[0]<192?'B':octets[0]<224?'C':octets[0]<240?'D':'E'}</span></div>
+    <div class="row"><span class="key">Private</span><span class="val">${(octets[0]===10||(octets[0]===172&&octets[1]>=16&&octets[1]<=31)||(octets[0]===192&&octets[1]===168))?'Yes':'No'}</span></div>
+  </div>`;
+
+  html+=`<div class="section"><h3>Binary Representation</h3>
+    <div class="row"><span class="key">IP</span><span class="val binary">${toBin(ip)}</span></div>
+    <div class="row"><span class="key">Mask</span><span class="val binary">${toBin(mask)}</span></div>
+    <div class="row"><span class="key">Network</span><span class="val binary">${toBin(network)}</span></div>
+  </div>`;
+
+  document.getElementById('results').innerHTML=html;
+}
+calc();
+</script>
+</body>
+</html>
