@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoremCraft — Placeholder Text Generator</title>
+<meta name="description" content="Generate lorem ipsum and other placeholder text types. Paragraphs, sentences, words, or custom text. Free online tool.">
+<meta name="keywords" content="lorem ipsum generator, placeholder text, dummy text, filler text, lipsum generator">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fefdfb;--surface:#fff;--border:#ebe7e0;--accent:#9f5c20;--accent2:#c9792e;--text:#3a3632;--muted:#a09890}
+body{font-family:'Libre Baskerville',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:1rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem;font-style:italic}
+.controls{display:flex;flex-wrap:wrap;gap:.8rem;margin-bottom:1.5rem;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;font-family:-apple-system,sans-serif}
+.field select,.field input{padding:.5rem .7rem;border:1px solid var(--border);border-radius:6px;font-size:.85rem;font-family:inherit;color:var(--text);background:var(--surface)}
+.field input[type=number]{width:70px}
+.gen-btn{background:var(--accent);color:#fff;border:none;padding:.55rem 1.4rem;border-radius:6px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:-apple-system,sans-serif;transition:opacity .2s;align-self:flex-end}
+.gen-btn:hover{opacity:.85}
+.output-wrap{position:relative}
+.output{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;min-height:200px;line-height:1.9;font-size:.95rem;white-space:pre-wrap;max-height:500px;overflow-y:auto}
+.output-actions{position:absolute;top:.7rem;right:.7rem;display:flex;gap:.4rem}
+.output-actions button{background:var(--bg);border:1px solid var(--border);padding:.3rem .7rem;border-radius:5px;font-size:.72rem;cursor:pointer;font-family:-apple-system,sans-serif;color:var(--muted);transition:all .15s}
+.output-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.char-count{text-align:right;font-size:.72rem;color:var(--muted);margin-top:.5rem;font-family:-apple-system,sans-serif}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border);margin-top:3rem;font-family:-apple-system,sans-serif}
+</style>
+</head>
+<body>
+<nav><div class="logo">Lorem<span>Craft</span></div></nav>
+<main>
+<h1>Placeholder Text Generator</h1>
+<p class="sub">Generate filler text for your designs and mockups.</p>
+<div class="controls">
+<div class="field"><label>Style</label><select id="style"><option value="lorem">Classic Lorem Ipsum</option><option value="hipster">Hipster Ipsum</option><option value="pirate">Pirate Ipsum</option><option value="corporate">Corporate BS</option></select></div>
+<div class="field"><label>Type</label><select id="type"><option value="paragraphs">Paragraphs</option><option value="sentences">Sentences</option><option value="words">Words</option></select></div>
+<div class="field"><label>Amount</label><input type="number" id="amount" value="3" min="1" max="100"></div>
+<button class="gen-btn" onclick="generate()">Generate</button>
+</div>
+<div class="output-wrap">
+<div class="output-actions"><button onclick="copyText()">Copy</button><button onclick="selectAll()">Select All</button></div>
+<div class="output" id="output"></div>
+</div>
+<div class="char-count" id="charCount"></div>
+</main>
+<footer>&copy; 2026 LoremCraft &mdash; Placeholder text generator. Runs locally.</footer>
+<script>
+const words={
+lorem:'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum'.split(' '),
+hipster:'artisan craft beer kombucha vinyl typewriter aesthetic sustainable vegan activated charcoal poutine glossier direct trade heirloom microdosing portland fixie listicle thundercats banjo cold-pressed selvage leggings gentrify pabst everyday carry vexillologist farm-to-table bushwick kinfolk lomo taxidermy semiotics brunch edison bulb etsy'.split(' '),
+pirate:'ahoy matey plunder sail seas treasure galleon jolly roger cannon pirate ship rum barrel island horizon anchor crew deck mast voyage ocean wave storm compass map doubloon sword cutlass plank crow nest port starboard captain first mate'.split(' '),
+corporate:'synergy leverage paradigm ecosystem stakeholder bandwidth pipeline optimize scalable robust agile iterate disrupt innovation actionable deliverable roadmap milestone metric streamline proactive dynamic holistic incentivize empower blockchain enterprise solution vertical alignment'.split(' ')
+};
+function randWord(style){const w=words[style];return w[Math.floor(Math.random()*w.length)]}
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function genSentence(style){const len=6+Math.floor(Math.random()*10);const w=[];for(let i=0;i<len;i++)w.push(randWord(style));w[0]=capitalize(w[0]);return w.join(' ')+'.'}
+function genParagraph(style){const count=3+Math.floor(Math.random()*4);return Array.from({length:count},()=>genSentence(style)).join(' ')}
+function generate(){const style=document.getElementById('style').value;const type=document.getElementById('type').value;const amount=parseInt(document.getElementById('amount').value)||1;
+let result='';
+if(type==='paragraphs')result=Array.from({length:amount},()=>genParagraph(style)).join('\n\n');
+else if(type==='sentences')result=Array.from({length:amount},()=>genSentence(style)).join(' ');
+else{const w=[];for(let i=0;i<amount;i++)w.push(randWord(style));result=w.join(' ')}
+if(style==='lorem'&&type==='paragraphs'&&amount>0)result='Lorem ipsum dolor sit amet, consectetur adipiscing elit. '+result.slice(result.indexOf('.')+2);
+document.getElementById('output').textContent=result;
+document.getElementById('charCount').textContent=`${result.length} characters · ${result.split(/\s+/).length} words`}
+function copyText(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+function selectAll(){const range=document.createRange();range.selectNodeContents(document.getElementById('output'));const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range)}
+generate();
+</script>
+</body>
+</html>
