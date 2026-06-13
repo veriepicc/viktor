@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cURL to Code — Convert curl Commands to Python, JavaScript, Go, PHP, Rust</title>
+<meta name="description" content="Convert curl commands to Python requests, JavaScript fetch, Go, PHP, Rust, Ruby, C# code. Free curl converter tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1a1b26;--surface:#24283b;--border:#3b4261;--accent:#7aa2f7;--text:#c0caf5;--muted:#565f89;--green:#9ece6a;--red:#f7768e;--yellow:#e0af68}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:750px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.label{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-bottom:.3rem}
+textarea{width:100%;padding:.8rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'SF Mono','Fira Code',monospace;font-size:.8rem;line-height:1.5;outline:none;resize:vertical}
+textarea:focus{border-color:var(--accent)}
+.langs{display:flex;gap:.3rem;flex-wrap:wrap;margin:1rem 0 .5rem}
+.lang{padding:.35rem .7rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.lang.active{border-color:var(--accent);color:var(--accent);background:rgba(122,162,247,.08)}
+.output{background:#16161e;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.output-head{display:flex;justify-content:space-between;padding:.5rem .8rem;border-bottom:1px solid var(--border);align-items:center}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.output-head button{background:var(--accent);color:#1a1b26;border:none;padding:.35rem .7rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer}
+.output pre{padding:.8rem;font-size:.78rem;line-height:1.6;overflow-x:auto;white-space:pre;color:var(--text);font-family:'SF Mono',monospace;max-height:500px;overflow-y:auto}
+.kw{color:var(--red)}.str{color:var(--green)}.fn{color:var(--accent)}.cm{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>cURL → Code</h1>
+<div class="label">Paste curl command</div>
+<textarea id="input" rows="4" oninput="convert()">curl -X POST https://api.example.com/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer token123" \
+  -d '{"name": "John", "email": "john@example.com"}'</textarea>
+<div class="langs" id="langs"></div>
+<div class="output">
+<div class="output-head"><span id="langLabel">Python (requests)</span><button onclick="cp()">Copy</button></div>
+<pre id="output"></pre>
+</div>
+</main>
+<script>
+const langs=['Python','JavaScript','Go','PHP','Ruby','C#','Rust','Java','HTTPie'];
+let currentLang='Python';
+
+document.getElementById('langs').innerHTML=langs.map(l=>`<div class="lang ${l===currentLang?'active':''}" onclick="setLang('${l}',this)">${l}</div>`).join('');
+function setLang(l,el){currentLang=l;document.querySelectorAll('.lang').forEach(e=>e.classList.remove('active'));el.classList.add('active');convert()}
+
+function parseCurl(cmd){
+  cmd=cmd.replace(/\\\n\s*/g,' ').trim();
+  if(cmd.startsWith('curl '))cmd=cmd.slice(5);
+  
+  let method='GET',url='',headers={},data=null,auth=null;
+  const tokens=[];
+  let i=0,inQ=false,q='',buf='';
+  while(i<cmd.length){
+    const c=cmd[i];
+    if(!inQ&&(c==="'"||c==='"')){inQ=true;q=c;i++;continue}
+    if(inQ&&c===q){inQ=false;tokens.push(buf);buf='';i++;continue}
+    if(!inQ&&c===' '){if(buf){tokens.push(buf);buf=''}i++;continue}
+    buf+=c;i++;
+  }
+  if(buf)tokens.push(buf);
+
+  for(let t=0;t<tokens.length;t++){
+    const tk=tokens[t];
+    if(tk==='-X'||tk==='--request'){method=tokens[++t]?.toUpperCase()||'GET'}
+    else if(tk==='-H'||tk==='--header'){const h=tokens[++t]||'';const ci=h.indexOf(':');if(ci>0)headers[h.slice(0,ci).trim()]=h.slice(ci+1).trim()}
+    else if(tk==='-d'||tk==='--data'||tk==='--data-raw'||tk==='--data-binary'){data=tokens[++t]||''}
+    else if(tk==='-u'||tk==='--user'){auth=tokens[++t]||''}
+    else if(!tk.startsWith('-')&&(tk.startsWith('http')||tk.startsWith('//'))){url=tk}
+  }
+  if(data&&method==='GET')method='POST';
+  return{method,url,headers,data,auth};
+}
+
+function toPython(p){
+  let lines=['import requests',''];
+  const hdr=Object.keys(p.headers).length;
+  if(hdr){lines.push('headers = {');Object.entries(p.headers).forEach(([k,v])=>lines.push(`    "${k}": "${v}",`));lines.push('}');lines.push('')}
+  let isJson=false;
+  if(p.data){try{JSON.parse(p.data);isJson=true}catch{}}
+  if(isJson){lines.push(`data = ${JSON.stringify(JSON.parse(p.data),null,4)}`);lines.push('')}
+  else if(p.data){lines.push(`data = '${p.data}'`);lines.push('')}
+  
+  let call=`response = requests.${p.method.toLowerCase()}("${p.url}"`;
+  if(hdr)call+=', headers=headers';
+  if(p.data)call+=isJson?', json=data':', data=data';
+  if(p.auth)call+=`, auth=("${p.auth.split(':')[0]}", "${p.auth.split(':')[1]||''}")`;
+  call+=')';
+  lines.push(call);
+  lines.push('print(response.status_code)');
+  lines.push('print(response.json())');
+  return lines.join('\n');
+}
+
+function toJS(p){
+  let lines=[];
+  let isJson=false;
+  if(p.data){try{JSON.parse(p.data);isJson=true}catch{}}
+  const opts={method:p.method};
+  if(Object.keys(p.headers).length)opts.headers=p.headers;
+  if(p.auth){opts.headers=opts.headers||{};opts.headers['Authorization']='Basic '+btoa(p.auth)}
+  
+  lines.push(`const response = await fetch("${p.url}", {`);
+  lines.push(`  method: "${p.method}",`);
+  if(opts.headers){lines.push('  headers: {');Object.entries(opts.headers).forEach(([k,v])=>lines.push(`    "${k}": "${v}",`));lines.push('  },');}
+  if(p.data){lines.push(`  body: ${isJson?'JSON.stringify('+JSON.stringify(JSON.parse(p.data),null,4)+')':JSON.stringify(p.data)},`)}
+  lines.push('});');
+  lines.push('');
+  lines.push('const data = await response.json();');
+  lines.push('console.log(data);');
+  return lines.join('\n');
+}
+
+function toGo(p){
+  let lines=['package main','','import (','    "fmt"','    "net/http"','    "io"'];
+  if(p.data)lines.push('    "strings"');
+  lines.push(')','','func main() {');
+  if(p.data)lines.push(`    body := strings.NewReader(\`${p.data}\`)`);
+  lines.push(`    req, _ := http.NewRequest("${p.method}", "${p.url}", ${p.data?'body':'nil'})`);
+  Object.entries(p.headers).forEach(([k,v])=>lines.push(`    req.Header.Set("${k}", "${v}")`));
+  lines.push('    client := &http.Client{}');
+  lines.push('    resp, _ := client.Do(req)');
+  lines.push('    defer resp.Body.Close()');
+  lines.push('    respBody, _ := io.ReadAll(resp.Body)');
+  lines.push('    fmt.Println(string(respBody))');
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function toPHP(p){
+  let lines=['<?php','','$ch = curl_init();','',`curl_setopt($ch, CURLOPT_URL, "${p.url}");`,'curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);'];
+  if(p.method!=='GET')lines.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "${p.method}");`);
+  if(Object.keys(p.headers).length){lines.push('curl_setopt($ch, CURLOPT_HTTPHEADER, [');Object.entries(p.headers).forEach(([k,v])=>lines.push(`    "${k}: ${v}",`));lines.push(']);')}
+  if(p.data)lines.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${p.data}');`);
+  lines.push('','$response = curl_exec($ch);','curl_close($ch);','','echo $response;');
+  return lines.join('\n');
+}
+
+function toRuby(p){
+  let lines=["require 'net/http'","require 'json'","require 'uri'",'',`uri = URI("${p.url}")`,'http = Net::HTTP.new(uri.host, uri.port)','http.use_ssl = uri.scheme == "https"',''];
+  const cls={GET:'Get',POST:'Post',PUT:'Put',PATCH:'Patch',DELETE:'Delete'}[p.method]||'Get';
+  lines.push(`request = Net::HTTP::${cls}.new(uri)`);
+  Object.entries(p.headers).forEach(([k,v])=>lines.push(`request["${k}"] = "${v}"`));
+  if(p.data)lines.push(`request.body = '${p.data}'`);
+  lines.push('','response = http.request(request)','puts response.body');
+  return lines.join('\n');
+}
+
+function toCSharp(p){
+  let lines=['using System.Net.Http;','using System.Text;','','var client = new HttpClient();'];
+  Object.entries(p.headers).forEach(([k,v])=>{if(k.toLowerCase()!=='content-type')lines.push(`client.DefaultRequestHeaders.Add("${k}", "${v}");`)});
+  if(p.data)lines.push(`var content = new StringContent("${p.data.replace(/"/g,'\\"')}", Encoding.UTF8, "${p.headers['Content-Type']||'application/json'}");`);
+  const m={GET:'GetAsync',POST:'PostAsync',PUT:'PutAsync',DELETE:'DeleteAsync',PATCH:'PatchAsync'}[p.method]||'GetAsync';
+  if(p.data)lines.push(`var response = await client.${m}("${p.url}", content);`);
+  else lines.push(`var response = await client.${m}("${p.url}");`);
+  lines.push('var body = await response.Content.ReadAsStringAsync();','Console.WriteLine(body);');
+  return lines.join('\n');
+}
+
+function toRust(p){
+  let lines=['// Add to Cargo.toml: reqwest = { version = "0.11", features = ["json"] }','// tokio = { version = "1", features = ["full"] }','','use reqwest;','','#[tokio::main]','async fn main() -> Result<(), Box<dyn std::error::Error>> {','    let client = reqwest::Client::new();'];
+  const m=p.method.toLowerCase();
+  lines.push(`    let response = client.${m}("${p.url}")`);
+  Object.entries(p.headers).forEach(([k,v])=>lines.push(`        .header("${k}", "${v}")`));
+  if(p.data)lines.push(`        .body(r#"${p.data}"#)`);
+  lines.push('        .send()','        .await?;','','    println!("{}", response.text().await?);','    Ok(())');lines.push('}');
+  return lines.join('\n');
+}
+
+function toJava(p){
+  let lines=['import java.net.http.*;','import java.net.URI;','','var client = HttpClient.newHttpClient();'];
+  lines.push(`var request = HttpRequest.newBuilder()`);
+  lines.push(`    .uri(URI.create("${p.url}"))`);
+  lines.push(`    .method("${p.method}", ${p.data?`HttpRequest.BodyPublishers.ofString("${p.data.replace(/"/g,'\\"')}")`:'HttpRequest.BodyPublishers.noBody()'})`);
+  Object.entries(p.headers).forEach(([k,v])=>lines.push(`    .header("${k}", "${v}")`));
+  lines.push('    .build();','','var response = client.send(request, HttpResponse.BodyHandlers.ofString());','System.out.println(response.body());');
+  return lines.join('\n');
+}
+
+function toHTTPie(p){
+  let parts=['http'];
+  if(p.method!=='GET')parts.push(p.method);
+  parts.push(p.url);
+  Object.entries(p.headers).forEach(([k,v])=>parts.push(`"${k}:${v}"`));
+  if(p.data){try{const j=JSON.parse(p.data);Object.entries(j).forEach(([k,v])=>parts.push(`${k}=${typeof v==='string'?'"'+v+'"':v}`))}catch{parts.push(`--raw '${p.data}'`)}}
+  return parts.join(' \\\n  ');
+}
+
+const converters={Python:toPython,JavaScript:toJS,Go:toGo,PHP:toPHP,Ruby:toRuby,'C#':toCSharp,Rust:toRust,Java:toJava,HTTPie:toHTTPie};
+const labels={Python:'Python (requests)',JavaScript:'JavaScript (fetch)',Go:'Go (net/http)',PHP:'PHP (curl)',Ruby:'Ruby (net/http)','C#':'C# (HttpClient)',Rust:'Rust (reqwest)',Java:'Java (HttpClient)',HTTPie:'HTTPie'};
+
+function convert(){
+  const cmd=document.getElementById('input').value.trim();
+  if(!cmd){document.getElementById('output').textContent='# Paste a curl command above';return}
+  try{
+    const parsed=parseCurl(cmd);
+    const code=converters[currentLang](parsed);
+    document.getElementById('output').textContent=code;
+    document.getElementById('langLabel').textContent=labels[currentLang];
+  }catch(e){document.getElementById('output').textContent='# Error parsing curl command: '+e.message}
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+convert();
+</script>
+</body>
+</html>
