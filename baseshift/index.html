@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BaseShift — Number Base Converter (Binary, Octal, Decimal, Hex)</title>
+<meta name="description" content="Convert numbers between binary, octal, decimal, hexadecimal, and any base up to 36. Free online base converter.">
+<meta name="keywords" content="number base converter, binary to decimal, hex converter, octal converter, base conversion">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--surface:#151b23;--border:#253040;--accent:#f0883e;--green:#56d364;--blue:#58a6ff;--text:#d1d5db;--muted:#6e7681}
+body{font-family:'IBM Plex Mono','SF Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+.logo{font-size:1.15rem;font-weight:700;color:#f0f6fc}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.6rem;font-weight:700;color:#f0f6fc;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+.input-group{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1.5rem}
+.input-group .row{display:flex;gap:.8rem;align-items:center}
+.input-group label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem;display:block}
+.input-group input[type=text]{flex:1;background:#0d1117;border:1px solid var(--border);color:var(--accent);font-family:inherit;font-size:1.1rem;padding:.6rem .8rem;border-radius:6px;outline:none}
+.input-group input:focus{border-color:var(--accent)}
+.input-group select{background:#0d1117;border:1px solid var(--border);color:var(--text);font-family:inherit;padding:.6rem;border-radius:6px;font-size:.85rem;min-width:80px}
+.results{display:flex;flex-direction:column;gap:.6rem}
+.result-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem 1rem;display:flex;align-items:center;gap:.8rem;cursor:pointer;transition:border-color .15s}
+.result-row:hover{border-color:var(--accent)}
+.result-row .base-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:90px}
+.result-row .value{flex:1;font-size:.95rem;color:var(--green);word-break:break-all}
+.result-row .copy-hint{font-size:.65rem;color:var(--muted);opacity:0;transition:opacity .15s}
+.result-row:hover .copy-hint{opacity:1}
+.bit-visual{margin-top:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.bit-visual h3{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.bits{display:flex;flex-wrap:wrap;gap:2px}
+.bit{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.75rem;border-radius:3px;font-weight:700}
+.bit.one{background:var(--accent);color:#0d1117}
+.bit.zero{background:#1c2530;color:var(--muted)}
+.bit.sep{width:8px;background:none}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border);margin-top:3rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Base<span>Shift</span></div></nav>
+<main>
+<h1>Number Base Converter</h1>
+<p class="sub">Convert between binary, octal, decimal, hex, and any base up to 36.</p>
+<div class="input-group">
+<label>Input</label>
+<div class="row">
+<input type="text" id="input" value="255" placeholder="Enter a number...">
+<select id="fromBase"><option value="2">Binary (2)</option><option value="8">Octal (8)</option><option value="10" selected>Decimal (10)</option><option value="16">Hex (16)</option><option value="32">Base32</option><option value="36">Base36</option></select>
+</div>
+</div>
+<div class="results" id="results"></div>
+<div class="bit-visual" id="bitVis">
+<h3>Binary Visualization</h3>
+<div class="bits" id="bits"></div>
+</div>
+</main>
+<footer>&copy; 2026 BaseShift &mdash; Number base converter. Runs entirely in your browser.</footer>
+<script>
+const bases=[{name:'Binary',base:2},{name:'Octal',base:8},{name:'Decimal',base:10},{name:'Hexadecimal',base:16},{name:'Base32',base:32},{name:'Base36',base:36}];
+const inp=document.getElementById('input'),fromBase=document.getElementById('fromBase'),results=document.getElementById('results'),bitsEl=document.getElementById('bits');
+inp.oninput=fromBase.onchange=convert;
+function convert(){const val=inp.value.trim();const fb=parseInt(fromBase.value);if(!val){results.innerHTML='';bitsEl.innerHTML='';return}
+try{const dec=parseInt(val,fb);if(isNaN(dec)||dec<0){results.innerHTML='<div class="result-row"><span class="value" style="color:#f85149">Invalid input for base '+fb+'</span></div>';bitsEl.innerHTML='';return}
+results.innerHTML='';bases.forEach(b=>{const r=document.createElement('div');r.className='result-row';const v=dec.toString(b.base).toUpperCase();r.innerHTML=`<span class="base-label">${b.name} (${b.base})</span><span class="value">${v}</span><span class="copy-hint">click to copy</span>`;r.onclick=()=>{navigator.clipboard.writeText(v);r.querySelector('.copy-hint').textContent='copied!';setTimeout(()=>r.querySelector('.copy-hint').textContent='click to copy',1000)};results.appendChild(r)});
+const bin=dec.toString(2).padStart(Math.ceil(dec.toString(2).length/8)*8,'0');bitsEl.innerHTML='';
+for(let i=0;i<bin.length;i++){if(i>0&&i%8===0){const s=document.createElement('div');s.className='bit sep';bitsEl.appendChild(s)}
+const d=document.createElement('div');d.className='bit '+(bin[i]==='1'?'one':'zero');d.textContent=bin[i];bitsEl.appendChild(d)}
+}catch(e){results.innerHTML=`<div class="result-row"><span class="value" style="color:#f85149">${e.message}</span></div>`}}
+convert();
+</script>
+</body>
+</html>
