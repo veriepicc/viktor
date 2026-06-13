@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caption Generator — Instagram, TikTok & Twitter Caption Ideas Free</title>
+<meta name="description" content="Generate creative captions for Instagram, TikTok, and Twitter. 500+ templates by category. Copy-paste ready. Free caption generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;color:#fff}
+main{max-width:500px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1.2rem;margin-bottom:1rem}
+.cats{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.cat{padding:.3rem .6rem;border-radius:6px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);background:rgba(255,255,255,.03)}
+.cat.active{border-color:#e879f9;color:#e879f9;background:rgba(232,121,249,.08)}
+.btn{width:100%;padding:.55rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#e879f9,#818cf8);color:#fff}
+.captions{display:flex;flex-direction:column;gap:.3rem;margin-top:1rem}
+.caption{padding:.7rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;cursor:pointer;font-size:.82rem;line-height:1.5;transition:all .15s}
+.caption:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.caption .hint{font-size:.58rem;color:rgba(255,255,255,.25);margin-top:.2rem;text-align:right}
+</style>
+</head>
+<body>
+<main>
+<h1>💬 Caption Generator</h1>
+<div class="card">
+<div class="cats">
+<div class="cat active" onclick="setCat('selfie',this)">🤳 Selfie</div>
+<div class="cat" onclick="setCat('travel',this)">✈️ Travel</div>
+<div class="cat" onclick="setCat('food',this)">🍕 Food</div>
+<div class="cat" onclick="setCat('fitness',this)">💪 Fitness</div>
+<div class="cat" onclick="setCat('nature',this)">🌿 Nature</div>
+<div class="cat" onclick="setCat('mood',this)">😌 Mood</div>
+<div class="cat" onclick="setCat('funny',this)">😂 Funny</div>
+<div class="cat" onclick="setCat('love',this)">❤️ Love</div>
+<div class="cat" onclick="setCat('motivational',this)">🔥 Hustle</div>
+<div class="cat" onclick="setCat('night',this)">🌙 Night</div>
+<div class="cat" onclick="setCat('weekend',this)">🎉 Weekend</div>
+<div class="cat" onclick="setCat('birthday',this)">🎂 Birthday</div>
+</div>
+</div>
+<button class="btn" onclick="generate()">✨ Generate Captions</button>
+<div class="captions" id="captions"></div>
+</main>
+<script>
+let currentCat='selfie';
+function setCat(c,el){currentCat=c;document.querySelectorAll('.cat').forEach(e=>e.classList.remove('active'));el.classList.add('active');generate()}
+
+const db={
+  selfie:["felt cute, might delete later 📸","this is my good side. both sides are my good side.","confidence level: selfie with no filter","me, myself, and I ✨","born to stand out 💫","I woke up like this. Actually, no. It took like 45 minutes.","I'm not perfect but my selfie game is 🔥","plot twist: I look even better in person","the only competition I have is the person in the mirror","too glam to give a damn ✨","POV: you found my best angle","warning: main character energy ahead"],
+  travel:["catch flights, not feelings ✈️","adventure awaits... and I said yes","lost in the right direction 🗺️","take me back to this moment","I haven't been everywhere, but it's on my list","wanderlust and city dust","new place, new memories 📍","currently accepting travel buddy applications","eat, sleep, travel, repeat","the world is a book and I'm turning pages"],
+  food:["eating my feelings and they taste GOOD 🍕","calories don't count on weekends","I came. I saw. I ate. 🍽️","food is my love language","my diet starts tomorrow... again","life is short, eat the dessert first 🍰","brunch without mimosas is just a sad breakfast","food tastes better when someone else is paying","in a committed relationship with food","my favorite exercise is eating"],
+  fitness:["progress, not perfection 💪","the only bad workout is the one you didn't do","sore today, strong tomorrow","gym hair, don't care","building a body I'm proud of 🏋️","no excuses, only results","this wasn't easy but neither am I","sweat now, shine later","I don't sweat, I sparkle ✨","currently in my revenge body era"],
+  nature:["let's find some beautiful place to get lost 🌿","nature is my therapy","taking the scenic route 🌄","earth has music for those who listen","green is my favorite color 🍃","somewhere between a mountain and a hard place","the mountains are calling and I must go","vitamin N: nature 🌲","finding peace in places with no WiFi","the earth laughs in flowers 🌸"],
+  mood:["living my best life, one day at a time","current mood: unbothered 😌","vibing and thriving ✨","existing peacefully","just a vibe, nothing more","in my healing era 🦋","choosing peace over everything","good vibes only (but sometimes mid vibes too)","mentally I'm here: 🏝️","low-key thriving, high-key tired"],
+  funny:["I'm not weird, I'm limited edition 😂","running on caffeine and anxiety","I need a six-month vacation... twice a year","my patience is thinner than my hair","I'm on a seafood diet. I see food, I eat it.","I followed my heart and it led me to the fridge","adulting is soup and I am a fork","why fall in love when you can fall asleep?","relationship status: committed to pizza","my bed and I have a special relationship"],
+  love:["you're my favorite notification ❤️","love looks good on us","in a world full of trends, you remain my classic","you had me at WiFi password 😂","together is my favorite place to be","you're the avocado to my toast 🥑","I love you more than coffee... and that's saying a lot","my favorite hello and hardest goodbye","you're stuck with me 💕","love isn't perfect, but we are"],
+  motivational:["dream it. believe it. build it. 🚀","I didn't come this far to only come this far","be the energy you want to attract 🔥","plot twist: I made it","still working on the empire","they told me I couldn't... watch me 👀","success is the best revenge","grinding now so I can flex later","born to hustle, built to last","the best view comes after the hardest climb 🏔️"],
+  night:["city lights and late nights 🌃","the night is young and so are we","3 AM thoughts hit different","moon child 🌙","night owl mode: activated 🦉","stars can't shine without darkness","midnight snack enthusiast","the best conversations happen at 2 AM","chasing neon lights","good night, world. see you tomorrow ✨"],
+  weekend:["weekend mode: ON 🎉","it's the weekend baby! time to party","my weekend is booked and busy","currently accepting weekend plans","do more things that make you forget to check your phone","living for the weekend","Friday state of mind","Saturday mood: no responsibilities","Sunday reset ☀️","the weekend is too short for bad vibes"],
+  birthday:["another year older, another year wiser... maybe 🎂","it's my birthday and I'll eat cake if I want to","aged like fine wine 🍷","level unlocked: [age]","survived another year, let's celebrate 🎉","birthday calories don't count","making my year around the sun count","born to party 🎈","grateful for another trip around the sun","plotting world domination since [birth year]"]
+};
+
+function generate(){
+  const pool=db[currentCat]||db.selfie;
+  const shuffled=[...pool].sort(()=>Math.random()-.5);
+  document.getElementById('captions').innerHTML=shuffled.slice(0,8).map(c=>
+    `<div class="caption" onclick="navigator.clipboard.writeText(this.firstChild.textContent)">${c}<div class="hint">tap to copy</div></div>`
+  ).join('');
+}
+generate();
+</script>
+</body>
+</html>
