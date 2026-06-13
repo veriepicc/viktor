@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TimeZone Converter — Convert Time Between Time Zones & Meeting Planner</title>
+<meta name="description" content="Convert time between any time zones. Multi-timezone meeting planner. Find the best meeting time across cities. Free timezone converter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#06b6d4;--text:#e5e5e5;--muted:#737373;--good:#22c55e;--ok:#eab308;--bad:#ef4444}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.tz-row{display:flex;gap:.4rem;margin-bottom:.5rem;align-items:center}
+.tz-row select{flex:2;padding:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;outline:none}
+.tz-row input{flex:1;padding:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit}
+.tz-row .time{font-size:1.3rem;font-weight:800;min-width:80px;text-align:center;color:var(--accent)}
+.tz-row .date{font-size:.7rem;color:var(--muted);min-width:80px;text-align:center}
+.tz-row button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.2rem .4rem}
+.btn-sm{background:var(--bg);color:var(--accent);border:1px solid var(--border);padding:.35rem .7rem;border-radius:5px;font-size:.7rem;font-weight:600;cursor:pointer}
+.timeline{margin-top:1rem;overflow-x:auto}
+.timeline table{width:100%;border-collapse:collapse;font-size:.7rem}
+.timeline th{padding:.3rem .2rem;color:var(--muted);font-weight:600;font-size:.6rem;text-transform:uppercase;border-bottom:1px solid var(--border);text-align:left;position:sticky;left:0;background:var(--surface);min-width:80px}
+.timeline td{padding:.2rem;text-align:center;min-width:28px;font-weight:600;font-size:.65rem;border-radius:3px}
+.timeline td.good{background:rgba(34,197,94,.12);color:var(--good)}
+.timeline td.ok{background:rgba(234,179,8,.08);color:var(--ok)}
+.timeline td.bad{background:rgba(239,68,68,.08);color:var(--bad)}
+.timeline td.now{outline:2px solid var(--accent);outline-offset:-1px}
+</style>
+</head>
+<body>
+<main>
+<h1>Timezone Converter</h1>
+<div class="card">
+<h3>Source Time</h3>
+<div class="tz-row">
+<input type="time" id="srcTime" value="09:00" onchange="calc()">
+<input type="date" id="srcDate" onchange="calc()">
+<select id="srcTz" onchange="calc()"></select>
+</div>
+</div>
+<div class="card">
+<h3>Target Timezones</h3>
+<div id="targets"></div>
+<button class="btn-sm" onclick="addTarget()">+ Add Timezone</button>
+</div>
+<div class="card">
+<h3>24-Hour Overlap View</h3>
+<div class="timeline" id="timeline"></div>
+</div>
+</main>
+<script>
+const zones=[
+  {label:'UTC',tz:'UTC'},
+  {label:'New York (EST/EDT)',tz:'America/New_York'},
+  {label:'Chicago (CST/CDT)',tz:'America/Chicago'},
+  {label:'Denver (MST/MDT)',tz:'America/Denver'},
+  {label:'Los Angeles (PST/PDT)',tz:'America/Los_Angeles'},
+  {label:'São Paulo (BRT)',tz:'America/Sao_Paulo'},
+  {label:'London (GMT/BST)',tz:'Europe/London'},
+  {label:'Paris (CET/CEST)',tz:'Europe/Paris'},
+  {label:'Berlin (CET/CEST)',tz:'Europe/Berlin'},
+  {label:'Belgrade (CET/CEST)',tz:'Europe/Belgrade'},
+  {label:'Moscow (MSK)',tz:'Europe/Moscow'},
+  {label:'Dubai (GST)',tz:'Asia/Dubai'},
+  {label:'Mumbai (IST)',tz:'Asia/Kolkata'},
+  {label:'Bangkok (ICT)',tz:'Asia/Bangkok'},
+  {label:'Shanghai (CST)',tz:'Asia/Shanghai'},
+  {label:'Tokyo (JST)',tz:'Asia/Tokyo'},
+  {label:'Seoul (KST)',tz:'Asia/Seoul'},
+  {label:'Sydney (AEST/AEDT)',tz:'Australia/Sydney'},
+  {label:'Auckland (NZST/NZDT)',tz:'Pacific/Auckland'},
+  {label:'Hawaii (HST)',tz:'Pacific/Honolulu'},
+];
+
+const optionsHTML=zones.map(z=>`<option value="${z.tz}">${z.label}</option>`).join('');
+document.getElementById('srcTz').innerHTML=optionsHTML;
+document.getElementById('srcDate').value=new Date().toISOString().split('T')[0];
+
+// Detect user's timezone
+const userTz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+const srcSel=document.getElementById('srcTz');
+if([...srcSel.options].some(o=>o.value===userTz))srcSel.value=userTz;
+
+let targets=['America/New_York','Europe/London','Asia/Tokyo'];
+
+function renderTargets(){
+  document.getElementById('targets').innerHTML=targets.map((t,i)=>`<div class="tz-row"><select onchange="targets[${i}]=this.value;calc()">${zones.map(z=>`<option value="${z.tz}" ${z.tz===t?'selected':''}>${z.label}</option>`).join('')}</select><div><div class="time" id="tgt_time_${i}">--:--</div><div class="date" id="tgt_date_${i}"></div></div><button onclick="targets.splice(${i},1);renderTargets();calc()">×</button></div>`).join('');
+}
+function addTarget(){targets.push('UTC');renderTargets();calc()}
+
+function calc(){
+  const time=document.getElementById('srcTime').value;
+  const date=document.getElementById('srcDate').value;
+  const srcTz=document.getElementById('srcTz').value;
+  if(!time||!date)return;
+
+  const srcDate=new Date(new Date(`${date}T${time}`).toLocaleString('en-US',{timeZone:srcTz}));
+  const actualDate=new Date(`${date}T${time}:00`);
+  // Get offset difference
+  const srcOffset=getOffset(actualDate,srcTz);
+  const utcMs=actualDate.getTime()-srcOffset*60000;
+
+  targets.forEach((t,i)=>{
+    const tgtOffset=getOffset(new Date(utcMs),t);
+    const tgtDate=new Date(utcMs+tgtOffset*60000);
+    const h=tgtDate.getUTCHours().toString().padStart(2,'0');
+    const m=tgtDate.getUTCMinutes().toString().padStart(2,'0');
+    document.getElementById(`tgt_time_${i}`).textContent=`${h}:${m}`;
+    const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    document.getElementById(`tgt_date_${i}`).textContent=`${dayNames[tgtDate.getUTCDay()]}, ${tgtDate.toISOString().split('T')[0]}`;
+  });
+
+  // Timeline
+  const allTz=[srcTz,...targets];
+  const allLabels=[zones.find(z=>z.tz===srcTz)?.label||srcTz,...targets.map(t=>zones.find(z=>z.tz===t)?.label||t)];
+  const nowHour=new Date().getHours();
+  
+  let html='<table><tr><th></th>';
+  for(let h=0;h<24;h++)html+=`<td style="color:var(--muted)">${h.toString().padStart(2,'0')}</td>`;
+  html+='</tr>';
+  
+  allTz.forEach((tz,idx)=>{
+    html+=`<tr><th>${allLabels[idx].split('(')[0].trim()}</th>`;
+    for(let h=0;h<24;h++){
+      const testDate=new Date(`${date}T${h.toString().padStart(2,'0')}:00:00`);
+      const offset=getOffset(testDate,srcTz);
+      const utc=testDate.getTime()-offset*60000;
+      const tgtOffset=getOffset(new Date(utc),tz);
+      const tgtH=((Math.round((utc+tgtOffset*60000)%(86400000))/3600000)%24+24)%24;
+      const hr=Math.floor(tgtH);
+      const cls=hr>=9&&hr<18?'good':hr>=7&&hr<21?'ok':'bad';
+      html+=`<td class="${cls}">${hr.toString().padStart(2,'0')}</td>`;
+    }
+    html+='</tr>';
+  });
+  html+='</table>';
+  document.getElementById('timeline').innerHTML=html;
+}
+
+function getOffset(date,tz){
+  const utcStr=date.toLocaleString('en-US',{timeZone:'UTC'});
+  const tzStr=date.toLocaleString('en-US',{timeZone:tz});
+  return(new Date(tzStr)-new Date(utcStr))/60000;
+}
+
+renderTargets();calc();
+</script>
+</body>
+</html>
