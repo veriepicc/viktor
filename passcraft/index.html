@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PassCraft — Strong Password Generator</title>
+<meta name="description" content="Generate secure, random passwords instantly. Customize length, characters, and strength. Runs in your browser — nothing stored or sent.">
+<meta name="keywords" content="password generator, strong password, random password, secure password generator, password maker">
+<meta property="og:title" content="PassCraft — Strong Password Generator">
+<meta property="og:description" content="Generate secure random passwords with customizable options. Free, instant, private.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f5f0eb;--surface:#fffdf9;--border:#e0dbd4;--accent:#b44d12;--accent2:#d4731a;--text:#3d3229;--muted:#9c9488;--strong:#2d7d46;--medium:#c9971a;--weak:#c0392b}
+body{font-family:'Georgia','Palatino',serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+nav{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center}
+.logo{font-size:1.3rem;font-weight:700;font-style:italic}.logo span{color:var(--accent);font-style:normal}
+main{flex:1;max-width:540px;margin:0 auto;padding:3rem 1.5rem;width:100%}
+h1{font-size:2rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:.95rem;margin-bottom:2.5rem;font-style:italic}
+.password-display{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:1.3rem;margin-bottom:1.5rem;position:relative;cursor:pointer;transition:border-color .2s}
+.password-display:hover{border-color:var(--accent)}
+.password-text{font-family:'SF Mono','Fira Code',monospace;font-size:1.25rem;word-break:break-all;line-height:1.5;letter-spacing:.02em;min-height:2rem}
+.password-actions{display:flex;gap:.5rem;margin-top:.8rem}
+.password-actions button{flex:1;padding:.55rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-copy{background:var(--accent);color:#fff;border:none}
+.btn-copy:hover{background:var(--accent2)}
+.btn-regen{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn-regen:hover{background:var(--accent);color:#fff}
+.strength-bar{height:5px;border-radius:3px;background:var(--border);margin-bottom:1.5rem;overflow:hidden}
+.strength-fill{height:100%;border-radius:3px;transition:all .4s}
+.strength-label{font-size:.78rem;margin-bottom:.5rem;font-weight:600}
+.options{display:flex;flex-direction:column;gap:1rem}
+.opt-row{display:flex;align-items:center;gap:.8rem}
+.opt-row label{flex:1;font-size:.9rem}
+.opt-row input[type=range]{width:160px;accent-color:var(--accent)}
+.opt-row .val{font-family:monospace;font-size:.85rem;min-width:30px;text-align:right;font-weight:700;color:var(--accent)}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:12px;transition:.25s}
+.toggle .slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s}
+.toggle input:checked+.slider{background:var(--accent)}
+.toggle input:checked+.slider:before{transform:translateX(20px)}
+.history{margin-top:2.5rem}
+.history h3{font-size:.85rem;color:var(--muted);margin-bottom:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.history-list{display:flex;flex-direction:column;gap:.4rem}
+.history-item{font-family:monospace;font-size:.8rem;padding:.5rem .8rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;word-break:break-all}
+.history-item:hover{border-color:var(--accent)}
+footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<nav><div class="logo"><span>Pass</span>Craft</div></nav>
+<main>
+<h1>Password Generator</h1>
+<p class="sub">Create strong, unique passwords in one click.</p>
+<div class="password-display" onclick="copyPassword()">
+<div class="password-text" id="password"></div>
+<div class="password-actions">
+<button class="btn-copy" id="copyBtn" onclick="event.stopPropagation();copyPassword()">Copy</button>
+<button class="btn-regen" onclick="event.stopPropagation();generate()">↻ New</button>
+</div>
+</div>
+<div class="strength-label" id="strengthLabel"></div>
+<div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+<div class="options">
+<div class="opt-row"><label>Length</label><input type="range" id="length" min="4" max="128" value="20"><span class="val" id="lengthVal">20</span></div>
+<div class="opt-row"><label>Uppercase (A-Z)</label><label class="toggle"><input type="checkbox" id="upper" checked><span class="slider"></span></label></div>
+<div class="opt-row"><label>Lowercase (a-z)</label><label class="toggle"><input type="checkbox" id="lower" checked><span class="slider"></span></label></div>
+<div class="opt-row"><label>Numbers (0-9)</label><label class="toggle"><input type="checkbox" id="nums" checked><span class="slider"></span></label></div>
+<div class="opt-row"><label>Symbols (!@#$...)</label><label class="toggle"><input type="checkbox" id="syms" checked><span class="slider"></span></label></div>
+</div>
+<div class="history"><h3>Recent</h3><div class="history-list" id="historyList"></div></div>
+</main>
+<footer>&copy; 2026 PassCraft &mdash; Passwords generated locally. Nothing is stored or transmitted.</footer>
+<script>
+const pw=document.getElementById('password'),lenSlider=document.getElementById('length'),lenVal=document.getElementById('lengthVal');
+const opts={upper:document.getElementById('upper'),lower:document.getElementById('lower'),nums:document.getElementById('nums'),syms:document.getElementById('syms')};
+const history=[];
+lenSlider.oninput=()=>{lenVal.textContent=lenSlider.value;generate()};
+Object.values(opts).forEach(el=>el.onchange=()=>generate());
+function generate(){
+const chars=[];
+if(opts.upper.checked)chars.push(...'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+if(opts.lower.checked)chars.push(...'abcdefghijklmnopqrstuvwxyz');
+if(opts.nums.checked)chars.push(...'0123456789');
+if(opts.syms.checked)chars.push(...'!@#$%^&*()_+-=[]{}|;:,.<>?');
+if(!chars.length){pw.textContent='Select at least one option';return}
+const len=parseInt(lenSlider.value);const arr=new Uint32Array(len);crypto.getRandomValues(arr);
+const pass=Array.from(arr).map(v=>chars[v%chars.length]).join('');
+pw.textContent=pass;
+updateStrength(pass);
+history.unshift(pass);if(history.length>5)history.pop();
+renderHistory();
+}
+function updateStrength(p){const l=p.length;const types=((/[a-z]/.test(p)?1:0)+(/[A-Z]/.test(p)?1:0)+(/[0-9]/.test(p)?1:0)+(/[^a-zA-Z0-9]/.test(p)?1:0));
+const entropy=l*Math.log2(types*26||1);let str,col,w;
+if(l>=20&&types>=3){str='Very Strong';col='var(--strong)';w='100%'}
+else if(l>=14&&types>=3){str='Strong';col='var(--strong)';w='80%'}
+else if(l>=10&&types>=2){str='Good';col='var(--medium)';w='60%'}
+else if(l>=6){str='Weak';col='var(--weak)';w='35%'}
+else{str='Very Weak';col='var(--weak)';w='15%'}
+document.getElementById('strengthLabel').textContent=str;document.getElementById('strengthLabel').style.color=col;
+const fill=document.getElementById('strengthFill');fill.style.width=w;fill.style.background=col}
+function copyPassword(){const t=pw.textContent;navigator.clipboard.writeText(t);const b=document.getElementById('copyBtn');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1500)}
+function renderHistory(){const hl=document.getElementById('historyList');hl.innerHTML='';history.forEach(p=>{const d=document.createElement('div');d.className='history-item';d.textContent=p;d.onclick=()=>{navigator.clipboard.writeText(p);d.style.borderColor='var(--accent)';setTimeout(()=>d.style.borderColor='',800)};hl.appendChild(d)})}
+generate();
+</script>
+</body>
+</html>
