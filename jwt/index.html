@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT Decoder — Decode & Inspect JSON Web Tokens Online</title>
+<meta name="description" content="Decode JWT tokens, inspect header, payload, claims, and expiration. Debug JWTs instantly. Free online JWT decoder and inspector.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔓</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--surface:#141414;--border:#252525;--header:#fb7185;--payload:#38bdf8;--sig:#a78bfa;--text:#e5e5e5;--muted:#666}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+textarea{width:100%;padding:.8rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'SF Mono','Fira Code',monospace;font-size:.8rem;line-height:1.5;outline:none;resize:vertical;word-break:break-all}
+textarea:focus{border-color:var(--payload)}
+.label{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-bottom:.3rem;margin-top:1rem}
+.parts{display:flex;gap:.5rem;margin:1rem 0}
+.part{flex:1;text-align:center;padding:.4rem;border-radius:6px;font-size:.7rem;font-weight:700}
+.part-header{background:rgba(251,113,133,.1);color:var(--header);border:1px solid rgba(251,113,133,.2)}
+.part-payload{background:rgba(56,189,248,.1);color:var(--payload);border:1px solid rgba(56,189,248,.2)}
+.part-sig{background:rgba(167,139,250,.1);color:var(--sig);border:1px solid rgba(167,139,250,.2)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:.8rem}
+.section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:.6rem}
+.section.header-section h3{color:var(--header)}
+.section.payload-section h3{color:var(--payload)}
+.json-key{color:var(--payload)}
+.json-str{color:#4ade80}
+.json-num{color:var(--header)}
+.json-bool{color:var(--sig)}
+pre{font-family:'SF Mono',monospace;font-size:.8rem;line-height:1.6;overflow-x:auto}
+.claim{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.78rem}
+.claim:last-child{border-bottom:none}
+.claim .key{color:var(--muted);font-family:'SF Mono',monospace}
+.claim .val{color:var(--text);font-weight:600}
+.claim .val.expired{color:#ef4444}
+.claim .val.valid{color:#22c55e}
+.error{color:#ef4444;font-size:.82rem;padding:.5rem;background:rgba(239,68,68,.08);border-radius:6px;border:1px solid rgba(239,68,68,.2)}
+</style>
+</head>
+<body>
+<main>
+<h1>JWT Decoder</h1>
+<div class="label">Paste JWT Token</div>
+<textarea id="input" rows="4" oninput="decode()" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNzM2MjM5MDIyfQ.tcYU3OBz6YBpmyQW2YVQ9wNRLAzFxoAq2D9tHmin2yY</textarea>
+<div class="parts"><div class="part part-header">Header</div><div class="part part-payload">Payload</div><div class="part part-sig">Signature</div></div>
+<div id="result"></div>
+</main>
+<script>
+function b64decode(str){
+  str=str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4)str+='=';
+  return decodeURIComponent(atob(str).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+
+function syntaxHL(json){
+  return JSON.stringify(json,null,2).replace(/(".*?")(\s*:\s*)/g,'<span class="json-key">$1</span>$2').replace(/:\s*(".*?")/g,': <span class="json-str">$1</span>').replace(/:\s*(\d+)/g,': <span class="json-num">$1</span>').replace(/:\s*(true|false|null)/g,': <span class="json-bool">$1</span>');
+}
+
+const claimNames={iss:'Issuer',sub:'Subject',aud:'Audience',exp:'Expiration',nbf:'Not Before',iat:'Issued At',jti:'JWT ID',name:'Name',email:'Email',role:'Role',scope:'Scope',admin:'Admin'};
+
+function decode(){
+  const token=document.getElementById('input').value.trim();
+  if(!token){document.getElementById('result').innerHTML='';return}
+  
+  const parts=token.split('.');
+  if(parts.length!==3){document.getElementById('result').innerHTML='<div class="error">Invalid JWT — expected 3 parts (header.payload.signature), got '+parts.length+'</div>';return}
+  
+  try{
+    const header=JSON.parse(b64decode(parts[0]));
+    const payload=JSON.parse(b64decode(parts[1]));
+    const now=Math.floor(Date.now()/1000);
+    
+    let claimsHTML='';
+    for(const[k,v]of Object.entries(payload)){
+      let displayVal=v;
+      let cls='';
+      if(k==='exp'){
+        const d=new Date(v*1000);
+        const expired=v<now;
+        cls=expired?'expired':'valid';
+        displayVal=`${d.toLocaleString()} (${expired?'EXPIRED':'valid'})`;
+      }else if(k==='iat'||k==='nbf'){
+        displayVal=new Date(v*1000).toLocaleString();
+      }
+      claimsHTML+=`<div class="claim"><span class="key">${claimNames[k]||k} (${k})</span><span class="val ${cls}">${displayVal}</span></div>`;
+    }
+    
+    let html=`<div class="section header-section"><h3>Header</h3><pre>${syntaxHL(header)}</pre></div>`;
+    html+=`<div class="section payload-section"><h3>Payload</h3><pre>${syntaxHL(payload)}</pre></div>`;
+    html+=`<div class="section"><h3 style="color:var(--muted)">Claims</h3>${claimsHTML}</div>`;
+    html+=`<div class="section"><h3 style="color:var(--sig)">Signature</h3><pre style="color:var(--sig);word-break:break-all">${parts[2]}</pre><p style="font-size:.7rem;color:var(--muted);margin-top:.3rem">⚠️ Signature verification requires the secret key (not done client-side)</p></div>`;
+    
+    document.getElementById('result').innerHTML=html;
+  }catch(e){
+    document.getElementById('result').innerHTML=`<div class="error">Failed to decode: ${e.message}</div>`;
+  }
+}
+decode();
+</script>
+</body>
+</html>
