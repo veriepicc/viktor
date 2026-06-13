@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSONFixer — Fix & Repair Broken JSON Automatically</title>
+<meta name="description" content="Automatically fix broken JSON — trailing commas, missing quotes, single quotes, comments. Free JSON repair tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1a1b26;--surface:#24283b;--border:#3b4261;--accent:#7aa2f7;--green:#9ece6a;--red:#f7768e;--yellow:#e0af68;--text:#a9b1d6;--muted:#565f89}
+body{font-family:'JetBrains Mono','SF Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.8rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:'Inter',sans-serif}
+.logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}
+.workspace{display:flex;height:calc(100vh - 48px);min-height:400px}
+.pane{flex:1;display:flex;flex-direction:column}
+.pane+.pane{border-left:1px solid var(--border)}
+.pane-head{padding:.4rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);font-size:.72rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between;font-family:'Inter',sans-serif}
+.pane-head .status{display:flex;align-items:center;gap:.3rem}
+.pane-head .dot{width:6px;height:6px;border-radius:50%}
+.pane-head button{background:var(--accent);color:#1a1b26;border:none;padding:.2rem .7rem;border-radius:4px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+textarea{flex:1;padding:1rem;background:var(--bg);border:none;color:var(--text);font-family:inherit;font-size:.82rem;line-height:1.7;resize:none;outline:none;tab-size:2}
+textarea::placeholder{color:#3b4261}
+.output-area{flex:1;padding:1rem;overflow:auto;font-size:.82rem;line-height:1.7;white-space:pre-wrap;color:var(--green)}
+.fixes-panel{padding:.6rem 1rem;background:var(--surface);border-top:1px solid var(--border);max-height:120px;overflow-y:auto}
+.fix{font-size:.72rem;padding:.15rem 0;color:var(--yellow);font-family:'Inter',sans-serif}
+.fix::before{content:'⚠ ';font-size:.7rem}
+.err{color:var(--red)}
+@media(max-width:700px){.workspace{flex-direction:column}.pane+.pane{border-left:none;border-top:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<nav>
+<div class="logo">JSON<span>Fixer</span></div>
+</nav>
+<div class="workspace">
+<div class="pane">
+<div class="pane-head"><span>BROKEN JSON</span></div>
+<textarea id="input" placeholder='Paste broken JSON here...' oninput="fix()">{
+  name: 'John Doe',
+  age: 30,
+  "active": true,
+  hobbies: ["reading", "coding", "gaming",],
+  // This is a comment
+  address: {
+    street: "123 Main St",
+    city: 'NYC',
+  },
+}</textarea>
+</div>
+<div class="pane">
+<div class="pane-head"><div class="status"><div class="dot" id="statusDot" style="background:var(--green)"></div><span id="statusText">Fixed</span></div><button onclick="copyOutput()">Copy</button></div>
+<div class="output-area" id="output"></div>
+<div class="fixes-panel" id="fixes"></div>
+</div>
+</div>
+<script>
+function fix(){
+  const input=document.getElementById('input').value;
+  const fixes=[];
+  let s=input;
+
+  // Remove single-line comments
+  const commentMatches=s.match(/\/\/.*$/gm);
+  if(commentMatches){fixes.push(`Removed ${commentMatches.length} comment(s)`);s=s.replace(/\/\/.*$/gm,'')}
+
+  // Remove multi-line comments
+  if(/\/\*[\s\S]*?\*\//.test(s)){fixes.push('Removed block comment(s)');s=s.replace(/\/\*[\s\S]*?\*\//g,'')}
+
+  // Replace single quotes with double quotes (but not inside double-quoted strings)
+  let hadSingleQuotes=false;
+  let result='';let inDblQuote=false;let inSglQuote=false;
+  for(let i=0;i<s.length;i++){
+    const c=s[i],prev=s[i-1];
+    if(c==='"'&&prev!=='\\'){if(!inSglQuote)inDblQuote=!inDblQuote;result+=c}
+    else if(c==="'"&&prev!=='\\'){if(!inDblQuote){inSglQuote=!inSglQuote;hadSingleQuotes=true;result+='"'}else result+=c}
+    else result+=c;
+  }
+  if(hadSingleQuotes)fixes.push('Replaced single quotes with double quotes');
+  s=result;
+
+  // Add quotes around unquoted keys
+  const unquotedKeyPattern=/(?<=[\{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=:)/g;
+  if(unquotedKeyPattern.test(s)){fixes.push('Added quotes to unquoted keys');s=s.replace(/(?<=[\{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=:)/g,'"$1"')}
+
+  // Remove trailing commas
+  if(/,\s*([}\]])/g.test(s)){fixes.push('Removed trailing comma(s)');s=s.replace(/,\s*([}\]])/g,'$1')}
+
+  // Try to parse
+  try{
+    const parsed=JSON.parse(s);
+    const pretty=JSON.stringify(parsed,null,2);
+    document.getElementById('output').textContent=pretty;
+    document.getElementById('output').style.color='var(--green)';
+    document.getElementById('statusDot').style.background='var(--green)';
+    document.getElementById('statusText').textContent=fixes.length?`Fixed (${fixes.length} issue${fixes.length>1?'s':''})`:'Valid JSON';
+    document.getElementById('fixes').innerHTML=fixes.map(f=>`<div class="fix">${f}</div>`).join('');
+  }catch(e){
+    document.getElementById('output').textContent=s+'\n\n--- ERROR ---\n'+e.message;
+    document.getElementById('output').style.color='var(--red)';
+    document.getElementById('statusDot').style.background='var(--red)';
+    document.getElementById('statusText').textContent='Could not fix automatically';
+    document.getElementById('fixes').innerHTML=fixes.map(f=>`<div class="fix">${f}</div>`).join('')+`<div class="fix" style="color:var(--red)">${e.message}</div>`;
+  }
+}
+function copyOutput(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+fix();
+</script>
+</body>
+</html>
