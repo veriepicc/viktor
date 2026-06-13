@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Detector — Check If Text Was Written by AI (ChatGPT/Claude)</title>
+<meta name="description" content="Detect AI-generated text using statistical analysis. Check if content was written by ChatGPT, Claude, or other AI. Free AI content detector.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0c0c;--surface:#161616;--border:#262626;--accent:#a78bfa;--text:#e5e5e5;--muted:#737373;--green:#4ade80;--yellow:#facc15;--red:#f87171}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+textarea{width:100%;min-height:200px;padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:.95rem;line-height:1.7;resize:vertical;outline:none;margin-bottom:1rem}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:#444}
+.btn{background:var(--accent);color:#0c0c0c;border:none;padding:.6rem 2rem;border-radius:8px;font-size:.92rem;font-weight:700;cursor:pointer;display:block;margin:0 auto 1.5rem}
+.btn:hover{opacity:.85}
+.results{display:none}
+.score-box{text-align:center;padding:2rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.5rem}
+.score-num{font-size:3rem;font-weight:900;font-family:'SF Mono',monospace}
+.score-label{font-size:1rem;font-weight:700;margin-top:.3rem}
+.score-desc{font-size:.82rem;color:var(--muted);margin-top:.3rem}
+.meter{height:10px;background:#262626;border-radius:5px;margin:1rem auto 0;max-width:300px;overflow:hidden}
+.meter-fill{height:100%;border-radius:5px;transition:width .5s}
+.factors{margin-top:1.5rem}
+.factors h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.factor{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.8rem}
+.factor .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.factor .name{font-size:.82rem;font-weight:600;flex:1}
+.factor .val{font-size:.82rem;font-family:'SF Mono',monospace;color:var(--muted)}
+.disclaimer{margin-top:2rem;font-size:.72rem;color:var(--muted);text-align:center;line-height:1.6;padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">AI<span>Detector</span></div></nav>
+<main>
+<h1>AI Content Detector</h1>
+<p class="sub">Paste text to analyze if it was likely written by AI or a human.</p>
+<textarea id="input" placeholder="Paste at least 50 words for best results..."></textarea>
+<button class="btn" onclick="analyze()">Analyze Text</button>
+<div class="results" id="results">
+<div class="score-box" id="scoreBox"></div>
+<div class="factors" id="factors"></div>
+</div>
+<div class="disclaimer">⚠️ <strong>Disclaimer:</strong> This tool uses statistical heuristics (sentence length uniformity, vocabulary diversity, filler word frequency, etc.) to estimate AI authorship probability. It is <strong>not</strong> a definitive detector. No client-side tool can reliably distinguish human from AI text. Use as a rough guide only.</div>
+</main>
+<footer>&copy; 2026 AI Detector &mdash; Statistical text analysis. Nothing is sent to any server.</footer>
+<script>
+function analyze(){
+  const text=document.getElementById('input').value.trim();
+  if(!text){alert('Please enter some text to analyze.');return}
+  const words=text.split(/\s+/);
+  if(words.length<20){alert('Please enter at least 20 words for meaningful analysis.');return}
+
+  const sentences=text.split(/[.!?]+/).filter(s=>s.trim());
+  const wordCount=words.length;
+
+  // Factor 1: Sentence length uniformity (AI tends to be more uniform)
+  const sentLens=sentences.map(s=>s.trim().split(/\s+/).length);
+  const avgSentLen=sentLens.reduce((a,b)=>a+b,0)/sentLens.length;
+  const sentStdDev=Math.sqrt(sentLens.reduce((a,l)=>a+Math.pow(l-avgSentLen,2),0)/sentLens.length);
+  const sentUniformity=Math.max(0,100-sentStdDev*8);// Higher = more uniform = more AI-like
+
+  // Factor 2: Vocabulary diversity (type-token ratio)
+  const lowerWords=words.map(w=>w.toLowerCase().replace(/[^a-z]/g,'')).filter(Boolean);
+  const uniqueWords=new Set(lowerWords);
+  const ttr=(uniqueWords.size/lowerWords.length)*100;
+  const vocabScore=Math.max(0,Math.min(100,(70-ttr)*3+50));// Lower diversity = more AI
+
+  // Factor 3: Filler/transition words (AI uses lots of these)
+  const fillers=['however','moreover','furthermore','additionally','consequently','therefore','nevertheless','nonetheless','specifically','essentially','fundamentally','particularly','significantly','demonstrate','utilize','implement','facilitate','leverage','comprehensive','robust','seamless','innovative','cutting-edge','delve','tapestry','landscape','paradigm','multifaceted','nuanced'];
+  const fillerCount=lowerWords.filter(w=>fillers.includes(w)).length;
+  const fillerScore=Math.min(100,(fillerCount/wordCount)*1000);
+
+  // Factor 4: Average word length (AI tends toward slightly longer words)
+  const avgWordLen=lowerWords.reduce((a,w)=>a+w.length,0)/lowerWords.length;
+  const wordLenScore=Math.max(0,Math.min(100,(avgWordLen-4)*30));
+
+  // Factor 5: Paragraph structure (AI tends to have consistent paragraph lengths)
+  const paragraphs=text.split(/\n\n+/).filter(p=>p.trim());
+  const paraLens=paragraphs.map(p=>p.split(/\s+/).length);
+  const paraStdDev=paraLens.length>1?Math.sqrt(paraLens.reduce((a,l)=>a+Math.pow(l-paraLens.reduce((x,y)=>x+y,0)/paraLens.length,2),0)/paraLens.length):10;
+  const paraScore=Math.max(0,100-paraStdDev*3);
+
+  // Factor 6: Punctuation variety
+  const punctuation=text.match(/[,;:—–\-()!?."']/g)||[];
+  const punctDiversity=new Set(punctuation).size;
+  const punctScore=Math.max(0,Math.min(100,(5-punctDiversity)*15+50));
+
+  // Weighted average
+  const aiScore=Math.round(
+    sentUniformity*0.2+vocabScore*0.2+fillerScore*0.25+wordLenScore*0.1+paraScore*0.15+punctScore*0.1
+  );
+  const clampedScore=Math.max(0,Math.min(100,aiScore));
+
+  // Display
+  const color=clampedScore>=70?'var(--red)':clampedScore>=40?'var(--yellow)':'var(--green)';
+  const verdict=clampedScore>=70?'Likely AI-Generated':clampedScore>=40?'Possibly AI-Generated':'Likely Human-Written';
+
+  document.getElementById('results').style.display='block';
+  document.getElementById('scoreBox').innerHTML=
+    `<div class="score-num" style="color:${color}">${clampedScore}%</div>
+    <div class="score-label" style="color:${color}">${verdict}</div>
+    <div class="score-desc">Estimated probability of AI authorship</div>
+    <div class="meter"><div class="meter-fill" style="width:${clampedScore}%;background:${color}"></div></div>`;
+
+  const factors=[
+    {name:'Sentence Uniformity',val:Math.round(sentUniformity),desc:'How consistent sentence lengths are',color:sentUniformity>60?'var(--red)':sentUniformity>35?'var(--yellow)':'var(--green)'},
+    {name:'Vocabulary Diversity',val:Math.round(ttr)+'% TTR',desc:'Unique words / total words ratio',color:ttr<55?'var(--red)':ttr<65?'var(--yellow)':'var(--green)'},
+    {name:'AI Filler Words',val:fillerCount+' found',desc:'Words like "moreover", "delve", "leverage"',color:fillerCount>3?'var(--red)':fillerCount>1?'var(--yellow)':'var(--green)'},
+    {name:'Avg Word Length',val:avgWordLen.toFixed(1)+' chars',desc:'AI tends toward slightly longer words',color:avgWordLen>5.5?'var(--red)':avgWordLen>4.8?'var(--yellow)':'var(--green)'},
+    {name:'Paragraph Consistency',val:Math.round(paraScore),desc:'How uniform paragraph lengths are',color:paraScore>60?'var(--red)':paraScore>35?'var(--yellow)':'var(--green)'},
+    {name:'Punctuation Variety',val:punctDiversity+' types',desc:'Diverse punctuation suggests human writing',color:punctDiversity<4?'var(--red)':punctDiversity<6?'var(--yellow)':'var(--green)'},
+  ];
+
+  document.getElementById('factors').innerHTML=
+    '<h3>Analysis Factors</h3>'+factors.map(f=>
+      `<div class="factor"><div class="dot" style="background:${f.color}"></div><span class="name">${f.name}</span><span class="val">${f.val}</span></div>`
+    ).join('');
+}
+</script>
+</body>
+</html>
