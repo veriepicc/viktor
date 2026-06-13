@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Preview — Open Graph & Twitter Card Tester Free</title>
+<meta name="description" content="Preview how your website looks when shared on Facebook, Twitter, LinkedIn, Discord. Test Open Graph tags and Twitter Cards. Free social preview tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.field{margin-bottom:.7rem}.field label{display:block;font-size:.6rem;text-transform:uppercase;color:#888;font-weight:600;margin-bottom:.2rem}
+.field input,.field textarea{width:100%;padding:.45rem;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:.82rem;outline:none;font-family:inherit;resize:vertical}
+.btn{width:100%;padding:.55rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;background:#3b82f6;color:#fff;margin-bottom:1rem}
+.previews{display:flex;flex-direction:column;gap:1rem}
+.preview-label{font-size:.65rem;text-transform:uppercase;color:#888;font-weight:700;margin-bottom:.3rem}
+/* Facebook */
+.fb-card{background:#242526;border:1px solid #3a3b3c;border-radius:8px;overflow:hidden;max-width:500px}
+.fb-card .img{width:100%;height:200px;background:#333;background-size:cover;background-position:center}
+.fb-card .info{padding:.6rem .8rem;border-top:1px solid #3a3b3c}
+.fb-card .domain{font-size:.65rem;color:#b0b3b8;text-transform:uppercase}
+.fb-card .title{font-size:.85rem;font-weight:700;color:#e4e6eb;margin:.1rem 0}
+.fb-card .desc{font-size:.72rem;color:#b0b3b8;line-height:1.4}
+/* Twitter */
+.tw-card{background:#15202b;border:1px solid #38444d;border-radius:14px;overflow:hidden;max-width:500px}
+.tw-card .img{width:100%;height:200px;background:#192734;background-size:cover;background-position:center}
+.tw-card .info{padding:.6rem .8rem}
+.tw-card .domain{font-size:.65rem;color:#8899a6}
+.tw-card .title{font-size:.82rem;font-weight:700;color:#fff;margin:.1rem 0}
+.tw-card .desc{font-size:.72rem;color:#8899a6;line-height:1.4}
+/* Discord */
+.dc-card{background:#2f3136;border-left:4px solid #5865f2;border-radius:4px;padding:.7rem;max-width:400px}
+.dc-card .domain{font-size:.6rem;color:#00aff4;font-weight:600}
+.dc-card .title{font-size:.82rem;font-weight:700;color:#00aff4;margin:.2rem 0}
+.dc-card .desc{font-size:.72rem;color:#dcddde;line-height:1.4;margin-bottom:.4rem}
+.dc-card .img{width:100%;max-height:200px;background:#202225;border-radius:4px;background-size:cover;background-position:center}
+.code{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.68rem;color:#a5f3fc;cursor:pointer;white-space:pre-wrap;margin-top:1rem;max-height:300px;overflow-y:auto}
+</style>
+</head>
+<body>
+<main>
+<h1>👁️ Social Media Preview</h1>
+<div class="card">
+<div class="field"><label>Page Title</label><input type="text" id="title" value="My Awesome Website — The Best Tool Online" oninput="render()"></div>
+<div class="field"><label>Description</label><textarea id="desc" rows="2" oninput="render()">The best free online tool for developers and creators. No signup required.</textarea></div>
+<div class="field"><label>URL</label><input type="text" id="url" value="https://example.com" oninput="render()"></div>
+<div class="field"><label>Image URL</label><input type="text" id="image" placeholder="https://example.com/og-image.jpg" oninput="render()"></div>
+<div class="field"><label>Site Name</label><input type="text" id="siteName" value="Example" oninput="render()"></div>
+</div>
+
+<div class="previews">
+<div>
+<div class="preview-label">📘 Facebook / LinkedIn</div>
+<div class="fb-card"><div class="img" id="fbImg"></div><div class="info"><div class="domain" id="fbDomain"></div><div class="title" id="fbTitle"></div><div class="desc" id="fbDesc"></div></div></div>
+</div>
+<div>
+<div class="preview-label">🐦 Twitter / X</div>
+<div class="tw-card"><div class="img" id="twImg"></div><div class="info"><div class="domain" id="twDomain"></div><div class="title" id="twTitle"></div><div class="desc" id="twDesc"></div></div></div>
+</div>
+<div>
+<div class="preview-label">💬 Discord</div>
+<div class="dc-card"><div class="domain" id="dcDomain"></div><div class="title" id="dcTitle"></div><div class="desc" id="dcDesc"></div><div class="img" id="dcImg" style="height:150px"></div></div>
+</div>
+</div>
+
+<div class="code" id="code" onclick="navigator.clipboard.writeText(this.textContent)">Click "Generate" to see the meta tags</div>
+</main>
+<script>
+function render(){
+  const title=document.getElementById('title').value;
+  const desc=document.getElementById('desc').value;
+  const url=document.getElementById('url').value;
+  const image=document.getElementById('image').value;
+  const siteName=document.getElementById('siteName').value;
+  let domain='';
+  try{domain=new URL(url).hostname}catch(e){domain=url}
+  
+  // Facebook
+  document.getElementById('fbDomain').textContent=domain.toUpperCase();
+  document.getElementById('fbTitle').textContent=title;
+  document.getElementById('fbDesc').textContent=desc.substring(0,150);
+  document.getElementById('fbImg').style.backgroundImage=image?`url(${image})`:'none';
+  document.getElementById('fbImg').style.background=image?`url(${image}) center/cover`:'#333';
+  
+  // Twitter
+  document.getElementById('twDomain').textContent=domain;
+  document.getElementById('twTitle').textContent=title;
+  document.getElementById('twDesc').textContent=desc.substring(0,200);
+  document.getElementById('twImg').style.background=image?`url(${image}) center/cover`:'#192734';
+  
+  // Discord
+  document.getElementById('dcDomain').textContent=siteName||domain;
+  document.getElementById('dcTitle').textContent=title;
+  document.getElementById('dcDesc').textContent=desc.substring(0,300);
+  document.getElementById('dcImg').style.background=image?`url(${image}) center/cover`:'#202225';
+  
+  // Generate meta tags
+  let tags=`<!-- Primary Meta Tags -->\n<title>${title}</title>\n<meta name="description" content="${desc}">\n\n<!-- Open Graph / Facebook -->\n<meta property="og:type" content="website">\n<meta property="og:url" content="${url}">\n<meta property="og:title" content="${title}">\n<meta property="og:description" content="${desc}">`;
+  if(image)tags+=`\n<meta property="og:image" content="${image}">`;
+  if(siteName)tags+=`\n<meta property="og:site_name" content="${siteName}">`;
+  tags+=`\n\n<!-- Twitter -->\n<meta property="twitter:card" content="summary_large_image">\n<meta property="twitter:url" content="${url}">\n<meta property="twitter:title" content="${title}">\n<meta property="twitter:description" content="${desc}">`;
+  if(image)tags+=`\n<meta property="twitter:image" content="${image}">`;
+  
+  document.getElementById('code').textContent=tags;
+}
+render();
+</script>
+</body>
+</html>
