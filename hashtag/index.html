@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hashtag Generator — Instagram, TikTok & Twitter Hashtag Finder</title>
+<meta name="description" content="Generate trending hashtags for Instagram, TikTok, and Twitter. Enter your topic and get relevant hashtags to boost engagement. Free hashtag generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>#️⃣</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);min-height:100vh;color:#fff}
+main{max-width:550px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:rgba(0,0,0,.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1.5rem;margin-bottom:1rem}
+.field input{width:100%;padding:.7rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:1rem;outline:none;font-family:inherit}
+.field input::placeholder{color:rgba(255,255,255,.4)}
+.field input:focus{border-color:rgba(255,255,255,.5)}
+.cats{display:flex;flex-wrap:wrap;gap:.3rem;margin:1rem 0 .5rem}
+.cat{padding:.25rem .5rem;border-radius:5px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);background:rgba(255,255,255,.05)}
+.cat:hover{border-color:rgba(255,255,255,.4);color:#fff}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.8rem}
+.tag{padding:.3rem .5rem;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);transition:all .15s}
+.tag:hover{background:rgba(255,255,255,.2)}
+.tag.selected{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.3)}
+.actions{display:flex;gap:.4rem;margin-top:1rem}
+.btn{flex:1;padding:.5rem;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;text-align:center}
+.btn-copy{background:#fff;color:#000}
+.btn-clear{background:rgba(255,255,255,.1);color:#fff}
+.count{text-align:right;font-size:.7rem;opacity:.5;margin-top:.3rem}
+</style>
+</head>
+<body>
+<main>
+<h1># Hashtag Generator</h1>
+<div class="card">
+<div class="field"><input id="topic" placeholder="Enter your topic (e.g., food photography, fitness, travel)" oninput="generate()"></div>
+<div class="cats">
+<div class="cat" onclick="setTopic('photography')">📸 Photography</div>
+<div class="cat" onclick="setTopic('fitness')">💪 Fitness</div>
+<div class="cat" onclick="setTopic('food')">🍕 Food</div>
+<div class="cat" onclick="setTopic('travel')">✈️ Travel</div>
+<div class="cat" onclick="setTopic('fashion')">👗 Fashion</div>
+<div class="cat" onclick="setTopic('tech')">💻 Tech</div>
+<div class="cat" onclick="setTopic('art')">🎨 Art</div>
+<div class="cat" onclick="setTopic('music')">🎵 Music</div>
+<div class="cat" onclick="setTopic('gaming')">🎮 Gaming</div>
+<div class="cat" onclick="setTopic('pets')">🐕 Pets</div>
+<div class="cat" onclick="setTopic('business')">💼 Business</div>
+<div class="cat" onclick="setTopic('motivation')">🔥 Motivation</div>
+</div>
+</div>
+<div class="card" id="results" style="display:none">
+<div class="tags" id="tags"></div>
+<div class="count" id="count"></div>
+<div class="actions">
+<button class="btn btn-copy" onclick="copySelected()">Copy Selected</button>
+<button class="btn btn-copy" onclick="copyAll()">Copy All</button>
+<button class="btn btn-clear" onclick="clearSelection()">Clear</button>
+</div>
+</div>
+</main>
+<script>
+const db={
+  photography:['photography','photooftheday','photographer','photo','naturephotography','photographylovers','streetphotography','portraitphotography','landscapephotography','canonphotography','nikonphotography','ig_photography','instaphoto','photoshoot','picoftheday','snapshot','camera','composition','exposure','goldenhour','bokeh','dslr','mirrorless','lightroom','vsco','35mm','filmisnotdead','shootfilm','captureone','editorialphotography'],
+  fitness:['fitness','fitnessmotivation','gym','workout','fitfam','bodybuilding','training','health','fit','motivation','exercise','healthylifestyle','muscle','fitnessmodel','crossfit','personaltrainer','weightloss','cardio','gains','strong','fitlife','legday','deadlift','squats','benchpress','abs','protein','preworkout','gymlife','fitnessjourney'],
+  food:['food','foodie','foodporn','instafood','foodphotography','yummy','delicious','homemade','foodstagram','foodblogger','recipe','cooking','healthyfood','foodlover','dinner','lunch','breakfast','chef','baking','vegan','organic','tasty','eeeeeats','foodgasm','brunch','plantbased','mealprep','soulfood','comfortfood','streetfood'],
+  travel:['travel','travelgram','travelphotography','instatravel','traveling','wanderlust','vacation','explore','adventure','travelblogger','nature','traveltheworld','trip','holiday','tourism','landscape','backpacking','globetrotter','roadtrip','passport','bucketlist','beautifuldestinations','exploremore','digitalnomad','solotraveler','traveladdict','worldtravel','travelholic','traveldiaries','luxurytravel'],
+  fashion:['fashion','style','ootd','fashionblogger','fashionista','streetstyle','instafashion','outfitoftheday','fashionstyle','lookbook','mensfashion','womensfashion','styleblogger','fashionphotography','vintage','accessories','designer','sneakers','luxury','menswear','outfitinspo','thrifted','sustainablefashion','fashionweek','styleinspo','dapper','chic','trendy','wardrobe','lookoftheday'],
+  tech:['technology','tech','coding','programming','developer','javascript','python','webdev','software','ai','machinelearning','startup','innovation','cybersecurity','blockchain','datascience','iot','cloud','devops','frontend','backend','reactjs','nodejs','typescript','opensource','github','linux','artificialintelligence','deeplearning','techcommunity'],
+  art:['art','artist','artwork','drawing','painting','illustration','digitalart','contemporaryart','sketch','artistsoninstagram','creative','design','graphicdesign','watercolor','abstract','fineart','instaart','artoftheday','creativity','portrait','acrylic','oilpainting','mixedmedia','streetart','sculpture','printmaking','artgallery','procreate','commission','artcollector'],
+  music:['music','musician','singer','song','hiphop','rap','rock','producer','beats','guitar','piano','newmusic','live','concert','dj','soundcloud','spotify','songwriter','vocals','indie','jazz','electronic','edm','musicproducer','musicislife','livemusic','musicvideo','trap','rnb','studio'],
+  gaming:['gaming','gamer','games','videogames','twitch','streamer','ps5','xbox','nintendo','pc','esports','gamingcommunity','playstation','fortnite','minecraft','valorant','apex','cod','rpg','retrogaming','gamedev','indiegame','pcgaming','consolegaming','gaminglife','gamingsetup','streaming','gameplay','gamerlife','mobilegaming'],
+  pets:['pets','dog','cat','puppy','kitten','dogsofinstagram','catsofinstagram','petsofinstagram','doglover','catlover','cute','adorable','animals','petstagram','doglife','catlife','rescue','adopt','petphotography','goldenretriever','frenchbulldog','labrador','pomeranian','ragdoll','bengalcat','petlovers','furbaby','animalsofinstagram','dogmom','catmom'],
+  business:['business','entrepreneur','startup','marketing','success','motivation','smallbusiness','branding','hustle','businessowner','digitalmarketing','socialmediamarketing','ecommerce','leadership','mindset','money','finance','investing','growth','productivity','ceo','networking','sales','contentmarketing','onlinebusiness','sidehustle','freelancer','passive','wealthmindset','businesstips'],
+  motivation:['motivation','inspiration','quotes','motivationalquotes','success','mindset','goals','hustle','believe','positivevibes','grind','nevergiveup','entrepreneur','selfimprovement','growthmindset','ambition','discipline','focus','hardwork','dedication','dream','limitless','unstoppable','positivity','selflove','mentalhealth','gratitude','abundance','manifestation','dailymotivation']
+};
+
+let selected=new Set();
+function setTopic(t){document.getElementById('topic').value=t;generate()}
+
+function generate(){
+  const topic=document.getElementById('topic').value.trim().toLowerCase();
+  if(!topic){document.getElementById('results').style.display='none';return}
+  
+  let tags=[];
+  // Find matching category
+  Object.entries(db).forEach(([cat,catTags])=>{
+    if(topic.includes(cat)||cat.includes(topic)){
+      tags.push(...catTags);
+    }
+  });
+  
+  // Generate generic ones from the topic words
+  const words=topic.split(/\s+/);
+  words.forEach(w=>{
+    if(w.length>2){
+      tags.push(w,w+'life',w+'lover',w+'daily','insta'+w,w+'vibes',w+'community',w+'tips',w+'goals',w+'oftheday');
+    }
+  });
+  if(words.length>1){
+    tags.push(words.join(''));
+  }
+  
+  // Dedupe
+  tags=[...new Set(tags)].slice(0,30);
+  
+  if(!tags.length){
+    // Fallback generic tags
+    tags=[topic.replace(/\s+/g,''),'instagood','trending','viral','explorepage','fyp','reels','follow','like','share','discover','content','creator','lifestyle','daily'];
+  }
+  
+  document.getElementById('results').style.display='block';
+  document.getElementById('tags').innerHTML=tags.map(t=>`<div class="tag ${selected.has(t)?'selected':''}" onclick="toggleTag('${t}',this)">#${t}</div>`).join('');
+  updateCount();
+}
+
+function toggleTag(tag,el){
+  if(selected.has(tag)){selected.delete(tag);el.classList.remove('selected')}
+  else{selected.add(tag);el.classList.add('selected')}
+  updateCount();
+}
+
+function updateCount(){
+  document.getElementById('count').textContent=`${selected.size} selected · ${document.querySelectorAll('.tag').length} total`;
+}
+
+function copySelected(){
+  const tags=[...selected].map(t=>'#'+t).join(' ');
+  navigator.clipboard.writeText(tags);
+}
+function copyAll(){
+  const tags=[...document.querySelectorAll('.tag')].map(el=>el.textContent).join(' ');
+  navigator.clipboard.writeText(tags);
+}
+function clearSelection(){
+  selected.clear();
+  document.querySelectorAll('.tag').forEach(el=>el.classList.remove('selected'));
+  updateCount();
+}
+</script>
+</body>
+</html>
