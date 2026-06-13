@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptBox — AI Prompt Templates & Builder for ChatGPT, Claude, Gemini</title>
+<meta name="description" content="Browse and customize AI prompt templates for ChatGPT, Claude, and Gemini. Writing, coding, marketing, analysis, and more. Free prompt library.">
+<meta name="keywords" content="ai prompt templates, chatgpt prompts, claude prompts, prompt engineering, ai prompt library, prompt builder">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0c0c;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;--accent:#10b981;--accent2:#34d399;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+.count-badge{font-size:.72rem;background:var(--surface2);border:1px solid var(--border);padding:.2rem .6rem;border-radius:12px;color:var(--muted)}
+main{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:.3rem;text-align:center}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem;text-align:center}
+.search{max-width:500px;margin:0 auto 1.5rem;display:flex;align-items:center;gap:.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem}
+.search input{flex:1;background:none;border:none;color:var(--text);font-size:.9rem;outline:none;font-family:inherit}
+.search input::placeholder{color:#555}
+.cats{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem}
+.cat{padding:.35rem .85rem;border-radius:20px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.cat.active{border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,.08)}
+.cat:hover:not(.active){border-color:#444}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.7rem}
+.prompt-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;cursor:pointer;transition:all .2s}
+.prompt-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.prompt-card .cat-tag{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);font-weight:700;margin-bottom:.4rem}
+.prompt-card h3{font-size:.92rem;font-weight:700;margin-bottom:.3rem}
+.prompt-card p{font-size:.78rem;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:650px;width:100%;max-height:90vh;overflow-y:auto;padding:1.5rem}
+.modal h2{font-size:1.2rem;font-weight:800;margin-bottom:.3rem}
+.modal .cat-tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);font-weight:700;margin-bottom:1rem}
+.modal .prompt-text{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.85rem;line-height:1.7;white-space:pre-wrap;margin-bottom:1rem;color:var(--text);max-height:300px;overflow-y:auto}
+.modal .vars{margin-bottom:1rem}
+.modal .var-field{margin-bottom:.5rem}
+.modal .var-field label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.2rem;font-weight:600}
+.modal .var-field input{width:100%;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;outline:none;font-family:inherit}
+.modal .var-field input:focus{border-color:var(--accent)}
+.modal-btns{display:flex;gap:.5rem}
+.modal-btns button{padding:.55rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:opacity .15s}
+.modal-btns .copy-btn{background:var(--accent);color:#fff}
+.modal-btns .close-btn{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.hidden{display:none}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:3rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Prompt<span>Box</span></div><span class="count-badge" id="totalCount"></span></nav>
+<main>
+<h1>AI Prompt Templates</h1>
+<p class="sub">Ready-to-use prompts for ChatGPT, Claude & Gemini. Click to customize.</p>
+<div class="search"><span>🔍</span><input id="searchInput" placeholder="Search prompts..." oninput="filter()"></div>
+<div class="cats" id="cats"></div>
+<div class="grid" id="grid"></div>
+</main>
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+<div class="modal" id="modal"></div>
+</div>
+<div class="toast" id="toast">Copied!</div>
+<footer>&copy; 2026 PromptBox &mdash; AI prompt templates. No data collected.</footer>
+<script>
+const prompts=[
+{cat:'Writing',title:'Blog Post Writer',desc:'Generate a well-structured blog post on any topic',prompt:'Write a comprehensive blog post about [TOPIC]. Include:\n- An engaging introduction with a hook\n- 3-5 main sections with H2 headers\n- Practical examples and actionable tips\n- A compelling conclusion with a call to action\n\nTone: [TONE]\nTarget audience: [AUDIENCE]\nWord count: approximately [WORD_COUNT] words',vars:['TOPIC','TONE','AUDIENCE','WORD_COUNT']},
+{cat:'Writing',title:'Email Rewriter',desc:'Rewrite emails to be more professional or casual',prompt:'Rewrite the following email to be more [STYLE]. Keep the core message but improve clarity, tone, and impact.\n\nOriginal email:\n[EMAIL]\n\nRequirements:\n- Maintain all key information\n- Make it [STYLE]\n- Keep it concise\n- Add a clear call to action if appropriate',vars:['STYLE','EMAIL']},
+{cat:'Writing',title:'Product Description',desc:'Write compelling product descriptions that sell',prompt:'Write a compelling product description for [PRODUCT].\n\nKey features: [FEATURES]\nTarget audience: [AUDIENCE]\nTone: [TONE]\n\nInclude:\n- An attention-grabbing headline\n- 2-3 sentences highlighting the main value proposition\n- Bullet points for key features/benefits\n- A persuasive closing line',vars:['PRODUCT','FEATURES','AUDIENCE','TONE']},
+{cat:'Coding',title:'Code Reviewer',desc:'Get a thorough code review with improvement suggestions',prompt:'Review the following code thoroughly. Analyze it for:\n\n1. **Bugs & Logic Errors** — anything that could cause unexpected behavior\n2. **Performance** — inefficiencies, unnecessary operations, O(n) issues\n3. **Security** — vulnerabilities, injection risks, data exposure\n4. **Readability** — naming, structure, comments\n5. **Best Practices** — language-specific conventions and patterns\n\nCode:\n```[LANGUAGE]\n[CODE]\n```\n\nProvide specific line references and concrete suggestions for each issue found.',vars:['LANGUAGE','CODE']},
+{cat:'Coding',title:'Bug Finder',desc:'Debug code and find the root cause of issues',prompt:'I have a bug in my [LANGUAGE] code. Help me find and fix it.\n\n**What should happen:** [EXPECTED]\n**What actually happens:** [ACTUAL]\n**Error message (if any):** [ERROR]\n\nCode:\n```[LANGUAGE]\n[CODE]\n```\n\nPlease:\n1. Identify the root cause\n2. Explain WHY it happens\n3. Provide the fixed code\n4. Suggest how to prevent similar bugs',vars:['LANGUAGE','EXPECTED','ACTUAL','ERROR','CODE']},
+{cat:'Coding',title:'Regex Builder',desc:'Build and explain regular expressions',prompt:'Create a regular expression that matches [DESCRIPTION].\n\nExamples of strings that SHOULD match:\n[MATCH_EXAMPLES]\n\nExamples of strings that should NOT match:\n[NO_MATCH_EXAMPLES]\n\nLanguage: [LANGUAGE]\n\nProvide:\n1. The regex pattern\n2. A step-by-step explanation of each part\n3. Edge cases to watch out for\n4. Test cases to verify it works',vars:['DESCRIPTION','MATCH_EXAMPLES','NO_MATCH_EXAMPLES','LANGUAGE']},
+{cat:'Coding',title:'API Documentation',desc:'Generate clear API documentation',prompt:'Generate comprehensive API documentation for the following endpoint:\n\nEndpoint: [METHOD] [URL]\nDescription: [DESCRIPTION]\n\nInclude:\n- Endpoint description\n- Request parameters (query, body, headers)\n- Response format with example JSON\n- Error codes and messages\n- Code examples in [LANGUAGE]\n- Rate limiting info if applicable',vars:['METHOD','URL','DESCRIPTION','LANGUAGE']},
+{cat:'Marketing',title:'Social Media Posts',desc:'Generate engaging posts for multiple platforms',prompt:'Create [COUNT] social media posts about [TOPIC] for [PLATFORM].\n\nBrand voice: [VOICE]\nGoal: [GOAL]\n\nFor each post include:\n- The post text (within character limits)\n- Suggested hashtags\n- Best time to post\n- A hook in the first line\n\nMake each post unique with different angles/hooks.',vars:['COUNT','TOPIC','PLATFORM','VOICE','GOAL']},
+{cat:'Marketing',title:'Landing Page Copy',desc:'Write converting landing page sections',prompt:'Write landing page copy for [PRODUCT/SERVICE].\n\nTarget audience: [AUDIENCE]\nMain pain point: [PAIN_POINT]\nKey benefit: [BENEFIT]\nPrice: [PRICE]\n\nWrite these sections:\n1. Hero headline + subheadline\n2. Problem section (3 pain points)\n3. Solution section (how we solve it)\n4. 3 feature blocks with icons\n5. Social proof section\n6. FAQ (5 questions)\n7. Final CTA section',vars:['PRODUCT/SERVICE','AUDIENCE','PAIN_POINT','BENEFIT','PRICE']},
+{cat:'Marketing',title:'SEO Meta Tags',desc:'Generate optimized meta titles and descriptions',prompt:'Generate SEO-optimized meta tags for the following page:\n\nPage topic: [TOPIC]\nTarget keywords: [KEYWORDS]\nPage type: [PAGE_TYPE]\n\nProvide:\n1. Meta title (50-60 characters, include primary keyword)\n2. Meta description (150-160 characters, include CTA)\n3. 5 alternative title options\n4. Open Graph title and description\n5. Suggested URL slug\n6. Schema markup type recommendation',vars:['TOPIC','KEYWORDS','PAGE_TYPE']},
+{cat:'Analysis',title:'Data Analyzer',desc:'Analyze data and extract insights',prompt:'Analyze the following data and provide insights:\n\n[DATA]\n\nPlease:\n1. Summarize the key findings\n2. Identify trends and patterns\n3. Highlight any anomalies or outliers\n4. Provide actionable recommendations\n5. Suggest visualizations that would be helpful\n6. Note any limitations or caveats in the data',vars:['DATA']},
+{cat:'Analysis',title:'SWOT Analysis',desc:'Generate a comprehensive SWOT analysis',prompt:'Perform a detailed SWOT analysis for [COMPANY/PRODUCT] in the [INDUSTRY] industry.\n\nContext: [CONTEXT]\n\nFor each quadrant provide:\n- 4-5 specific, evidence-based points\n- Brief explanation for each point\n- Priority ranking (high/medium/low)\n\nAlso include:\n- Key strategic recommendations based on the analysis\n- Immediate action items (next 30 days)\n- Long-term strategic moves (6-12 months)',vars:['COMPANY/PRODUCT','INDUSTRY','CONTEXT']},
+{cat:'Analysis',title:'Competitor Research',desc:'Deep-dive competitor analysis',prompt:'Conduct a thorough competitor analysis of [COMPETITOR] vs [YOUR_COMPANY].\n\nAnalyze:\n1. Product/service comparison (features, pricing, UX)\n2. Market positioning and brand messaging\n3. Target audience overlap\n4. Strengths we can learn from\n5. Weaknesses we can exploit\n6. Their content/SEO strategy\n7. Customer sentiment (based on known reviews)\n\nProvide a strategic action plan based on findings.',vars:['COMPETITOR','YOUR_COMPANY']},
+{cat:'AI',title:'System Prompt Writer',desc:'Create effective system prompts for AI assistants',prompt:'Create a system prompt for an AI assistant with these specifications:\n\nRole: [ROLE]\nPurpose: [PURPOSE]\nTone: [TONE]\nConstraints: [CONSTRAINTS]\n\nThe system prompt should:\n- Clearly define the AI\'s persona and expertise\n- Set behavioral boundaries\n- Include example interaction patterns\n- Handle edge cases gracefully\n- Be under 500 words\n\nAlso provide 3 test conversations to verify the prompt works correctly.',vars:['ROLE','PURPOSE','TONE','CONSTRAINTS']},
+{cat:'AI',title:'Prompt Improver',desc:'Take a basic prompt and make it 10x better',prompt:'Improve the following AI prompt to get better results:\n\nOriginal prompt: [PROMPT]\n\nApply these prompt engineering techniques:\n1. Add specific context and constraints\n2. Include output format instructions\n3. Add few-shot examples if helpful\n4. Break complex tasks into steps\n5. Add quality criteria\n\nProvide:\n- The improved prompt\n- Explanation of each improvement\n- Why each change leads to better output',vars:['PROMPT']},
+{cat:'AI',title:'ChatGPT Custom Instructions',desc:'Generate optimized custom instructions',prompt:'Create ChatGPT custom instructions for someone who is a [ROLE] working on [WORK].\n\n"What would you like ChatGPT to know about you?"\n- Professional background and expertise\n- Current projects and goals\n- Preferred communication style\n- Common tasks they need help with\n\n"How would you like ChatGPT to respond?"\n- Response format preferences\n- Level of detail\n- Tone and style\n- What to avoid\n\nKeep each section under 1500 characters.',vars:['ROLE','WORK']},
+{cat:'Learning',title:'Explain Like I\'m 5',desc:'Break down complex topics into simple explanations',prompt:'Explain [TOPIC] as if I\'m 5 years old.\n\nThen explain it again at these levels:\n1. 🧒 Age 5 — use analogies to toys, animals, everyday things\n2. 🎓 High school — introduce proper terminology\n3. 🏢 Professional — industry-standard explanation\n4. 🔬 Expert — technical deep-dive with nuances\n\nFor each level, include a real-world example or analogy.',vars:['TOPIC']},
+{cat:'Learning',title:'Study Guide Creator',desc:'Create comprehensive study materials',prompt:'Create a comprehensive study guide for [SUBJECT/TOPIC].\n\nLevel: [LEVEL]\nExam type: [EXAM_TYPE]\n\nInclude:\n1. Key concepts summary (bullet points)\n2. Important definitions/terms glossary\n3. Common misconceptions to avoid\n4. 10 practice questions with answers\n5. Memory aids/mnemonics\n6. Recommended study order\n7. Quick reference cheat sheet',vars:['SUBJECT/TOPIC','LEVEL','EXAM_TYPE']},
+{cat:'Business',title:'Business Plan Outline',desc:'Generate a structured business plan',prompt:'Create a business plan outline for [BUSINESS_IDEA].\n\nBudget: [BUDGET]\nTimeline: [TIMELINE]\nTarget market: [MARKET]\n\nInclude:\n1. Executive summary\n2. Problem & solution\n3. Target market analysis\n4. Revenue model & pricing\n5. Marketing strategy (first 90 days)\n6. Financial projections (12 months)\n7. Key milestones & metrics\n8. Risks and mitigation strategies\n9. Team requirements',vars:['BUSINESS_IDEA','BUDGET','TIMELINE','MARKET']},
+{cat:'Business',title:'Cold Email Generator',desc:'Write cold emails that get responses',prompt:'Write a cold email to [RECIPIENT_ROLE] at [COMPANY_TYPE] companies.\n\nWhat I offer: [OFFERING]\nKey value prop: [VALUE]\nDesired action: [CTA]\n\nWrite 3 variations:\n1. Short & direct (under 75 words)\n2. Story-based (under 150 words)\n3. Value-first with proof (under 120 words)\n\nInclude subject line options for each. Follow up email for non-responses.',vars:['RECIPIENT_ROLE','COMPANY_TYPE','OFFERING','VALUE','CTA']},
+{cat:'Creative',title:'Story Idea Generator',desc:'Generate unique story concepts and outlines',prompt:'Generate [COUNT] unique story ideas in the [GENRE] genre.\n\nFor each idea provide:\n- Title\n- One-line hook/logline\n- Main character description\n- Central conflict\n- Unique twist or angle\n- Opening scene suggestion\n- Why this story would resonate with readers\n\nThemes to explore: [THEMES]\nAvoid: [AVOID]',vars:['COUNT','GENRE','THEMES','AVOID']},
+];
+
+const allCats=[...new Set(prompts.map(p=>p.cat))];
+const catsEl=document.getElementById('cats'),gridEl=document.getElementById('grid');
+document.getElementById('totalCount').textContent=prompts.length+' prompts';
+let currentCat='all';
+
+catsEl.innerHTML='<div class="cat active" onclick="setCat(\'all\',this)">All</div>'+allCats.map(c=>`<div class="cat" onclick="setCat('${c}',this)">${c}</div>`).join('');
+
+function setCat(c,el){currentCat=c;document.querySelectorAll('.cat').forEach(e=>e.classList.remove('active'));el.classList.add('active');filter()}
+
+function filter(){
+const q=document.getElementById('searchInput').value.toLowerCase();
+gridEl.innerHTML='';
+const filtered=prompts.filter(p=>{
+  const matchCat=currentCat==='all'||p.cat===currentCat;
+  const matchSearch=!q||p.title.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q);
+  return matchCat&&matchSearch;
+});
+filtered.forEach((p,i)=>{
+  const card=document.createElement('div');card.className='prompt-card';
+  card.innerHTML=`<div class="cat-tag">${p.cat}</div><h3>${p.title}</h3><p>${p.desc}</p>`;
+  card.onclick=()=>openModal(p);
+  gridEl.appendChild(card);
+});
+}
+
+function openModal(p){
+const modal=document.getElementById('modal');
+const varsHTML=p.vars.map(v=>`<div class="var-field"><label>${v.replace(/_/g,' ')}</label><input id="var-${v}" placeholder="Enter ${v.toLowerCase().replace(/_/g,' ')}..." oninput="updatePreview()"></div>`).join('');
+modal.innerHTML=`<h2>${p.title}</h2><div class="cat-tag">${p.cat}</div><div class="vars">${varsHTML}</div><div class="prompt-text" id="promptPreview">${esc(p.prompt)}</div><div class="modal-btns"><button class="copy-btn" onclick="copyPrompt()">📋 Copy Prompt</button><button class="close-btn" onclick="closeModal()">Close</button></div>`;
+modal._prompt=p;
+document.getElementById('modalOverlay').classList.add('show');
+}
+
+function updatePreview(){
+const p=document.getElementById('modal')._prompt;
+let text=p.prompt;
+p.vars.forEach(v=>{const val=document.getElementById('var-'+v)?.value||`[${v}]`;text=text.replace(new RegExp('\\['+v+'\\]','g'),val)});
+document.getElementById('promptPreview').textContent=text;
+}
+
+function copyPrompt(){
+const text=document.getElementById('promptPreview').textContent;
+navigator.clipboard.writeText(text);
+const toast=document.getElementById('toast');toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1000);
+}
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show')}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+filter();
+</script>
+</body>
+</html>
