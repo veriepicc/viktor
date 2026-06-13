@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RegexLab — Live Regular Expression Tester</title>
+<meta name="description" content="Test and debug regular expressions in real-time. See matches highlighted, capture groups, and explanations. Free regex tester.">
+<meta name="keywords" content="regex tester, regular expression tester, regex debugger, regex online, regex playground">
+<meta property="og:title" content="RegexLab — Live Regex Tester">
+<meta property="og:description" content="Test regular expressions with live highlighting, match info, and capture groups.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1a1b26;--surface:#1f2335;--border:#292e42;--accent:#7aa2f7;--accent2:#bb9af7;--green:#9ece6a;--red:#f7768e;--yellow:#e0af68;--text:#a9b1d6;--muted:#565f89}
+body{font-family:'JetBrains Mono','Fira Code','SF Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.8rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.6rem}
+.logo{font-size:1.1rem;font-weight:700;color:#c0caf5}.logo span{color:var(--accent)}
+.badge{font-size:.6rem;background:var(--accent);color:var(--bg);padding:.15rem .45rem;border-radius:3px;font-weight:700}
+main{display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - 90px)}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+.editor{padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.regex-input{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.1rem;gap:0}
+.regex-input .slash{color:var(--muted);padding:0 .5rem;font-size:1.1rem}
+.regex-input input{flex:1;background:none;border:none;color:var(--accent);font-family:inherit;font-size:.95rem;padding:.6rem .2rem;outline:none}
+.regex-input .flags{display:flex;gap:.2rem;padding-right:.4rem}
+.regex-input .flags button{background:none;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:.75rem;font-weight:700;transition:all .15s}
+.regex-input .flags button.on{color:var(--accent);border-color:var(--accent);background:#7aa2f715}
+.test-area{flex:1;position:relative}
+.test-area textarea{width:100%;height:100%;min-height:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;color:var(--text);font-family:inherit;font-size:.85rem;line-height:1.7;resize:none;outline:none}
+.test-area textarea:focus{border-color:var(--accent)}
+.highlight-layer{position:absolute;top:0;left:0;width:100%;height:100%;padding:1rem;font-family:inherit;font-size:.85rem;line-height:1.7;pointer-events:none;white-space:pre-wrap;word-break:break-word;overflow:auto;border-radius:8px;border:1px solid transparent}
+.highlight-layer mark{background:rgba(122,162,247,.25);color:var(--accent);border-bottom:2px solid var(--accent);border-radius:2px}
+.highlight-layer mark.g2{background:rgba(187,154,247,.2);color:var(--accent2);border-color:var(--accent2)}
+.sidebar{border-left:1px solid var(--border);padding:1.2rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
+@media(max-width:800px){.sidebar{border-left:none;border-top:1px solid var(--border)}}
+.sidebar h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.4rem}
+.match-count{font-size:1.8rem;font-weight:800;color:var(--green)}
+.match-count.zero{color:var(--red)}
+.match-list{display:flex;flex-direction:column;gap:.4rem;max-height:300px;overflow-y:auto}
+.match-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.5rem .7rem;font-size:.78rem}
+.match-item .idx{color:var(--muted);font-size:.65rem}
+.match-item .val{color:var(--green);word-break:break-all}
+.match-item .groups{margin-top:.3rem;color:var(--accent2);font-size:.72rem}
+.error-msg{color:var(--red);font-size:.8rem;padding:.5rem .7rem;background:rgba(247,118,142,.08);border-radius:6px}
+.cheatsheet{font-size:.72rem;line-height:1.8;color:var(--muted)}
+.cheatsheet code{color:var(--yellow);background:var(--surface);padding:.1rem .35rem;border-radius:3px}
+footer{padding:1rem;text-align:center;color:var(--muted);font-size:.68rem;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<nav><div class="logo">Regex<span>Lab</span></div><span class="badge">LIVE</span></nav>
+<main>
+<div class="editor">
+<div class="regex-input">
+<span class="slash">/</span>
+<input id="pattern" placeholder="enter regex pattern" value="\b\w+@\w+\.\w+\b">
+<span class="slash">/</span>
+<div class="flags">
+<button id="fg" class="on" onclick="toggleFlag(this,'g')">g</button>
+<button id="fi" onclick="toggleFlag(this,'i')">i</button>
+<button id="fm" onclick="toggleFlag(this,'m')">m</button>
+<button id="fs" onclick="toggleFlag(this,'s')">s</button>
+</div>
+</div>
+<div class="test-area">
+<textarea id="testText" placeholder="Type or paste test string here...">Hello world, reach me at user@example.com or admin@site.org
+Visit https://example.com for more info.
+Another email: test.user@domain.co.uk</textarea>
+</div>
+</div>
+<div class="sidebar">
+<div>
+<h3>Matches</h3>
+<div class="match-count" id="matchCount">0</div>
+</div>
+<div id="error"></div>
+<div>
+<h3>Match Details</h3>
+<div class="match-list" id="matchList"></div>
+</div>
+<div>
+<h3>Quick Reference</h3>
+<div class="cheatsheet">
+<code>.</code> any char &nbsp; <code>\d</code> digit &nbsp; <code>\w</code> word<br>
+<code>\s</code> space &nbsp; <code>^</code> start &nbsp; <code>$</code> end<br>
+<code>*</code> 0+ &nbsp; <code>+</code> 1+ &nbsp; <code>?</code> optional<br>
+<code>{n,m}</code> range &nbsp; <code>()</code> group &nbsp; <code>|</code> or<br>
+<code>[abc]</code> set &nbsp; <code>[^abc]</code> negate &nbsp; <code>\b</code> boundary
+</div>
+</div>
+</div>
+</main>
+<footer>&copy; 2026 RegexLab &mdash; Regular expression tester. Everything runs in your browser.</footer>
+<script>
+const pattern=document.getElementById('pattern'),testText=document.getElementById('testText'),matchCount=document.getElementById('matchCount'),matchList=document.getElementById('matchList'),error=document.getElementById('error');
+let flags='g';
+function toggleFlag(btn,f){btn.classList.toggle('on');const all=['g','i','m','s'];flags='';all.forEach(fl=>{if(document.getElementById('f'+fl).classList.contains('on'))flags+=fl});run()}
+pattern.oninput=run;testText.oninput=run;
+function run(){const p=pattern.value,t=testText.value;error.innerHTML='';
+if(!p){matchCount.textContent='0';matchCount.className='match-count zero';matchList.innerHTML='';return}
+try{const re=new RegExp(p,flags);const matches=[...t.matchAll(re)];matchCount.textContent=matches.length;matchCount.className='match-count'+(matches.length===0?' zero':'');
+matchList.innerHTML='';matches.forEach((m,i)=>{const d=document.createElement('div');d.className='match-item';let html=`<span class="idx">#${i+1} [${m.index}]</span> <span class="val">${esc(m[0])}</span>`;
+if(m.length>1){html+=`<div class="groups">Groups: ${m.slice(1).map((g,j)=>`$${j+1}="${esc(g||'')}"`).join(' ')}</div>`}
+d.innerHTML=html;matchList.appendChild(d)})}catch(e){error.innerHTML=`<div class="error-msg">${e.message}</div>`;matchCount.textContent='!';matchCount.className='match-count zero';matchList.innerHTML=''}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+run();
+</script>
+</body>
+</html>
