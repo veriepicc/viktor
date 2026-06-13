@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Preview — Preview & Test Custom Fonts with All Characters</title>
+<meta name="description" content="Upload a font file and preview all glyphs. Test your custom fonts with different sizes, colors, and sample text. Free font tester.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔠</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#faf5ff;color:#1e1b4b;min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #e9d5ff;border-radius:14px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.drop{border:2px dashed #d8b4fe;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s}
+.drop:hover{border-color:#a855f7}
+.drop .icon{font-size:2rem;margin-bottom:.3rem}
+.drop p{font-size:.8rem;color:#7c3aed}
+.drop input{display:none}
+.controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.controls input[type=range]{flex:1;accent-color:#a855f7}
+.controls input[type=color]{width:40px;height:32px;border:none;border-radius:4px;cursor:pointer}
+.controls .label{font-size:.7rem;color:#7c3aed;font-weight:600;min-width:60px}
+.preview-text{padding:1.5rem;border:1px solid #e9d5ff;border-radius:10px;background:#faf5ff;word-break:break-all;line-height:1.4;transition:all .2s}
+textarea{width:100%;padding:.5rem;border:1px solid #e9d5ff;border-radius:6px;font-size:.85rem;outline:none;resize:vertical;font-family:inherit;margin-top:.5rem}
+.charset{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:3px;margin-top:.8rem}
+.glyph{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#faf5ff;border:1px solid #e9d5ff;border-radius:5px;font-size:1.2rem;cursor:default}
+.glyph:hover{background:#f3e8ff;border-color:#a855f7}
+.info{display:flex;gap:1rem;font-size:.72rem;color:#7c3aed;margin-top:.5rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Font Preview</h1>
+<div class="card">
+<div class="drop" onclick="document.getElementById('fi').click()">
+<div class="icon">🔠</div>
+<p>Drop a .ttf, .otf, or .woff2 font file</p>
+<input type="file" id="fi" accept=".ttf,.otf,.woff,.woff2" onchange="loadFont(event)">
+</div>
+</div>
+<div class="card" id="previewCard" style="display:none">
+<div class="controls">
+<span class="label">Size</span>
+<input type="range" id="fontSize" min="8" max="120" value="36" oninput="update()">
+<span id="sizeVal" style="font-size:.78rem;font-weight:700;min-width:40px">36px</span>
+<input type="color" id="fontColor" value="#1e1b4b" oninput="update()">
+</div>
+<div class="preview-text" id="previewText">The quick brown fox jumps over the lazy dog. 0123456789</div>
+<textarea id="customText" rows="2" placeholder="Type custom text..." oninput="update()">ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz 0123456789 !@#$%^&*()</textarea>
+<div class="info" id="fontInfo"></div>
+<div class="charset" id="charset"></div>
+</div>
+</main>
+<script>
+let fontName='CustomFont';
+function loadFont(e){
+  const file=e.target.files[0];if(!file)return;
+  fontName='Custom_'+Date.now();
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const font=new FontFace(fontName,ev.target.result);
+    font.load().then(f=>{
+      document.fonts.add(f);
+      document.getElementById('previewCard').style.display='block';
+      document.getElementById('fontInfo').innerHTML=`<span><strong>File:</strong> ${file.name}</span><span><strong>Size:</strong> ${(file.size/1024).toFixed(1)} KB</span>`;
+      
+      // Character grid
+      let glyphs='';
+      for(let i=33;i<127;i++)glyphs+=`<div class="glyph" style="font-family:'${fontName}'">${String.fromCharCode(i)}</div>`;
+      document.getElementById('charset').innerHTML=glyphs;
+      update();
+    }).catch(()=>alert('Failed to load font'));
+  };
+  reader.readAsArrayBuffer(file);
+}
+function update(){
+  const size=document.getElementById('fontSize').value;
+  const color=document.getElementById('fontColor').value;
+  const custom=document.getElementById('customText').value;
+  document.getElementById('sizeVal').textContent=size+'px';
+  const el=document.getElementById('previewText');
+  el.style.fontFamily=`'${fontName}', sans-serif`;
+  el.style.fontSize=size+'px';
+  el.style.color=color;
+  if(custom)el.textContent=custom;
+}
+</script>
+</body>
+</html>
