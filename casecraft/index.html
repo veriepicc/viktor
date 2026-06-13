@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseCraft — Text Case Converter (camelCase, snake_case, UPPER, Title)</title>
+<meta name="description" content="Convert text between camelCase, snake_case, PascalCase, UPPER CASE, Title Case, sentence case, kebab-case. Free online tool.">
+<meta name="keywords" content="text case converter, camelcase converter, snake case, pascal case, title case, uppercase lowercase">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1a1625;--surface:#231f30;--border:#352f45;--accent:#c084fc;--accent2:#e879f9;--text:#e8e0f0;--muted:#7c6f8a}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:650px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.7rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.input-area{margin-bottom:1.5rem}
+.input-area textarea{width:100%;min-height:120px;padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:1rem;line-height:1.6;resize:vertical;outline:none}
+.input-area textarea:focus{border-color:var(--accent)}
+.input-area textarea::placeholder{color:#555}
+.results{display:grid;gap:.5rem}
+.result{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;display:flex;align-items:center;gap:.8rem;cursor:pointer;transition:border-color .15s}
+.result:hover{border-color:var(--accent)}
+.result .label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;min-width:100px;font-weight:600}
+.result .value{flex:1;font-family:'SF Mono',monospace;font-size:.88rem;word-break:break-all;color:var(--accent)}
+.result .copy{font-size:.65rem;color:var(--muted);opacity:0;transition:opacity .15s;white-space:nowrap}
+.result:hover .copy{opacity:1}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#1a1625;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Case<span>Craft</span></div></nav>
+<main>
+<h1>Text Case Converter</h1>
+<p class="sub">Convert text between any case format. Click a result to copy.</p>
+<div class="input-area"><textarea id="input" placeholder="Type or paste text here..." oninput="convert()">hello world example text</textarea></div>
+<div class="results" id="results"></div>
+<div class="toast" id="toast">Copied!</div>
+</main>
+<footer>&copy; 2026 CaseCraft &mdash; Text case converter. Runs in your browser.</footer>
+<script>
+const cases=[
+{name:'UPPER CASE',fn:t=>t.toUpperCase()},
+{name:'lower case',fn:t=>t.toLowerCase()},
+{name:'Title Case',fn:t=>t.replace(/\w\S*/g,w=>w[0].toUpperCase()+w.slice(1).toLowerCase())},
+{name:'Sentence case',fn:t=>{const s=t.toLowerCase();return s.charAt(0).toUpperCase()+s.slice(1).replace(/([.!?]\s+)(\w)/g,(m,p,c)=>p+c.toUpperCase())}},
+{name:'camelCase',fn:t=>{const w=words(t);return w.map((s,i)=>i===0?s.toLowerCase():s[0].toUpperCase()+s.slice(1).toLowerCase()).join('')}},
+{name:'PascalCase',fn:t=>words(t).map(s=>s[0].toUpperCase()+s.slice(1).toLowerCase()).join('')},
+{name:'snake_case',fn:t=>words(t).map(s=>s.toLowerCase()).join('_')},
+{name:'SCREAMING_SNAKE',fn:t=>words(t).map(s=>s.toUpperCase()).join('_')},
+{name:'kebab-case',fn:t=>words(t).map(s=>s.toLowerCase()).join('-')},
+{name:'dot.case',fn:t=>words(t).map(s=>s.toLowerCase()).join('.')},
+{name:'path/case',fn:t=>words(t).map(s=>s.toLowerCase()).join('/')},
+{name:'CONSTANT_CASE',fn:t=>words(t).map(s=>s.toUpperCase()).join('_')},
+{name:'aLtErNaTiNg',fn:t=>[...t].map((c,i)=>i%2===0?c.toLowerCase():c.toUpperCase()).join('')},
+{name:'Reversed',fn:t=>[...t].reverse().join('')},
+];
+function words(t){return t.replace(/([a-z])([A-Z])/g,'$1 $2').replace(/[_\-./\\]+/g,' ').trim().split(/\s+/).filter(Boolean)}
+const resultsEl=document.getElementById('results'),toast=document.getElementById('toast');
+function convert(){const t=document.getElementById('input').value;resultsEl.innerHTML='';
+if(!t.trim()){resultsEl.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted)">Type something above...</div>';return}
+cases.forEach(c=>{const d=document.createElement('div');d.className='result';const v=c.fn(t);d.innerHTML=`<span class="label">${c.name}</span><span class="value">${esc(v)}</span><span class="copy">click to copy</span>`;d.onclick=()=>{navigator.clipboard.writeText(v);toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1000)};resultsEl.appendChild(d)})}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+convert();
+</script>
+</body>
+</html>
