@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarkdownView — Live Markdown Editor & Preview</title>
+<meta name="description" content="Write Markdown and see it rendered in real-time. Free online Markdown editor with live preview, export to HTML.">
+<meta name="keywords" content="markdown editor, markdown preview, markdown to html, online markdown, markdown renderer">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafafa;--surface:#fff;--border:#e5e7eb;--accent:#0ea5e9;--text:#1f2937;--muted:#9ca3af;--preview-text:#374151}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+nav{padding:.7rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}
+.nav-btns{display:flex;gap:.4rem}
+.nav-btns button{background:var(--bg);border:1px solid var(--border);padding:.35rem .8rem;border-radius:5px;font-size:.75rem;cursor:pointer;color:var(--text);font-weight:600;transition:all .15s}
+.nav-btns button:hover{border-color:var(--accent);color:var(--accent)}
+.workspace{display:flex;flex:1;min-height:0}
+.pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.pane+.pane{border-left:1px solid var(--border)}
+.pane-head{padding:.4rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+textarea{flex:1;padding:1.2rem;border:none;font-family:'SF Mono','Fira Code',monospace;font-size:.88rem;line-height:1.8;color:var(--text);resize:none;outline:none;background:var(--bg);tab-size:2}
+.preview{flex:1;padding:1.2rem 1.5rem;overflow-y:auto;font-size:.92rem;line-height:1.8;color:var(--preview-text);background:var(--surface)}
+.preview h1{font-size:1.6rem;font-weight:700;margin:1rem 0 .5rem;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:.3rem}
+.preview h2{font-size:1.3rem;font-weight:700;margin:.8rem 0 .4rem;color:var(--text)}
+.preview h3{font-size:1.1rem;font-weight:600;margin:.6rem 0 .3rem;color:var(--text)}
+.preview p{margin:.5rem 0}
+.preview code{background:#f3f4f6;padding:.15rem .4rem;border-radius:3px;font-family:'SF Mono',monospace;font-size:.84rem;color:#e11d48}
+.preview pre{background:#1f2937;color:#e5e7eb;padding:1rem;border-radius:8px;overflow-x:auto;margin:.8rem 0;font-size:.82rem;line-height:1.6}
+.preview pre code{background:none;color:inherit;padding:0}
+.preview blockquote{border-left:3px solid var(--accent);padding:.4rem 1rem;margin:.5rem 0;color:var(--muted);background:#f8fafc}
+.preview ul,.preview ol{padding-left:1.5rem;margin:.4rem 0}
+.preview li{margin:.2rem 0}
+.preview a{color:var(--accent);text-decoration:none}
+.preview a:hover{text-decoration:underline}
+.preview hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
+.preview img{max-width:100%;border-radius:6px}
+.preview strong{font-weight:700}
+.preview em{font-style:italic}
+.preview table{border-collapse:collapse;width:100%;margin:.5rem 0}
+.preview th,.preview td{border:1px solid var(--border);padding:.4rem .7rem;text-align:left;font-size:.85rem}
+.preview th{background:#f9fafb;font-weight:600}
+footer{padding:.6rem;text-align:center;color:var(--muted);font-size:.68rem;border-top:1px solid var(--border)}
+@media(max-width:700px){.workspace{flex-direction:column}.pane+.pane{border-left:none;border-top:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<nav><div class="logo">Markdown<span>View</span></div><div class="nav-btns"><button onclick="copyHtml()">Copy HTML</button><button onclick="downloadMd()">Download .md</button></div></nav>
+<div class="workspace">
+<div class="pane"><div class="pane-head">Markdown</div><textarea id="editor" placeholder="Write Markdown here..."># Hello World
+
+Welcome to **MarkdownView** — a live Markdown editor.
+
+## Features
+
+- Real-time preview
+- **Bold**, *italic*, `code`
+- Lists, blockquotes, tables
+- Code blocks with syntax
+
+> This is a blockquote. It looks nice.
+
+### Code Example
+
+```
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+```
+
+| Feature | Status |
+|---------|--------|
+| Bold | ✅ |
+| Lists | ✅ |
+| Tables | ✅ |
+
+---
+
+Made with ❤️ by MarkdownView</textarea></div>
+<div class="pane"><div class="pane-head">Preview</div><div class="preview" id="preview"></div></div>
+</div>
+<footer>&copy; 2026 MarkdownView &mdash; Markdown editor. Nothing is stored or sent.</footer>
+<script>
+const editor=document.getElementById('editor'),preview=document.getElementById('preview');
+editor.addEventListener('input',render);
+function render(){preview.innerHTML=md(editor.value)}
+function md(s){
+s=s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// code blocks
+s=s.replace(/```(\w*)\n([\s\S]*?)```/g,(m,lang,code)=>`<pre><code>${code.trim()}</code></pre>`);
+// tables
+s=s.replace(/^\|(.+)\|\s*\n\|[-\s|:]+\|\s*\n((?:\|.+\|\s*\n?)*)/gm,(m,header,body)=>{
+const ths=header.split('|').map(h=>`<th>${h.trim()}</th>`).join('');
+const rows=body.trim().split('\n').map(r=>`<tr>${r.replace(/^\||\|$/g,'').split('|').map(c=>`<td>${c.trim()}</td>`).join('')}</tr>`).join('');
+return `<table><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`});
+// headers
+s=s.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+s=s.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+s=s.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+// hr
+s=s.replace(/^---+$/gm,'<hr>');
+// blockquotes
+s=s.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+// bold & italic
+s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+s=s.replace(/\*(.+?)\*/g,'<em>$1</em>');
+// inline code
+s=s.replace(/`([^`]+)`/g,'<code>$1</code>');
+// links
+s=s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+// images
+s=s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1">');
+// lists
+s=s.replace(/^[\-\*] (.+)$/gm,'<li>$1</li>');
+s=s.replace(/((?:<li>.+<\/li>\s*)+)/g,'<ul>$1</ul>');
+// numbered lists
+s=s.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');
+// paragraphs
+s=s.replace(/\n\n/g,'</p><p>');
+s='<p>'+s+'</p>';
+s=s.replace(/<p>\s*(<h[123]|<pre|<blockquote|<ul|<ol|<table|<hr)/g,'$1');
+s=s.replace(/(<\/h[123]>|<\/pre>|<\/blockquote>|<\/ul>|<\/ol>|<\/table>|<hr>)\s*<\/p>/g,'$1');
+s=s.replace(/<p>\s*<\/p>/g,'');
+return s}
+function copyHtml(){navigator.clipboard.writeText(preview.innerHTML)}
+function downloadMd(){const blob=new Blob([editor.value],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='document.md';a.click()}
+render();
+</script>
+</body>
+</html>
