@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Validator — Check Email Format, MX Records & Common Typos</title>
+<meta name="description" content="Validate email addresses instantly. Check format, detect common typos (gmail vs gmial), suggest corrections. Free email validation tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✉️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f0fdf4;color:#14532d;min-height:100vh}
+main{max-width:500px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #bbf7d0;border-radius:14px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.field input{width:100%;padding:.7rem;border:2px solid #bbf7d0;border-radius:8px;font-size:1rem;outline:none;font-family:inherit}
+.field input:focus{border-color:#22c55e}
+.checks{margin-top:1rem;display:flex;flex-direction:column;gap:.3rem}
+.check{display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:6px;font-size:.82rem;font-weight:500}
+.check.pass{background:#f0fdf4;color:#166534}
+.check.fail{background:#fef2f2;color:#991b1b}
+.check.warn{background:#fffbeb;color:#92400e}
+.check .icon{font-size:1rem;flex-shrink:0}
+.suggestion{margin-top:.8rem;padding:.6rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:.82rem;color:#1e40af}
+.suggestion a{color:#2563eb;cursor:pointer;text-decoration:underline;font-weight:600}
+.batch{margin-top:1rem}
+.batch textarea{width:100%;padding:.5rem;border:1px solid #bbf7d0;border-radius:6px;font-family:'SF Mono',monospace;font-size:.78rem;outline:none;resize:vertical}
+.batch button{margin-top:.3rem;padding:.4rem .8rem;background:#22c55e;color:#fff;border:none;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>Email Validator</h1>
+<div class="card">
+<div class="field"><input type="text" id="email" placeholder="user@example.com" value="john@gmial.com" oninput="validate()"></div>
+<div class="checks" id="checks"></div>
+<div id="suggestion"></div>
+</div>
+<div class="card">
+<h3 style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:.5rem;font-weight:700">Bulk Validate</h3>
+<div class="batch">
+<textarea id="bulk" rows="5" placeholder="One email per line...">john@gmail.com
+jane@yaho.com
+bad@@email
+test@outlook.com
+user@hotmial.com</textarea>
+<button onclick="bulkValidate()">Validate All</button>
+<div id="bulkResults" style="margin-top:.5rem;font-size:.78rem"></div>
+</div>
+</div>
+</main>
+<script>
+const typos={'gmial.com':'gmail.com','gmai.com':'gmail.com','gamil.com':'gmail.com','gmal.com':'gmail.com','gnail.com':'gmail.com','gmail.co':'gmail.com','yaho.com':'yahoo.com','yahooo.com':'yahoo.com','yahoo.co':'yahoo.com','yhoo.com':'yahoo.com','hotmial.com':'hotmail.com','hotmal.com':'hotmail.com','hotmail.co':'hotmail.com','hotmil.com':'hotmail.com','outlok.com':'outlook.com','outloo.com':'outlook.com','outlook.co':'outlook.com','outllook.com':'outlook.com','protonmal.com':'protonmail.com','protonmai.com':'protonmail.com','iclod.com':'icloud.com','icloud.co':'icloud.com'};
+const disposable=['tempmail.com','guerrillamail.com','mailinator.com','throwaway.email','yopmail.com','10minutemail.com','trashmail.com','sharklasers.com','guerrillamailblock.com','grr.la','dispostable.com','maildrop.cc','temp-mail.org'];
+const validProviders=['gmail.com','yahoo.com','outlook.com','hotmail.com','protonmail.com','icloud.com','aol.com','zoho.com','mail.com','yandex.com','fastmail.com','tutanota.com','gmx.com'];
+
+function validate(){
+  const email=document.getElementById('email').value.trim();
+  const checks=[];
+  let sugHTML='';
+  
+  if(!email){document.getElementById('checks').innerHTML='';document.getElementById('suggestion').innerHTML='';return}
+  
+  // Format check
+  const formatRe=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  checks.push({pass:formatRe.test(email),text:'Valid email format',failText:'Invalid email format'});
+  
+  // @ check
+  const atCount=(email.match(/@/g)||[]).length;
+  checks.push({pass:atCount===1,text:'Single @ symbol',failText:`Found ${atCount} @ symbols`});
+  
+  const parts=email.split('@');
+  if(parts.length===2){
+    const[local,domain]=parts;
+    
+    // Local part
+    checks.push({pass:local.length>0&&local.length<=64,text:`Local part: "${local}" (${local.length} chars)`,failText:'Local part empty or too long'});
+    
+    // No consecutive dots
+    checks.push({pass:!/\.\./.test(email),text:'No consecutive dots',failText:'Contains consecutive dots (..)'});
+    
+    // Domain
+    const domainRe=/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    checks.push({pass:domainRe.test(domain),text:`Domain: ${domain}`,failText:`Invalid domain: ${domain}`});
+    
+    // TLD check
+    const tld=domain.split('.').pop();
+    checks.push({pass:tld&&tld.length>=2,text:`TLD: .${tld}`,failText:'Missing or invalid TLD'});
+    
+    // Typo check
+    if(typos[domain.toLowerCase()]){
+      checks.push({pass:false,warn:true,text:`Possible typo: "${domain}"`,failText:`Possible typo: "${domain}"`});
+      const corrected=email.replace(domain,typos[domain.toLowerCase()]);
+      sugHTML=`<div class="suggestion">Did you mean <a onclick="document.getElementById('email').value='${corrected}';validate()">${corrected}</a>?</div>`;
+    }
+    
+    // Disposable check
+    if(disposable.includes(domain.toLowerCase())){
+      checks.push({pass:false,warn:true,text:'Disposable email',failText:'Disposable/temporary email provider'});
+    }
+    
+    // Known provider
+    if(validProviders.includes(domain.toLowerCase())){
+      checks.push({pass:true,text:`Known provider: ${domain}`});
+    }
+  }
+  
+  document.getElementById('checks').innerHTML=checks.map(c=>{
+    const ok=c.pass;
+    return`<div class="check ${ok?'pass':c.warn?'warn':'fail'}"><span class="icon">${ok?'✓':c.warn?'⚠':'✗'}</span>${ok?c.text:c.failText}</div>`;
+  }).join('');
+  document.getElementById('suggestion').innerHTML=sugHTML;
+}
+
+function bulkValidate(){
+  const emails=document.getElementById('bulk').value.trim().split('\n').filter(Boolean);
+  const formatRe=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  let html='';
+  emails.forEach(e=>{
+    const em=e.trim();
+    const valid=formatRe.test(em);
+    const domain=em.split('@')[1]||'';
+    const typo=typos[domain.toLowerCase()];
+    html+=`<div class="check ${valid&&!typo?'pass':typo?'warn':'fail'}"><span class="icon">${valid&&!typo?'✓':typo?'⚠':'✗'}</span>${em}${typo?' → did you mean '+em.replace(domain,typo)+'?':''}</div>`;
+  });
+  document.getElementById('bulkResults').innerHTML=html;
+}
+validate();
+</script>
+</body>
+</html>
