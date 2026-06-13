@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bio Generator — Instagram, TikTok & Twitter Bio Ideas Free</title>
+<meta name="description" content="Generate creative bios for Instagram, TikTok, Twitter, YouTube, and Discord. Copy-paste ready. Free social media bio generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#000;min-height:100vh;color:#fff}
+main{max-width:500px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem;background:linear-gradient(135deg,#f59e0b,#ef4444,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card{background:#111;border:1px solid #222;border-radius:14px;padding:1.2rem;margin-bottom:1rem}
+.field{margin-bottom:.8rem}
+.field label{display:block;font-size:.65rem;text-transform:uppercase;color:#666;font-weight:600;margin-bottom:.3rem}
+.field input,.field select{width:100%;padding:.5rem;background:#1a1a1a;border:1px solid #333;border-radius:7px;color:#fff;font-size:.85rem;outline:none;font-family:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.chip{padding:.25rem .5rem;border-radius:5px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid #333;color:#888;background:#1a1a1a}
+.chip.active{border-color:#f59e0b;color:#f59e0b}
+.btn{width:100%;padding:.6rem;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#f59e0b,#ec4899);color:#fff}
+.bios{display:flex;flex-direction:column;gap:.4rem;margin-top:1rem}
+.bio{padding:.7rem;background:#111;border:1px solid #222;border-radius:10px;cursor:pointer;transition:all .15s;line-height:1.5;font-size:.82rem}
+.bio:hover{border-color:#f59e0b}
+.bio:active{background:#1a1a1a}
+.bio .hint{font-size:.6rem;color:#555;margin-top:.3rem;text-align:right}
+</style>
+</head>
+<body>
+<main>
+<h1>✍️ Bio Generator</h1>
+<div class="card">
+<div class="field"><label>Platform</label>
+<div class="chips">
+<div class="chip active" onclick="setPlatform('instagram',this)">📸 Instagram</div>
+<div class="chip" onclick="setPlatform('tiktok',this)">🎵 TikTok</div>
+<div class="chip" onclick="setPlatform('twitter',this)">🐦 Twitter</div>
+<div class="chip" onclick="setPlatform('youtube',this)">📺 YouTube</div>
+<div class="chip" onclick="setPlatform('discord',this)">🎮 Discord</div>
+</div></div>
+<div class="field"><label>Vibe</label>
+<div class="chips" id="vibes">
+<div class="chip active" onclick="setVibe('aesthetic',this)">✨ Aesthetic</div>
+<div class="chip" onclick="setVibe('funny',this)">😂 Funny</div>
+<div class="chip" onclick="setVibe('motivational',this)">💪 Motivational</div>
+<div class="chip" onclick="setVibe('edgy',this)">⚡ Edgy</div>
+<div class="chip" onclick="setVibe('cute',this)">🌸 Cute</div>
+<div class="chip" onclick="setVibe('minimal',this)">🖤 Minimal</div>
+</div></div>
+<div class="field"><label>Your name / niche (optional)</label><input type="text" id="keyword" placeholder="e.g., photography, gaming, music"></div>
+</div>
+<button class="btn" onclick="generate()">✨ Generate Bios</button>
+<div class="bios" id="bios"></div>
+</main>
+<script>
+let platform='instagram',vibe='aesthetic';
+function setPlatform(p,el){platform=p;document.querySelectorAll('.chips')[0].querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active')}
+function setVibe(v,el){vibe=v;document.getElementById('vibes').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active')}
+
+const bios={
+  instagram:{
+    aesthetic:["✦ living in a daydream ✦","☁️ soft hours only","✧ chasing light & good vibes ✧","〰️ somewhere between reality and dreams","✿ blooming at my own pace","◌ curating my own little world","☾ moonchild with a sun soul","▪️ less is more · more is less","✦ existing poetically ✦","◈ made of stardust & good intentions"],
+    funny:["professional overthinker 🧠","my bed is my soulmate 🛌","I put the 'pro' in procrastination","running on caffeine & delusion ☕","404: bio not found","I'm not lazy, I'm on energy saving mode","fluent in sarcasm and memes","my hobbies include eating & complaining","recovering perfectionist","WiFi, food, sleep — in that order"],
+    motivational:["building the life I always dreamed of 🚀","every day is a fresh start ☀️","dream big, work hard, stay humble 💪","turning setbacks into setups","in my growth era 📈","wrote my own story, still editing ✏️","progress over perfection","the comeback is always stronger 🔥","leveling up one day at a time","started from zero, still going 💫"],
+    edgy:["chaos theory in human form ⚡","I didn't come here to be average","my vibe speaks louder than words","built different, not broken 🖤","too busy creating to care","villain origin story loading...","I'm the main character, cry about it","zero apologies, zero regrets","the version they couldn't handle","welcome to the dark side 🌑"],
+    cute:["sunshine mixed with a little hurricane 🌻","just a girl/guy building a dream 💭","spreading smiles like confetti 🎉","sweet but psycho 🍭","powered by coffee & kindness ☕💕","collecting moments, not things ✨","smol but mighty 🐻","living life in pastel colors 🌸","made of sugar, spice & everything nice","sending virtual hugs 🤗"],
+    minimal:["📍","·","—","↓","☻","✦","less","here","now","•"]
+  },
+  tiktok:{
+    aesthetic:["✦ main character energy ✦","this is my villain era","living rent free in my own head","✧ plot twist after plot twist ✧","the algorithm brought you here","welcome to my chaos","✦ chronically online ✦","romanticizing my own life","POV: you found the right account","just vibes, no thoughts"],
+    funny:["the talent is hereditary (it's not)","my FBI agent's favorite creator","I make videos because therapy is expensive","professionally unemployed","my content peaks at 3am","bold of you to assume I know what I'm doing","I was normal once. it was boring","watch at your own risk","this account is a cry for help (jk)","my mom thinks I'm famous"],
+    motivational:["proving them wrong daily 💪","watch me make it 🚀","from 0 to wherever I want","your sign to start creating","built this from nothing","bet on yourself 🎯","the grind never stops","future millionaire in progress","main character of my own movie","started this as a joke, now we're here"],
+    edgy:["ratio + L + don't care","main character syndrome","I'm not for everyone — good","the one they warned you about","unhinged and unbothered","too cool for a bio","I don't chase, I attract","menace to society","based and redpilled","this isn't even my final form"],
+    cute:["♡ just a silly little guy ♡","hi hello welcome ^_^","spreading serotonin ✨","my cat runs this account","soft vibes & cozy nights 🌙","♡ sending love ♡","certified cutie 🎀","just here for the cat videos","♡ wholesome content only ♡","smol creator with big dreams"],
+    minimal:["💀","·","no","hi","lol","🎭","✦","ok","bye","hmm"]
+  }
+};
+// Copy tiktok for others with slight tweaks
+bios.twitter=bios.tiktok;
+bios.youtube=bios.instagram;
+bios.discord=bios.tiktok;
+
+function generate(){
+  const keyword=document.getElementById('keyword').value.trim();
+  let pool=bios[platform]?.[vibe]||bios.instagram.aesthetic;
+  
+  // Shuffle
+  pool=[...pool].sort(()=>Math.random()-.5);
+  
+  // Add keyword-based ones
+  if(keyword){
+    const k=keyword.toLowerCase();
+    pool.unshift(
+      `✦ ${k} enthusiast ✦`,
+      `all things ${k} 📌`,
+      `your daily dose of ${k}`,
+      `${k} is my love language`,
+      `making ${k} look easy`
+    );
+  }
+  
+  document.getElementById('bios').innerHTML=pool.slice(0,8).map(b=>
+    `<div class="bio" onclick="navigator.clipboard.writeText(this.firstChild.textContent)">${b}<div class="hint">tap to copy</div></div>`
+  ).join('');
+}
+generate();
+</script>
+</body>
+</html>
