@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetaTags — SEO Meta Tag Generator for HTML</title>
+<meta name="description" content="Generate SEO meta tags, Open Graph tags, and Twitter Card tags for your website. Copy HTML instantly. Free meta tag generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏷️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--accent:#38bdf8;--text:#e2e8f0;--muted:#64748b}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.8rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.1rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:800px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.form{display:flex;flex-direction:column;gap:.8rem}
+.field label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.2rem}
+.field input,.field textarea{width:100%;padding:.5rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;outline:none;font-family:inherit}
+.field textarea{min-height:60px;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.output-area{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.output-head{padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.output-head button{background:var(--accent);color:#0f172a;border:none;padding:.2rem .7rem;border-radius:4px;font-size:.7rem;font-weight:700;cursor:pointer}
+.output-code{padding:.8rem;font-family:'SF Mono',monospace;font-size:.75rem;line-height:1.8;white-space:pre-wrap;max-height:400px;overflow-y:auto;color:#94a3b8}
+.output-code .tag{color:var(--accent)}
+.output-code .attr{color:#f59e0b}
+.output-code .val{color:#22c55e}
+.preview{margin-top:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.preview h3{font-size:.72rem;color:var(--muted);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.google-preview{background:#fff;border-radius:8px;padding:.8rem;color:#202124;font-family:Arial,sans-serif}
+.gp-title{color:#1a0dab;font-size:1.1rem;font-weight:400;cursor:pointer;margin-bottom:.1rem}
+.gp-url{color:#006621;font-size:.85rem;margin-bottom:.2rem}
+.gp-desc{color:#4d5156;font-size:.85rem;line-height:1.4}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#0f172a;padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="logo">Meta<span>Tags</span></div></nav>
+<main>
+<h1>SEO Meta Tag Generator</h1>
+<div class="layout">
+<div class="form">
+<div class="field"><label>Page Title</label><input id="title" value="My Awesome Website" oninput="gen()"></div>
+<div class="field"><label>Description</label><textarea id="desc" oninput="gen()">A great website that does amazing things. Learn more about our products and services.</textarea></div>
+<div class="field"><label>URL</label><input id="url" value="https://example.com" oninput="gen()"></div>
+<div class="field"><label>Image URL</label><input id="img" value="https://example.com/og-image.jpg" oninput="gen()"></div>
+<div class="field"><label>Site Name</label><input id="site" value="My Website" oninput="gen()"></div>
+<div class="field"><label>Twitter Handle</label><input id="twitter" value="@mysite" oninput="gen()"></div>
+<div class="field"><label>Keywords (comma separated)</label><input id="keywords" value="website, awesome, tools" oninput="gen()"></div>
+<div class="field"><label>Author</label><input id="author" value="" oninput="gen()"></div>
+</div>
+<div>
+<div class="output-area">
+<div class="output-head"><span>Generated HTML</span><button onclick="copyCode()">Copy</button></div>
+<div class="output-code" id="code"></div>
+</div>
+<div class="preview">
+<h3>Google Preview</h3>
+<div class="google-preview">
+<div class="gp-title" id="gpTitle">My Awesome Website</div>
+<div class="gp-url" id="gpUrl">https://example.com</div>
+<div class="gp-desc" id="gpDesc">A great website that does amazing things...</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="toast" id="toast">Copied!</div>
+<script>
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function gen(){
+  const t=document.getElementById('title').value;
+  const d=document.getElementById('desc').value;
+  const u=document.getElementById('url').value;
+  const i=document.getElementById('img').value;
+  const s=document.getElementById('site').value;
+  const tw=document.getElementById('twitter').value;
+  const kw=document.getElementById('keywords').value;
+  const au=document.getElementById('author').value;
+
+  let lines=[];
+  lines.push(`<title>${esc(t)}</title>`);
+  lines.push(`<meta name="description" content="${esc(d)}">`);
+  if(kw)lines.push(`<meta name="keywords" content="${esc(kw)}">`);
+  if(au)lines.push(`<meta name="author" content="${esc(au)}">`);
+  lines.push('');
+  lines.push('<!-- Open Graph -->');
+  lines.push(`<meta property="og:title" content="${esc(t)}">`);
+  lines.push(`<meta property="og:description" content="${esc(d)}">`);
+  lines.push(`<meta property="og:url" content="${esc(u)}">`);
+  lines.push(`<meta property="og:type" content="website">`);
+  if(s)lines.push(`<meta property="og:site_name" content="${esc(s)}">`);
+  if(i)lines.push(`<meta property="og:image" content="${esc(i)}">`);
+  lines.push('');
+  lines.push('<!-- Twitter Card -->');
+  lines.push(`<meta name="twitter:card" content="summary_large_image">`);
+  lines.push(`<meta name="twitter:title" content="${esc(t)}">`);
+  lines.push(`<meta name="twitter:description" content="${esc(d)}">`);
+  if(tw)lines.push(`<meta name="twitter:site" content="${esc(tw)}">`);
+  if(i)lines.push(`<meta name="twitter:image" content="${esc(i)}">`);
+  lines.push('');
+  lines.push(`<link rel="canonical" href="${esc(u)}">`);
+
+  document.getElementById('code').textContent=lines.join('\n');
+  document.getElementById('gpTitle').textContent=t;
+  document.getElementById('gpUrl').textContent=u;
+  document.getElementById('gpDesc').textContent=d.length>160?d.substring(0,157)+'...':d;
+}
+function copyCode(){navigator.clipboard.writeText(document.getElementById('code').textContent);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)}
+gen();
+</script>
+</body>
+</html>
