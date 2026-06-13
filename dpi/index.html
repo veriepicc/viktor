@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPI Calculator — Print Size & PPI Calculator for Images</title>
+<meta name="description" content="Calculate print size from image dimensions and DPI. Find required resolution for print size. PPI/DPI converter. Free calculator for photographers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖨️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f8f9fa;color:#212529;min-height:100vh}
+main{max-width:550px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #dee2e6;border-radius:12px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d;margin-bottom:.8rem;font-weight:700}
+.tabs{display:flex;gap:.3rem;margin-bottom:1rem}
+.tab{flex:1;padding:.5rem;text-align:center;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:1px solid #dee2e6;color:#6c757d;background:#f8f9fa;transition:all .15s}
+.tab.active{background:#0d6efd;color:#fff;border-color:#0d6efd}
+.field{margin-bottom:.8rem}
+.field label{display:block;font-size:.7rem;font-weight:600;color:#6c757d;margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.03em}
+.field input{width:100%;padding:.5rem;border:1px solid #dee2e6;border-radius:6px;font-size:.95rem;font-family:inherit;outline:none}
+.field input:focus{border-color:#0d6efd}
+.row{display:flex;gap:.5rem}.row .field{flex:1}
+.result{text-align:center;padding:1.2rem;background:#f8f9fa;border-radius:10px}
+.result .big{font-size:2rem;font-weight:900;color:#0d6efd}
+.result .label{font-size:.72rem;color:#6c757d;margin-top:.2rem}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.quality{margin-top:.5rem;padding:.4rem .6rem;border-radius:6px;font-size:.75rem;font-weight:700;text-align:center}
+.q-excellent{background:#d1fae5;color:#065f46}
+.q-good{background:#fef3c7;color:#92400e}
+.q-fair{background:#fee2e2;color:#991b1b}
+</style>
+</head>
+<body>
+<main>
+<h1>DPI / PPI Calculator</h1>
+<div class="tabs">
+<div class="tab active" onclick="setMode('size',this)">Image → Print Size</div>
+<div class="tab" onclick="setMode('res',this)">Print Size → Resolution</div>
+</div>
+<div id="mode1">
+<div class="card">
+<h3>Image Dimensions (pixels)</h3>
+<div class="row">
+<div class="field"><label>Width</label><input type="number" id="imgW" value="4000" oninput="calc1()"></div>
+<div class="field"><label>Height</label><input type="number" id="imgH" value="3000" oninput="calc1()"></div>
+</div>
+<div class="field"><label>Print DPI</label><input type="number" id="dpi1" value="300" oninput="calc1()"></div>
+</div>
+<div class="card">
+<h3>Print Size</h3>
+<div class="results-grid">
+<div class="result"><div class="big" id="printW">-</div><div class="label">Width (inches)</div></div>
+<div class="result"><div class="big" id="printH">-</div><div class="label">Height (inches)</div></div>
+<div class="result"><div class="big" id="printWcm">-</div><div class="label">Width (cm)</div></div>
+<div class="result"><div class="big" id="printHcm">-</div><div class="label">Height (cm)</div></div>
+</div>
+<div class="quality" id="quality1"></div>
+</div>
+</div>
+<div id="mode2" style="display:none">
+<div class="card">
+<h3>Desired Print Size (inches)</h3>
+<div class="row">
+<div class="field"><label>Width</label><input type="number" id="prtW" value="8" step="0.1" oninput="calc2()"></div>
+<div class="field"><label>Height</label><input type="number" id="prtH" value="10" step="0.1" oninput="calc2()"></div>
+</div>
+<div class="field"><label>Print DPI</label><input type="number" id="dpi2" value="300" oninput="calc2()"></div>
+</div>
+<div class="card">
+<h3>Required Resolution</h3>
+<div class="results-grid">
+<div class="result"><div class="big" id="reqW">-</div><div class="label">Width (px)</div></div>
+<div class="result"><div class="big" id="reqH">-</div><div class="label">Height (px)</div></div>
+<div class="result"><div class="big" id="megapx">-</div><div class="label">Megapixels</div></div>
+<div class="result"><div class="big" id="fileSize">-</div><div class="label">Est. file size</div></div>
+</div>
+</div>
+</div>
+<div class="card">
+<h3>Common DPI Reference</h3>
+<div style="font-size:.75rem;line-height:1.8;color:#6c757d">
+<strong>72 DPI</strong> — Screen/web only<br>
+<strong>150 DPI</strong> — Newspaper/draft print<br>
+<strong>300 DPI</strong> — Professional photo print<br>
+<strong>600 DPI</strong> — Fine art / high quality
+</div>
+</div>
+</main>
+<script>
+function setMode(m,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  document.getElementById('mode1').style.display=m==='size'?'block':'none';
+  document.getElementById('mode2').style.display=m==='res'?'block':'none';
+}
+function calc1(){
+  const w=parseFloat(document.getElementById('imgW').value)||0;
+  const h=parseFloat(document.getElementById('imgH').value)||0;
+  const dpi=parseFloat(document.getElementById('dpi1').value)||300;
+  const pw=w/dpi,ph=h/dpi;
+  document.getElementById('printW').textContent=pw.toFixed(1)+'"';
+  document.getElementById('printH').textContent=ph.toFixed(1)+'"';
+  document.getElementById('printWcm').textContent=(pw*2.54).toFixed(1);
+  document.getElementById('printHcm').textContent=(ph*2.54).toFixed(1);
+  const q=document.getElementById('quality1');
+  if(dpi>=300){q.textContent='✓ Excellent print quality';q.className='quality q-excellent'}
+  else if(dpi>=150){q.textContent='⚠ Good for viewing distance';q.className='quality q-good'}
+  else{q.textContent='✗ Low quality — may look pixelated';q.className='quality q-fair'}
+}
+function calc2(){
+  const w=parseFloat(document.getElementById('prtW').value)||0;
+  const h=parseFloat(document.getElementById('prtH').value)||0;
+  const dpi=parseFloat(document.getElementById('dpi2').value)||300;
+  const rw=Math.ceil(w*dpi),rh=Math.ceil(h*dpi);
+  document.getElementById('reqW').textContent=rw.toLocaleString();
+  document.getElementById('reqH').textContent=rh.toLocaleString();
+  const mp=rw*rh/1000000;
+  document.getElementById('megapx').textContent=mp.toFixed(1)+'MP';
+  const est=rw*rh*3/1024/1024;
+  document.getElementById('fileSize').textContent=est>1?est.toFixed(0)+'MB':(est*1024).toFixed(0)+'KB';
+}
+calc1();calc2();
+</script>
+</body>
+</html>
