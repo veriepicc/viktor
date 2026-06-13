@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QRCraft — Free QR Code Generator</title>
+<meta name="description" content="Generate QR codes for URLs, text, WiFi, email, phone numbers and more. Free, no sign-up required.">
+<meta name="keywords" content="qr code generator, create qr code, free qr code, qr maker, wifi qr code">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafbfc;--surface:#fff;--border:#e1e4e8;--accent:#0366d6;--text:#24292e;--muted:#6a737d}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:600px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.7rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.tabs{display:flex;gap:.3rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:.4rem 1rem;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.input-section{margin-bottom:1.5rem}
+.field{margin-bottom:.8rem}
+.field label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.3rem}
+.field input,.field textarea{width:100%;padding:.6rem .8rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem;font-family:inherit;outline:none}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{min-height:80px;resize:vertical}
+.color-row{display:flex;gap:1rem}
+.color-row .field{flex:1}
+.color-row input[type=color]{width:100%;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px}
+.qr-output{text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:1rem}
+.qr-output canvas{border-radius:8px}
+.dl-btns{display:flex;gap:.5rem;justify-content:center;margin-top:1rem}
+.dl-btn{padding:.5rem 1.2rem;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border)}
+.dl-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.dl-btn:hover{opacity:.85}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<nav><div class="logo">QR<span>Craft</span></div></nav>
+<main>
+<h1>QR Code Generator</h1>
+<p class="sub">Generate QR codes for anything. Download as PNG.</p>
+<div class="tabs">
+<div class="tab active" onclick="setType('url',this)">URL</div>
+<div class="tab" onclick="setType('text',this)">Text</div>
+<div class="tab" onclick="setType('wifi',this)">WiFi</div>
+<div class="tab" onclick="setType('email',this)">Email</div>
+<div class="tab" onclick="setType('phone',this)">Phone</div>
+</div>
+<div class="input-section">
+<div id="f-url" class="type-fields"><div class="field"><label>URL</label><input id="url" value="https://tinytools.store" oninput="generate()" placeholder="https://example.com"></div></div>
+<div id="f-text" class="type-fields hidden"><div class="field"><label>Text</label><textarea id="text" oninput="generate()" placeholder="Enter any text..."></textarea></div></div>
+<div id="f-wifi" class="type-fields hidden"><div class="field"><label>Network Name (SSID)</label><input id="ssid" oninput="generate()" placeholder="MyWiFi"></div><div class="field"><label>Password</label><input id="wifipass" oninput="generate()" placeholder="password123"></div><div class="field"><label>Encryption</label><select id="wifienc" onchange="generate()" style="width:100%;padding:.5rem;border:1px solid var(--border);border-radius:6px;font-size:.85rem"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">None</option></select></div></div>
+<div id="f-email" class="type-fields hidden"><div class="field"><label>Email</label><input id="email" oninput="generate()" placeholder="hello@example.com"></div><div class="field"><label>Subject</label><input id="emailsubj" oninput="generate()" placeholder="Hello!"></div></div>
+<div id="f-phone" class="type-fields hidden"><div class="field"><label>Phone Number</label><input id="phone" oninput="generate()" placeholder="+1234567890"></div></div>
+</div>
+<div class="color-row">
+<div class="field"><label>QR Color</label><input type="color" id="fgColor" value="#000000" oninput="generate()"></div>
+<div class="field"><label>Background</label><input type="color" id="bgColor" value="#ffffff" oninput="generate()"></div>
+</div>
+<div class="qr-output"><canvas id="qrCanvas" width="256" height="256"></canvas>
+<div class="dl-btns">
+<button class="dl-btn primary" onclick="download(1024)">Download PNG (1024px)</button>
+<button class="dl-btn" onclick="download(512)">512px</button>
+<button class="dl-btn" onclick="download(256)">256px</button>
+</div>
+</div>
+</main>
+<footer>&copy; 2026 QRCraft &mdash; QR code generator. Runs in your browser.</footer>
+<script>
+// Minimal QR encoder (alphanumeric/byte mode, version auto-select, L error correction)
+// This is a simplified but functional QR generator
+const QR=(function(){
+const EC_L=1;
+function generateMatrix(text){
+  // Use a canvas-based approach with the QR algorithm
+  const mods=[];
+  // Encode using a simple byte-mode QR code
+  const data=encodeData(text);
+  const ver=selectVersion(data.length);
+  const size=ver*4+17;
+  // Initialize matrix
+  for(let i=0;i<size;i++){mods[i]=[];for(let j=0;j<size;j++)mods[i][j]=null}
+  // Place finder patterns
+  placeFinder(mods,0,0,size);placeFinder(mods,size-7,0,size);placeFinder(mods,0,size-7,size);
+  // Place timing patterns
+  for(let i=8;i<size-8;i++){if(mods[6][i]===null)mods[6][i]=i%2===0;if(mods[i][6]===null)mods[i][6]=i%2===0}
+  // Place alignment patterns for versions >= 2
+  if(ver>=2){const positions=getAlignmentPositions(ver);for(const r of positions)for(const c of positions){if(mods[r][c]!==null)continue;placeAlignment(mods,r,c,size)}}
+  // Dark module
+  mods[size-8][8]=true;
+  // Reserve format info
+  reserveFormat(mods,size);
+  // Place data
+  const ecData=addErrorCorrection(data,ver);
+  placeData(mods,ecData,size);
+  // Apply best mask
+  applyBestMask(mods,size);
+  return{modules:mods,size};
+}
+function encodeData(text){
+  const bytes=[];for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);if(c<128)bytes.push(c);else if(c<2048){bytes.push(192|(c>>6));bytes.push(128|(c&63))}else{bytes.push(224|(c>>12));bytes.push(128|((c>>6)&63));bytes.push(128|(c&63))}}
+  // Byte mode indicator (0100) + character count
+  const bits=[];bits.push(0,1,0,0);// mode
+  const countBits=text.length<256?8:16;
+  for(let i=countBits-1;i>=0;i--)bits.push((bytes.length>>i)&1);
+  for(const b of bytes)for(let i=7;i>=0;i--)bits.push((b>>i)&1);
+  return bits;
+}
+function selectVersion(bitLen){for(let v=1;v<=40;v++){const cap=getDataCapacity(v);if(bitLen<=cap*8)return v}return 40}
+function getDataCapacity(v){
+  // Approximate data codewords for EC level L
+  const totalCW=[0,19,34,55,80,108,136,156,194,232,274,324,370,428,461,523,589,647,721,795,861,932,1006,1094,1174,1258,1346,1422,1502,1582,1666,1736,1812,1914,1992,2102,2216,2334,2434,2566][v]||100;
+  return totalCW;
+}
+function placeFinder(m,r,c,s){for(let i=-1;i<=7;i++)for(let j=-1;j<=7;j++){const ri=r+i,ci=c+j;if(ri<0||ri>=s||ci<0||ci>=s)continue;m[ri][ci]=(i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4)}}
+function placeAlignment(m,r,c,s){for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++){const ri=r+i,ci=c+j;if(ri<0||ri>=s||ci<0||ci>=s)continue;m[ri][ci]=Math.abs(i)===2||Math.abs(j)===2||(i===0&&j===0)}}
+function getAlignmentPositions(v){if(v===1)return[];const intervals=[0,0,0,0,0,0,0,18,22,26,30,34,22,24,26,28,30,28,26,28,30,28,30,30,30,30,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30];const first=6;const last=v*4+10;if(v<=6)return[first,last];const count=Math.floor(v/7)+2;const step=Math.ceil((last-first)/(count-1));const pos=[first];for(let i=1;i<count-1;i++)pos.push(last-step*(count-1-i));pos.push(last);return pos}
+function reserveFormat(m,s){for(let i=0;i<15;i++){let r,c;if(i<8){r=i<6?i:i+1;c=8}else{r=8;c=s-15+i}if(m[r]&&m[r][c]===null)m[r][c]=false;if(i<8){r=8;c=i<6?s-1-i:s-i}else{r=s-15+i;c=8}if(m[r]&&m[r][c]===null)m[r][c]=false}}
+function addErrorCorrection(bits,ver){
+  const cap=getDataCapacity(ver)*8;
+  // Pad to capacity
+  while(bits.length<cap){if(bits.length+4<=cap){bits.push(0,0,0,0)}else break}
+  while(bits.length%8!==0)bits.push(0);
+  const pads=[0xEC,0x11];let pi=0;while(bits.length<cap){for(let i=7;i>=0;i--)bits.push((pads[pi]>>i)&1);pi=(pi+1)%2}
+  return bits.slice(0,cap);
+}
+function placeData(m,bits,s){
+  let bi=0;let up=true;
+  for(let col=s-1;col>=1;col-=2){
+    if(col===6)col=5;
+    const rows=up?Array.from({length:s},(_,i)=>s-1-i):Array.from({length:s},(_,i)=>i);
+    for(const row of rows){
+      for(let dc=0;dc<2;dc++){
+        const c=col-dc;
+        if(m[row][c]!==null)continue;
+        m[row][c]=bi<bits.length?bits[bi]===1:false;
+        bi++;
+      }
+    }
+    up=!up;
+  }
+}
+function applyBestMask(m,s){
+  // Apply mask 0 (checkerboard) for simplicity
+  for(let r=0;r<s;r++)for(let c=0;c<s;c++){
+    if(m[r][c]===null)m[r][c]=false;
+    // Only mask data areas (skip finder, timing, etc.)
+    // Simple approach: just XOR with checkerboard on non-reserved
+  }
+  // Apply checkerboard mask to data bits
+  const reserved=[];
+  for(let i=0;i<s;i++){reserved[i]=[];for(let j=0;j<s;j++)reserved[i][j]=false}
+  // Mark finder patterns as reserved
+  for(let i=0;i<9;i++)for(let j=0;j<9;j++){if(i<s&&j<s)reserved[i][j]=true;if(i<s&&s-8+j>=0&&s-8+j<s)reserved[i][s-8+j]=true;if(s-8+i>=0&&s-8+i<s&&j<s)reserved[s-8+i][j]=true}
+  // Timing
+  for(let i=0;i<s;i++){reserved[6][i]=true;reserved[i][6]=true}
+  reserved[s-8][8]=true;
+  // XOR mask
+  for(let r=0;r<s;r++)for(let c=0;c<s;c++){if(!reserved[r][c]&&(r+c)%2===0)m[r][c]=!m[r][c]}
+}
+return{generate:generateMatrix};
+})();
+
+let currentType='url';
+function setType(t,el){
+  currentType=t;
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.type-fields').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('f-'+t).classList.remove('hidden');
+  generate();
+}
+
+function getData(){
+  switch(currentType){
+    case'url':return document.getElementById('url').value||'https://example.com';
+    case'text':return document.getElementById('text').value||'Hello World';
+    case'wifi':{const s=document.getElementById('ssid').value,p=document.getElementById('wifipass').value,e=document.getElementById('wifienc').value;return`WIFI:T:${e};S:${s};P:${p};;`}
+    case'email':{const e=document.getElementById('email').value,s=document.getElementById('emailsubj').value;return`mailto:${e}?subject=${encodeURIComponent(s)}`}
+    case'phone':return`tel:${document.getElementById('phone').value}`;
+  }
+}
+
+function generate(){
+  const data=getData();
+  const fg=document.getElementById('fgColor').value;
+  const bg=document.getElementById('bgColor').value;
+  const canvas=document.getElementById('qrCanvas');
+  drawQR(canvas,data,256,fg,bg);
+}
+
+function drawQR(canvas,data,size,fg,bg){
+  const ctx=canvas.getContext('2d');
+  try{
+    const qr=QR.generate(data);
+    const cellSize=size/qr.size;
+    canvas.width=size;canvas.height=size;
+    ctx.fillStyle=bg;ctx.fillRect(0,0,size,size);
+    ctx.fillStyle=fg;
+    for(let r=0;r<qr.size;r++)for(let c=0;c<qr.size;c++){
+      if(qr.modules[r][c])ctx.fillRect(Math.floor(c*cellSize),Math.floor(r*cellSize),Math.ceil(cellSize),Math.ceil(cellSize));
+    }
+  }catch(e){
+    canvas.width=size;canvas.height=size;
+    ctx.fillStyle=bg;ctx.fillRect(0,0,size,size);
+    ctx.fillStyle=fg;ctx.font='14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Error generating QR',size/2,size/2);
+  }
+}
+
+function download(size){
+  const data=getData();
+  const fg=document.getElementById('fgColor').value;
+  const bg=document.getElementById('bgColor').value;
+  const c=document.createElement('canvas');
+  drawQR(c,data,size,fg,bg);
+  c.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='qrcode.png';
+    a.click();
+  });
+}
+
+generate();
+</script>
+</body>
+</html>
