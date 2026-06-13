@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Username Generator — Cool Gaming, Social Media & YouTube Name Ideas</title>
+<meta name="description" content="Generate unique usernames for gaming, YouTube, TikTok, Instagram, and Discord. Mix words, add numbers, check availability. Free username generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👤</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
+main{max-width:550px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.2rem;margin-bottom:1rem}
+.field{margin-bottom:.8rem}
+.field label{display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:.3rem}
+.field input{width:100%;padding:.5rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#fff;font-size:.9rem;outline:none;font-family:inherit}
+.field input:focus{border-color:rgba(255,255,255,.3)}
+.styles{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.8rem}
+.style{padding:.3rem .6rem;border-radius:6px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);background:rgba(255,255,255,.03)}
+.style.active{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.1)}
+.btn{width:100%;padding:.6rem;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#a78bfa,#ec4899);color:#fff;margin-bottom:1rem}
+.results{display:flex;flex-direction:column;gap:.3rem}
+.name{display:flex;align-items:center;justify-content:space-between;padding:.5rem .7rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;cursor:pointer;transition:all .15s}
+.name:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.name .text{font-family:'SF Mono',monospace;font-size:.88rem;font-weight:600}
+.name .copy{font-size:.6rem;color:rgba(255,255,255,.3);text-transform:uppercase;font-weight:700}
+.name:active .copy{color:#a78bfa}
+</style>
+</head>
+<body>
+<main>
+<h1>👤 Username Generator</h1>
+<div class="card">
+<div class="field"><label>Your name or keyword</label><input type="text" id="keyword" value="" placeholder="e.g., shadow, wolf, pixel, luna"></div>
+<div class="field"><label>Style</label>
+<div class="styles">
+<div class="style active" onclick="setStyle('gaming',this)">🎮 Gaming</div>
+<div class="style" onclick="setStyle('aesthetic',this)">✨ Aesthetic</div>
+<div class="style" onclick="setStyle('edgy',this)">⚡ Edgy</div>
+<div class="style" onclick="setStyle('cute',this)">🌸 Cute</div>
+<div class="style" onclick="setStyle('pro',this)">💼 Professional</div>
+<div class="style" onclick="setStyle('meme',this)">🤪 Meme</div>
+<div class="style" onclick="setStyle('yt',this)">📺 YouTube</div>
+<div class="style" onclick="setStyle('hacker',this)">💻 Hacker</div>
+</div>
+</div>
+</div>
+<button class="btn" onclick="generate()">⚡ Generate Usernames</button>
+<div class="results" id="results"></div>
+</main>
+<script>
+let currentStyle='gaming';
+function setStyle(s,el){currentStyle=s;document.querySelectorAll('.style').forEach(e=>e.classList.remove('active'));el.classList.add('active')}
+
+const words={
+  gaming:{prefix:['Shadow','Dark','Neon','Void','Storm','Blaze','Frost','Nova','Ghost','Rage','Apex','Venom','Chaos','Omega','Toxic','Savage','Elite','Ultra','Turbo','Zero'],suffix:['Kill','Shot','Fury','Blade','Wolf','Hawk','Beast','Sniper','Legend','King','Master','Lord','Reaper','Strike','Force','Ninja','Bomber','Tank','Claw','Fang'],mid:['x','X','_','','0','z']},
+  aesthetic:{prefix:['Moon','Cloud','Petal','Velvet','Ivory','Sage','Fern','Coral','Mist','Pearl','Opal','Bloom','Breeze','Willow','Dahlia','Clover','Ember','Hazel','Indigo','Luna'],suffix:['dreams','child','soul','glow','rain','dusk','dawn','tide','light','shade','fall','rose','sky','tea','song','wish','star','wave','beam','muse'],mid:['_','.','-','']},
+  edgy:{prefix:['Void','Null','Crypt','Abyss','Dread','Grim','Hex','Doom','Wrath','Scorn','Blight','Scar','Ruin','Vex','Gore','Rot','Ash','Sable','Spite','Feral'],suffix:['born','less','walker','lord','bane','wraith','shade','skull','thorn','crypt','void','haze','blood','soul','raven','death','night','hell','curse','storm'],mid:['_','x','X','0','']},
+  cute:{prefix:['Bunny','Kitty','Puppy','Sugar','Honey','Peach','Cookie','Fluffy','Tiny','Sweet','Baby','Cupcake','Sparkle','Sunny','Daisy','Candy','Lollipop','Butter','Maple','Cherry'],suffix:['paws','love','bear','bean','boo','pie','drop','cloud','heart','bloom','bug','cake','fluff','star','kiss','angel','fairy','bubble','cream','sprout'],mid:['_','.','','x']},
+  pro:{prefix:['Alex','Jordan','Taylor','Sam','Max','Chris','Dev','Tech','Data','Code','Logic','Stack','Node','Pixel','Byte','Signal','Prime','Core','Forge','Arch'],suffix:['Dev','Tech','Pro','HQ','Labs','Works','Hub','Studio','Design','Build','Create','Made','Craft','IO','Stack','Flow','Run','Ship','Code','Base'],mid:['_','.','-','']},
+  meme:{prefix:['Dank','Big','Sus','Smol','Chonk','Yeet','Vibe','Bonk','Bruh','Skibidi','Sigma','Chad','Based','Sussy','Thicc','Turbo','Ultra','Mega','Giga','Epic'],suffix:['Lord','Master','Boss','King','Mode','Energy','Moment','Time','Gang','Squad','Army','Nation','Life','Force','Power','God','Zone','Core','Maxx','Vibes'],mid:['_','x','X','69','420']},
+  yt:{prefix:['Mr','The','Just','Its','Not','Hey','Simply','Daily','Epic','Super','Captain','Sir','Dr','Pro','Top','Best','Real','True','Only','My'],suffix:['Gaming','Plays','Live','Show','TV','Cast','Hub','Zone','World','Land','Tube','Time','Clips','Nation','Studios','Central','Media','Network','Channel','Stream'],mid:[' ','_','','']},
+  hacker:{prefix:['root','sudo','void','null','sys','net','hack','c0de','d4rk','n3on','z3r0','crypt','gh0st','ph4nt0m','sp3ctr','sh4dow','cyb3r','gl1tch','m4tr1x','v1rus'],suffix:['_sec','_pwn','_0x','_sys','_net','_dev','_h4x','_bin','_hex','_raw','_core','_root','_usr','_src','_exec','_sudo','_rce','_xss','_sqli','_asm'],mid:['','_','0x','$','@']}
+};
+
+function generate(){
+  const keyword=document.getElementById('keyword').value.trim();
+  const w=words[currentStyle];
+  const names=new Set();
+  
+  for(let i=0;i<30;i++){
+    const pre=w.prefix[Math.random()*w.prefix.length|0];
+    const suf=w.suffix[Math.random()*w.suffix.length|0];
+    const mid=w.mid[Math.random()*w.mid.length|0];
+    const num=Math.random()>.5?'':(Math.random()*999|0);
+    
+    if(keyword){
+      const k=keyword.charAt(0).toUpperCase()+keyword.slice(1);
+      const patterns=[
+        k+mid+suf+num,
+        pre+mid+k+num,
+        k+num+mid+suf,
+        pre+k+num,
+        k+mid+pre+num,
+      ];
+      names.add(patterns[Math.random()*patterns.length|0]);
+    }
+    names.add(pre+mid+suf+num);
+    names.add(pre+num+mid+suf);
+  }
+  
+  document.getElementById('results').innerHTML=[...names].slice(0,15).map(n=>
+    `<div class="name" onclick="navigator.clipboard.writeText('${n}')"><span class="text">${n}</span><span class="copy">click to copy</span></div>`
+  ).join('');
+}
+generate();
+</script>
+</body>
+</html>
