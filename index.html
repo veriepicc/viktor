@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TinyTools — Free Online Developer & Productivity Tools</title>
+<meta name="description" content="20+ free, fast, privacy-first tools that run entirely in your browser. No sign-ups, no tracking, no BS. JSON formatter, hash generator, image compressor, and more.">
+<meta name="keywords" content="free online tools, developer tools, web tools, json formatter, hash generator, password generator, unit converter, image compressor">
+<meta property="og:title" content="TinyTools — Free Online Tools">
+<meta property="og:description" content="20+ free browser tools. No sign-ups, no tracking. JSON formatter, hash generator, image compressor, and more.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tinytools.store">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0b;--surface:#141416;--surface2:#1c1c1f;--border:#2a2a2e;--accent:#6d5cff;--accent-glow:rgba(109,92,255,.15);--green:#00e676;--cyan:#00e5ff;--orange:#ff9100;--pink:#ff4081;--text:#eee;--muted:#777}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ===== NAV ===== */
+nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(10,10,11,.8);border-bottom:1px solid var(--border);padding:.7rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-size:1.2rem;font-weight:800;letter-spacing:-.03em}
+.nav-logo span{background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{color:var(--muted);font-size:.82rem;text-decoration:none;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-count{background:var(--accent);color:#fff;font-size:.65rem;padding:.15rem .5rem;border-radius:10px;font-weight:700}
+
+/* ===== HERO ===== */
+.hero{text-align:center;padding:5rem 2rem 3rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none}
+.hero h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:1rem;position:relative}
+.hero h1 .gradient{background:linear-gradient(135deg,var(--accent),var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:1.1rem;max-width:520px;margin:0 auto 2rem;line-height:1.6}
+.hero-badges{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.badge{display:flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:20px;font-size:.75rem;font-weight:600;border:1px solid var(--border);color:var(--muted);background:var(--surface)}
+.badge .dot{width:6px;height:6px;border-radius:50%}
+
+/* ===== SEARCH ===== */
+.search-wrap{max-width:500px;margin:0 auto 3rem;padding:0 2rem}
+.search{display:flex;align-items:center;gap:.6rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.6rem 1rem;transition:border-color .2s}
+.search:focus-within{border-color:var(--accent)}
+.search svg{width:18px;height:18px;stroke:var(--muted);flex-shrink:0}
+.search input{flex:1;background:none;border:none;color:var(--text);font-size:.9rem;font-family:inherit;outline:none}
+.search input::placeholder{color:#555}
+.search .count{font-size:.72rem;color:var(--muted);white-space:nowrap}
+
+/* ===== CATEGORIES ===== */
+.cats{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;padding:0 2rem}
+.cat{padding:.35rem .9rem;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.cat:hover,.cat.active{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+
+/* ===== GRID ===== */
+.tools-grid{max-width:1100px;margin:0 auto;padding:0 2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.8rem}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem;cursor:pointer;text-decoration:none;color:inherit;transition:all .2s;position:relative;overflow:hidden}
+.tool-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(109,92,255,.08)}
+.tool-card .icon{font-size:1.8rem;margin-bottom:.7rem;display:block}
+.tool-card h3{font-size:1rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.01em}
+.tool-card p{font-size:.78rem;color:var(--muted);line-height:1.5}
+.tool-card .tag{position:absolute;top:1rem;right:1rem;font-size:.6rem;padding:.15rem .5rem;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.tag-dev{background:rgba(0,229,255,.1);color:var(--cyan)}
+.tag-text{background:rgba(0,230,118,.1);color:var(--green)}
+.tag-design{background:rgba(255,64,129,.1);color:var(--pink)}
+.tag-security{background:rgba(255,145,0,.1);color:var(--orange)}
+.tag-data{background:rgba(109,92,255,.15);color:var(--accent)}
+
+/* ===== FOOTER ===== */
+.footer-section{margin-top:5rem;padding:3rem 2rem;border-top:1px solid var(--border);text-align:center}
+.footer-section h2{font-size:1.4rem;font-weight:800;margin-bottom:.5rem}
+.footer-section p{color:var(--muted);font-size:.88rem;max-width:500px;margin:0 auto 1.5rem;line-height:1.6}
+.footer-features{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem}
+.footer-feat{text-align:center}
+.footer-feat .num{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-feat .label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem}
+footer{padding:2rem;text-align:center;font-size:.72rem;color:#444}
+footer a{color:var(--muted);text-decoration:none}
+
+/* hidden */
+.hidden{display:none!important}
+
+@media(max-width:600px){
+.hero{padding:3rem 1.5rem 2rem}
+.tools-grid{grid-template-columns:1fr;padding:0 1rem}
+.nav-links{gap:.8rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="nav-logo">tiny<span>tools</span>.store</div>
+<div class="nav-links">
+<a href="#tools">Tools</a>
+<a href="#about">About</a>
+<span class="nav-count">20 tools</span>
+</div>
+</nav>
+
+<section class="hero">
+<h1>Free tools that<br><span class="gradient">respect your privacy</span></h1>
+<p>20+ tiny, fast tools that run entirely in your browser. No accounts, no tracking, no server uploads. Just open and use.</p>
+<div class="hero-badges">
+<div class="badge"><div class="dot" style="background:var(--green)"></div>100% Client-Side</div>
+<div class="badge"><div class="dot" style="background:var(--cyan)"></div>Zero Data Collection</div>
+<div class="badge"><div class="dot" style="background:var(--accent)"></div>No Sign-Up</div>
+<div class="badge"><div class="dot" style="background:var(--orange)"></div>Open Source</div>
+</div>
+</section>
+
+<div class="search-wrap">
+<div class="search">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+<input type="text" id="searchInput" placeholder="Search tools..." oninput="filterTools()">
+<span class="count" id="resultCount">20 tools</span>
+</div>
+</div>
+
+<div class="cats" id="categories">
+<div class="cat active" onclick="filterCat('all',this)">All</div>
+<div class="cat" onclick="filterCat('dev',this)">Developer</div>
+<div class="cat" onclick="filterCat('text',this)">Text</div>
+<div class="cat" onclick="filterCat('design',this)">Design</div>
+<div class="cat" onclick="filterCat('data',this)">Data</div>
+<div class="cat" onclick="filterCat('security',this)">Security</div>
+</div>
+
+<div class="tools-grid" id="toolsGrid"></div>
+
+<section class="footer-section" id="about">
+<h2>Built different.</h2>
+<p>Every tool is a single HTML file. No frameworks, no dependencies, no build step. They load instantly and work offline.</p>
+<div class="footer-features">
+<div class="footer-feat"><div class="num">20</div><div class="label">Tools</div></div>
+<div class="footer-feat"><div class="num">0</div><div class="label">Dependencies</div></div>
+<div class="footer-feat"><div class="num">0</div><div class="label">Data Collected</div></div>
+<div class="footer-feat"><div class="num">&lt;1s</div><div class="label">Load Time</div></div>
+</div>
+</section>
+
+<footer>
+&copy; 2026 tinytools.store &mdash; <a href="https://github.com/veriepicc/viktor" target="_blank">Source on GitHub</a>
+</footer>
+
+<script>
+const tools=[
+{name:'PixSqueeze',desc:'Compress images in your browser. Adjust quality, see file size savings instantly.',icon:'🗜️',cat:'design',tag:'design',path:'pixsqueeze'},
+{name:'JSONPrettify',desc:'Format, validate and minify JSON. Syntax highlighting and error detection.',icon:'{}',cat:'dev',tag:'dev',path:'jsonprettify'},
+{name:'HashCraft',desc:'Generate MD5, SHA-1, SHA-256, SHA-384, and SHA-512 hashes from any text.',icon:'#️⃣',cat:'security',tag:'security',path:'hashcraft'},
+{name:'PassCraft',desc:'Generate strong passwords with customizable length, symbols, and strength meter.',icon:'🔑',cat:'security',tag:'security',path:'passcraft'},
+{name:'ChromaForge',desc:'Generate beautiful color palettes. Export to CSS, Tailwind, or copy hex codes.',icon:'🎨',cat:'design',tag:'design',path:'chromaforge'},
+{name:'RegexLab',desc:'Test regular expressions with live match highlighting and match group details.',icon:'.*',cat:'dev',tag:'dev',path:'regexlab'},
+{name:'CSSGrad',desc:'Create beautiful CSS gradients with a visual editor. Copy the code instantly.',icon:'🌈',cat:'design',tag:'design',path:'cssgrad'},
+{name:'TextCount',desc:'Count words, characters, sentences, paragraphs. Estimate reading and speaking time.',icon:'📝',cat:'text',tag:'text',path:'textcount'},
+{name:'BaseShift',desc:'Convert numbers between binary, octal, decimal, hex, and any base up to 36.',icon:'🔢',cat:'dev',tag:'dev',path:'baseshift'},
+{name:'UnitFlip',desc:'Convert between units of length, weight, temperature, speed, data, time, and more.',icon:'⚖️',cat:'data',tag:'data',path:'unitflip'},
+{name:'DiffCheck',desc:'Compare two texts side-by-side and see additions, removals, and changes highlighted.',icon:'🔀',cat:'text',tag:'text',path:'diffcheck'},
+{name:'CronTranslate',desc:'Translate cron expressions to plain English. See next scheduled run times.',icon:'⏰',cat:'dev',tag:'dev',path:'crontranslate'},
+{name:'LoremCraft',desc:'Generate placeholder text in 4 styles: classic lorem ipsum, hipster, pirate, corporate.',icon:'📄',cat:'text',tag:'text',path:'loremcraft'},
+{name:'Timestamp',desc:'Convert Unix timestamps to dates and back. Live clock showing current timestamp.',icon:'⏱️',cat:'dev',tag:'dev',path:'timestamp'},
+{name:'MarkdownView',desc:'Write Markdown and see it rendered in real-time. Export to HTML or download .md.',icon:'✍️',cat:'text',tag:'text',path:'markdownview'},
+{name:'FaviconForge',desc:'Create favicons from text, emoji, or uploaded images. Download as PNG in all sizes.',icon:'⭐',cat:'design',tag:'design',path:'faviconforge'},
+{name:'TableConvert',desc:'Convert CSV to JSON, HTML tables, Markdown, SQL INSERT, TSV, or XML.',icon:'📊',cat:'data',tag:'data',path:'tableconvert'},
+{name:'Blindfold',desc:'Encrypt and decrypt text with AES-256-GCM. PBKDF2 key derivation. 100% client-side.',icon:'🔒',cat:'security',tag:'security',path:'blindfold'},
+{name:'MetaCheck',desc:'Preview how your site looks on Facebook, Twitter, and Google. Generate meta tags.',icon:'🏷️',cat:'dev',tag:'dev',path:'metacheck'},
+{name:'SVGMake',desc:'Generate and customize SVG shapes. Adjust colors, size, rotation. Download or copy code.',icon:'🔷',cat:'design',tag:'design',path:'svgmake'},
+];
+
+const grid=document.getElementById('toolsGrid');
+const tagClasses={dev:'tag-dev',text:'tag-text',design:'tag-design',security:'tag-security',data:'tag-data'};
+const tagLabels={dev:'Developer',text:'Text',design:'Design',security:'Security',data:'Data'};
+
+tools.forEach(t=>{
+const a=document.createElement('a');
+a.className='tool-card';
+a.href=t.path+'/';
+a.dataset.cat=t.cat;
+a.dataset.name=t.name.toLowerCase();
+a.dataset.desc=t.desc.toLowerCase();
+a.innerHTML=`<span class="icon">${t.icon}</span><span class="tag ${tagClasses[t.tag]}">${tagLabels[t.tag]}</span><h3>${t.name}</h3><p>${t.desc}</p>`;
+grid.appendChild(a);
+});
+
+let currentCat='all';
+function filterCat(cat,el){currentCat=cat;document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));el.classList.add('active');filterTools()}
+
+function filterTools(){
+const q=document.getElementById('searchInput').value.toLowerCase();
+let count=0;
+document.querySelectorAll('.tool-card').forEach(c=>{
+const matchCat=currentCat==='all'||c.dataset.cat===currentCat;
+const matchSearch=!q||c.dataset.name.includes(q)||c.dataset.desc.includes(q);
+const show=matchCat&&matchSearch;
+c.classList.toggle('hidden',!show);
+if(show)count++;
+});
+document.getElementById('resultCount').textContent=count+' tool'+(count!==1?'s':'');
+}
+</script>
+</body>
+</html>
