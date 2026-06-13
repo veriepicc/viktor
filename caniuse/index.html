@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS/JS Browser Support Checker — Check Browser Compatibility</title>
+<meta name="description" content="Check browser support for CSS properties and JavaScript APIs. See which browsers support modern web features. Free compatibility checker.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+main{max-width:650px;margin:0 auto;padding:1.5rem}
+h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem;color:#38bdf8}
+.search{margin-bottom:1rem}
+.search input{width:100%;padding:.7rem 1rem;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#e2e8f0;font-size:.95rem;outline:none;font-family:inherit}
+.search input:focus{border-color:#38bdf8}
+.suggestions{background:#1e293b;border:1px solid #334155;border-radius:8px;margin-top:.3rem;max-height:200px;overflow-y:auto;display:none}
+.suggestion{padding:.4rem .7rem;cursor:pointer;font-size:.78rem;border-bottom:1px solid #1e293b}
+.suggestion:hover{background:#334155}
+.suggestion .cat{font-size:.6rem;color:#64748b;float:right}
+.result{display:none}
+.result-header{text-align:center;margin-bottom:1rem}
+.result-header h2{font-size:1.2rem;font-weight:800;color:#fff}
+.result-header .desc{font-size:.78rem;color:#94a3b8;margin-top:.2rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.4rem;margin-bottom:1rem}
+.browser{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:.6rem;text-align:center}
+.browser .icon{font-size:1.5rem;margin-bottom:.2rem}
+.browser .name{font-size:.65rem;font-weight:600;color:#94a3b8}
+.browser .ver{font-size:.82rem;font-weight:800;margin-top:.1rem}
+.browser.full .ver{color:#4ade80}
+.browser.partial .ver{color:#fbbf24}
+.browser.none .ver{color:#f87171}
+.legend{display:flex;gap:1rem;justify-content:center;margin-bottom:1rem;font-size:.7rem;color:#94a3b8}
+.legend span::before{content:'●';margin-right:.3rem}
+.legend .g::before{color:#4ade80}
+.legend .y::before{color:#fbbf24}
+.legend .r::before{color:#f87171}
+</style>
+</head>
+<body>
+<main>
+<h1>🌐 Browser Support Checker</h1>
+<div class="search">
+<input type="text" id="query" placeholder="Search CSS property or JS API (e.g., grid, fetch, container queries)" oninput="search(this.value)">
+<div class="suggestions" id="suggestions"></div>
+</div>
+<div class="legend"><span class="g">Supported</span><span class="y">Partial</span><span class="r">Not Supported</span></div>
+<div class="result" id="result"></div>
+</main>
+<script>
+const features={
+  "CSS Grid":{cat:"CSS",desc:"CSS Grid Layout for 2D layouts",chrome:{v:"57+",s:"full"},firefox:{v:"52+",s:"full"},safari:{v:"10.1+",s:"full"},edge:{v:"16+",s:"full"},opera:{v:"44+",s:"full"},samsung:{v:"6.0+",s:"full"}},
+  "CSS Flexbox":{cat:"CSS",desc:"Flexible Box Layout Module",chrome:{v:"29+",s:"full"},firefox:{v:"28+",s:"full"},safari:{v:"9+",s:"full"},edge:{v:"12+",s:"full"},opera:{v:"17+",s:"full"},samsung:{v:"4+",s:"full"}},
+  "CSS Container Queries":{cat:"CSS",desc:"Style elements based on container size",chrome:{v:"105+",s:"full"},firefox:{v:"110+",s:"full"},safari:{v:"16+",s:"full"},edge:{v:"105+",s:"full"},opera:{v:"91+",s:"full"},samsung:{v:"20+",s:"full"}},
+  "CSS Subgrid":{cat:"CSS",desc:"Subgrid for nested grid alignment",chrome:{v:"117+",s:"full"},firefox:{v:"71+",s:"full"},safari:{v:"16+",s:"full"},edge:{v:"117+",s:"full"},opera:{v:"103+",s:"full"},samsung:{v:"—",s:"none"}},
+  "CSS :has()":{cat:"CSS",desc:"Parent selector pseudo-class",chrome:{v:"105+",s:"full"},firefox:{v:"121+",s:"full"},safari:{v:"15.4+",s:"full"},edge:{v:"105+",s:"full"},opera:{v:"91+",s:"full"},samsung:{v:"20+",s:"full"}},
+  "CSS Nesting":{cat:"CSS",desc:"Native CSS nesting without preprocessors",chrome:{v:"120+",s:"full"},firefox:{v:"117+",s:"full"},safari:{v:"17.2+",s:"full"},edge:{v:"120+",s:"full"},opera:{v:"106+",s:"full"},samsung:{v:"—",s:"none"}},
+  "CSS backdrop-filter":{cat:"CSS",desc:"Apply filters to area behind element",chrome:{v:"76+",s:"full"},firefox:{v:"103+",s:"full"},safari:{v:"9+",s:"full"},edge:{v:"17+",s:"full"},opera:{v:"63+",s:"full"},samsung:{v:"12.0+",s:"full"}},
+  "CSS aspect-ratio":{cat:"CSS",desc:"Set preferred aspect ratio for elements",chrome:{v:"88+",s:"full"},firefox:{v:"89+",s:"full"},safari:{v:"15+",s:"full"},edge:{v:"88+",s:"full"},opera:{v:"74+",s:"full"},samsung:{v:"15.0+",s:"full"}},
+  "CSS scroll-snap":{cat:"CSS",desc:"Control scroll position snapping",chrome:{v:"69+",s:"full"},firefox:{v:"68+",s:"full"},safari:{v:"11+",s:"full"},edge:{v:"79+",s:"full"},opera:{v:"56+",s:"full"},samsung:{v:"10.1+",s:"full"}},
+  "CSS color-mix()":{cat:"CSS",desc:"Mix two colors in a given colorspace",chrome:{v:"111+",s:"full"},firefox:{v:"113+",s:"full"},safari:{v:"16.2+",s:"full"},edge:{v:"111+",s:"full"},opera:{v:"97+",s:"full"},samsung:{v:"—",s:"none"}},
+  "Fetch API":{cat:"JS",desc:"Modern promise-based HTTP requests",chrome:{v:"42+",s:"full"},firefox:{v:"39+",s:"full"},safari:{v:"10.1+",s:"full"},edge:{v:"14+",s:"full"},opera:{v:"29+",s:"full"},samsung:{v:"4+",s:"full"}},
+  "Promise":{cat:"JS",desc:"Asynchronous operation promises",chrome:{v:"32+",s:"full"},firefox:{v:"29+",s:"full"},safari:{v:"8+",s:"full"},edge:{v:"12+",s:"full"},opera:{v:"19+",s:"full"},samsung:{v:"4+",s:"full"}},
+  "async/await":{cat:"JS",desc:"Async functions with await keyword",chrome:{v:"55+",s:"full"},firefox:{v:"52+",s:"full"},safari:{v:"10.1+",s:"full"},edge:{v:"15+",s:"full"},opera:{v:"42+",s:"full"},samsung:{v:"6.0+",s:"full"}},
+  "ES Modules":{cat:"JS",desc:"Native import/export modules",chrome:{v:"61+",s:"full"},firefox:{v:"60+",s:"full"},safari:{v:"11+",s:"full"},edge:{v:"16+",s:"full"},opera:{v:"48+",s:"full"},samsung:{v:"8.0+",s:"full"}},
+  "Optional Chaining":{cat:"JS",desc:"?.  operator for safe property access",chrome:{v:"80+",s:"full"},firefox:{v:"74+",s:"full"},safari:{v:"13.1+",s:"full"},edge:{v:"80+",s:"full"},opera:{v:"67+",s:"full"},samsung:{v:"13.0+",s:"full"}},
+  "Nullish Coalescing":{cat:"JS",desc:"?? operator for nullish fallback",chrome:{v:"80+",s:"full"},firefox:{v:"72+",s:"full"},safari:{v:"13.1+",s:"full"},edge:{v:"80+",s:"full"},opera:{v:"67+",s:"full"},samsung:{v:"13.0+",s:"full"}},
+  "structuredClone":{cat:"JS",desc:"Deep clone objects natively",chrome:{v:"98+",s:"full"},firefox:{v:"94+",s:"full"},safari:{v:"15.4+",s:"full"},edge:{v:"98+",s:"full"},opera:{v:"84+",s:"full"},samsung:{v:"18.0+",s:"full"}},
+  "WebSocket":{cat:"JS",desc:"Full-duplex communication channels",chrome:{v:"16+",s:"full"},firefox:{v:"11+",s:"full"},safari:{v:"7+",s:"full"},edge:{v:"12+",s:"full"},opera:{v:"12.1+",s:"full"},samsung:{v:"4+",s:"full"}},
+  "Intersection Observer":{cat:"JS",desc:"Detect element visibility in viewport",chrome:{v:"51+",s:"full"},firefox:{v:"55+",s:"full"},safari:{v:"12.1+",s:"full"},edge:{v:"15+",s:"full"},opera:{v:"38+",s:"full"},samsung:{v:"5+",s:"full"}},
+  "Web Workers":{cat:"JS",desc:"Run scripts in background threads",chrome:{v:"4+",s:"full"},firefox:{v:"3.5+",s:"full"},safari:{v:"4+",s:"full"},edge:{v:"12+",s:"full"},opera:{v:"11.5+",s:"full"},samsung:{v:"4+",s:"full"}},
+  "Service Workers":{cat:"JS",desc:"Background scripts for offline/caching",chrome:{v:"40+",s:"full"},firefox:{v:"44+",s:"full"},safari:{v:"11.1+",s:"full"},edge:{v:"17+",s:"full"},opera:{v:"27+",s:"full"},samsung:{v:"4+",s:"full"}},
+  "WebGPU":{cat:"JS",desc:"Modern GPU API for rendering & compute",chrome:{v:"113+",s:"full"},firefox:{v:"—",s:"none"},safari:{v:"—",s:"partial"},edge:{v:"113+",s:"full"},opera:{v:"99+",s:"full"},samsung:{v:"—",s:"none"}},
+  "View Transitions API":{cat:"JS",desc:"Smooth visual transitions between views",chrome:{v:"111+",s:"full"},firefox:{v:"—",s:"none"},safari:{v:"18+",s:"full"},edge:{v:"111+",s:"full"},opera:{v:"97+",s:"full"},samsung:{v:"—",s:"none"}},
+  "Popover API":{cat:"HTML",desc:"Native popover/tooltip support",chrome:{v:"114+",s:"full"},firefox:{v:"125+",s:"full"},safari:{v:"17+",s:"full"},edge:{v:"114+",s:"full"},opera:{v:"100+",s:"full"},samsung:{v:"—",s:"none"}},
+  "dialog element":{cat:"HTML",desc:"Native modal dialog element",chrome:{v:"37+",s:"full"},firefox:{v:"98+",s:"full"},safari:{v:"15.4+",s:"full"},edge:{v:"79+",s:"full"},opera:{v:"24+",s:"full"},samsung:{v:"4+",s:"full"}},
+};
+
+const icons={chrome:"🌐",firefox:"🦊",safari:"🧭",edge:"📐",opera:"🔴",samsung:"📱"};
+const names={chrome:"Chrome",firefox:"Firefox",safari:"Safari",edge:"Edge",opera:"Opera",samsung:"Samsung"};
+
+function search(q){
+  q=q.toLowerCase();
+  const el=document.getElementById('suggestions');
+  if(!q){el.style.display='none';return}
+  const matches=Object.keys(features).filter(f=>f.toLowerCase().includes(q));
+  if(!matches.length){el.style.display='none';return}
+  el.innerHTML=matches.map(f=>`<div class="suggestion" onclick="show('${f}')">${f}<span class="cat">${features[f].cat}</span></div>`).join('');
+  el.style.display='block';
+}
+
+function show(name){
+  const f=features[name];
+  document.getElementById('suggestions').style.display='none';
+  document.getElementById('query').value=name;
+  const browsers=Object.entries(f).filter(([k])=>!['cat','desc'].includes(k));
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').innerHTML=`
+    <div class="result-header"><h2>${name}</h2><div class="desc">${f.desc} · ${f.cat}</div></div>
+    <div class="grid">${browsers.map(([b,data])=>`<div class="browser ${data.s}"><div class="icon">${icons[b]}</div><div class="name">${names[b]}</div><div class="ver">${data.v}</div></div>`).join('')}</div>`;
+}
+</script>
+</body>
+</html>
