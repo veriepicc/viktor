@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TinyTools — 107 Free Online Tools for Developers & Designers</title>
-<meta name="description" content="107 free online tools for developers, designers, and creators. CSS generators, JSON tools, image editors, code utilities. No signup, no tracking. 100% client-side.">
-<meta property="og:title" content="TinyTools — 107 Free Online Tools">
-<meta property="og:description" content="107 free browser-based tools. CSS generators, dev utilities, design tools, and more. No signup needed.">
+<title>TinyTools — 308 Free Online Tools for Developers & Designers</title>
+<meta name="description" content="308 free online tools for developers, designers, and creators. CSS generators, JSON tools, image editors, code utilities. No signup, no tracking. 100% client-side.">
+<meta property="og:title" content="TinyTools — 308 Free Online Tools">
+<meta property="og:description" content="308 free browser-based tools. CSS generators, dev utilities, design tools, and more. No signup needed.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TinyTools — 107 Free Online Tools">
+<meta name="twitter:title" content="TinyTools — 308 Free Online Tools">
 <link rel="canonical" href="https://tinytools.store/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +20,6 @@
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 a{text-decoration:none;color:inherit}
 
-/* ===== NAV ===== */
 nav{position:sticky;top:0;z-index:50;background:rgba(5,5,5,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem}
 .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px}
 .logo{font-size:1.1rem;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:.4rem}
@@ -28,7 +27,6 @@ nav{position:sticky;top:0;z-index:50;background:rgba(5,5,5,.85);backdrop-filter:
 .logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .nav-count{font-size:.6rem;font-weight:700;background:var(--accent);color:#fff;padding:.15rem .45rem;border-radius:10px}
 
-/* ===== HERO ===== */
 .hero{text-align:center;padding:4rem 1.5rem 2.5rem;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,.08) 0%,transparent 70%);pointer-events:none}
 .hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:.3rem .8rem;font-size:.7rem;font-weight:600;color:var(--text2);margin-bottom:1.2rem}
@@ -38,639 +36,82 @@ nav{position:sticky;top:0;z-index:50;background:rgba(5,5,5,.85);backdrop-filter:
 .hero h1 em{font-style:normal;background:linear-gradient(135deg,#6366f1,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero p{color:var(--text2);font-size:1rem;max-width:520px;margin:0 auto;line-height:1.6}
 .hero-stats{display:flex;justify-content:center;gap:2rem;margin-top:1.5rem}
-.stat{text-align:center}
-.stat-num{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat{text-align:center}.stat-num{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .stat-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;font-weight:600;letter-spacing:.05em;margin-top:.1rem}
 
-/* ===== FEATURED ===== */
 .featured{max-width:1100px;margin:0 auto 2rem;padding:0 1.5rem}
 .section-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .feat-row{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.5rem}
 .feat-row::-webkit-scrollbar{display:none}
-.feat-card{flex-shrink:0;width:150px;padding:.8rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;gap:.3rem;transition:all .2s}
-.feat-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,.1)}
-.feat-emoji{font-size:1.6rem}
-.feat-name{font-size:.78rem;font-weight:700}
-.feat-desc{font-size:.62rem;color:var(--muted);line-height:1.4}
+.feat-card{display:flex;align-items:center;gap:.6rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;min-width:220px;transition:border-color .2s,transform .2s}
+.feat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.feat-emoji{font-size:1.4rem}.feat-title{font-size:.78rem;font-weight:700}.feat-desc{font-size:.6rem;color:var(--muted);margin-top:.1rem}
 
-/* ===== MAIN CONTENT ===== */
 .main{max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem}
+.search-wrap{position:relative;margin-bottom:1rem}
+.search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem .7rem 2.4rem;color:var(--text);font-size:.85rem;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap::before{content:'🔍';position:absolute;left:.8rem;top:50%;transform:translateY(-50%);font-size:.85rem}
+.search-wrap kbd{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:.1rem .35rem;font-size:.55rem;color:var(--muted);font-family:inherit}
 
-/* Search */
-.search-wrap{position:sticky;top:52px;z-index:40;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);padding:1rem 0;margin-bottom:.5rem}
-.search-inner{position:relative}
-.search-inner svg{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--muted);width:16px;height:16px}
-.search-inner input{width:100%;padding:.65rem 1rem .65rem 2.4rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.88rem;outline:none;font-family:inherit;transition:border-color .2s}
-.search-inner input:focus{border-color:var(--accent)}
-.search-inner input::placeholder{color:var(--muted)}
-.search-clear{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;display:none;padding:.2rem}
+.cats{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.cat-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.35rem .7rem;font-size:.7rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit}
+.cat-btn:hover,.cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cat-count{font-size:.55rem;opacity:.7;margin-left:.2rem}
 
-/* Category Filters */
-.cat-filters{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1rem}
-.cat-btn{padding:.35rem .7rem;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--text2);background:var(--surface);transition:all .15s;display:flex;align-items:center;gap:.3rem}
-.cat-btn:hover{border-color:var(--border2);color:var(--text)}
-.cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.cat-btn.active .cat-count{background:rgba(255,255,255,.2)}
-.cat-count{font-size:.55rem;background:var(--surface2);padding:.1rem .35rem;border-radius:6px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem}
+.card{display:flex;flex-direction:column;align-items:center;gap:.3rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem .5rem;text-align:center;transition:border-color .2s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-emoji{font-size:1.5rem}.card-title{font-size:.75rem;font-weight:700;line-height:1.2}.card-cat{font-size:.55rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.no-results{text-align:center;padding:3rem;color:var(--muted);font-size:.9rem;display:none}
 
-/* Tool Grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.5rem}
-@media(max-width:640px){.grid{grid-template-columns:1fr}}
-
-.tool{display:flex;align-items:center;gap:.6rem;padding:.65rem .8rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;transition:all .18s;position:relative;overflow:hidden}
-.tool::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.03),transparent);opacity:0;transition:opacity .2s}
-.tool:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.06)}
-.tool:hover::before{opacity:1}
-.tool-emoji{font-size:1.4rem;flex-shrink:0;width:32px;text-align:center}
-.tool-info{flex:1;min-width:0}
-.tool-name{font-weight:700;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tool-desc{font-size:.65rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.1rem}
-.tool-badge{font-size:.55rem;font-weight:700;padding:.15rem .4rem;border-radius:5px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;background:color-mix(in srgb,var(--badge-color) 12%,transparent);color:var(--badge-color)}
-
-.no-results{text-align:center;padding:3rem;color:var(--muted);font-size:.88rem}
-.no-results span{font-size:2rem;display:block;margin-bottom:.5rem}
-
-/* ===== FOOTER ===== */
-footer{border-top:1px solid var(--border);padding:2rem 1.5rem}
-.footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-.footer-left{font-size:.72rem;color:var(--muted)}
-.footer-right{display:flex;gap:1rem}
-.footer-link{font-size:.7rem;color:var(--text2);transition:color .15s}
-.footer-link:hover{color:var(--text)}
+footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--muted);font-size:.7rem}
+footer a{color:var(--accent)}
 </style>
 </head>
 <body>
-
-<nav>
-<div class="nav-inner">
-<a href="/" class="logo"><span class="logo-icon">🛠️</span> <span>TinyTools</span></a>
-<span class="nav-count">107 tools</span>
-</div>
-</nav>
+<nav><div class="nav-inner"><a href="/" class="logo"><span class="logo-icon">🛠️</span><span>TinyTools</span></a><span class="nav-count">308 tools</span></div></nav>
 
 <div class="hero">
-<div class="hero-badge"><span class="dot"></span> All tools run in your browser</div>
-<h1>Every tool you need.<br><em>Zero sign-ups.</em></h1>
-<p>107 free, client-side tools for developers, designers, and creators. No accounts, no tracking, no BS.</p>
+<div class="hero-badge"><span class="dot"></span> All tools run in your browser — no data leaves your device</div>
+<h1>Your <em>Tiny</em> Toolbox</h1>
+<p>308 free, instant, client-side tools for developers, designers & creators. No signup. No tracking.</p>
 <div class="hero-stats">
-<div class="stat"><div class="stat-num">107</div><div class="stat-label">Tools</div></div>
+<div class="stat"><div class="stat-num">308</div><div class="stat-label">Tools</div></div>
 <div class="stat"><div class="stat-num">7</div><div class="stat-label">Categories</div></div>
 <div class="stat"><div class="stat-num">0</div><div class="stat-label">Data Collected</div></div>
 </div>
 </div>
 
 <div class="featured">
-<div class="section-label">⚡ Popular Tools</div>
-<div class="feat-row">
-<a href="gradient/" class="feat-card">
-<span class="feat-emoji">🌈</span>
-<span class="feat-name">Gradient Gen</span>
-<span class="feat-desc">CSS gradient maker with presets</span>
-</a><a href="colorpalette/" class="feat-card">
-<span class="feat-emoji">🎨</span>
-<span class="feat-name">Color Palette</span>
-<span class="feat-desc">Random color palette generator</span>
-</a><a href="passcraft/" class="feat-card">
-<span class="feat-emoji">🔑</span>
-<span class="feat-name">PassCraft</span>
-<span class="feat-desc">Generate secure passwords</span>
-</a><a href="jsonprettify/" class="feat-card">
-<span class="feat-emoji">📋</span>
-<span class="feat-name">JSON Prettify</span>
-<span class="feat-desc">Format & validate JSON</span>
-</a><a href="flexbox/" class="feat-card">
-<span class="feat-emoji">📦</span>
-<span class="feat-name">Flexbox Play</span>
-<span class="feat-desc">Interactive CSS Flexbox playground</span>
-</a><a href="boxshadow/" class="feat-card">
-<span class="feat-emoji">🔲</span>
-<span class="feat-name">Box Shadow</span>
-<span class="feat-desc">CSS box shadow generator</span>
-</a><a href="codescreenshot/" class="feat-card">
-<span class="feat-emoji">📸</span>
-<span class="feat-name">Code Screenshot</span>
-<span class="feat-desc">Beautiful code images like Carbon</span>
-</a><a href="thumbmaker/" class="feat-card">
-<span class="feat-emoji">🎬</span>
-<span class="feat-name">Thumbnail Maker</span>
-<span class="feat-desc">YouTube thumbnail creator</span>
-</a><a href="qrcraft/" class="feat-card">
-<span class="feat-emoji">📱</span>
-<span class="feat-name">QRCraft</span>
-<span class="feat-desc">QR code generator</span>
-</a><a href="regexlab/" class="feat-card">
-<span class="feat-emoji">🔍</span>
-<span class="feat-name">RegexLab</span>
-<span class="feat-desc">Test regex with live matching</span>
-</a><a href="jsobfuscate/" class="feat-card">
-<span class="feat-emoji">🔒</span>
-<span class="feat-name">JS Obfuscator</span>
-<span class="feat-desc">Obfuscate & protect JavaScript code</span>
-</a><a href="typingtest/" class="feat-card">
-<span class="feat-emoji">⌨️</span>
-<span class="feat-name">TypingTest</span>
-<span class="feat-desc">Typing speed test</span>
-</a>
-</div>
+<div class="section-label">⭐ Popular Tools</div>
+<div class="feat-row"><a href="chartmaker/" class="feat-card"><span class="feat-emoji">Create</span><div><div class="feat-title">ChartMaker</div><div class="feat-desc">Create bar charts, line charts, pie charts, and donut charts</div></div></a><a href="chromaforge/" class="feat-card"><span class="feat-emoji">🔧</span><div><div class="feat-title">ChromaForge</div><div class="feat-desc">Generate beautiful color palettes instantly. Extract colors </div></div></a><a href="cssgrad/" class="feat-card"><span class="feat-emoji">🔧</span><div><div class="feat-title">CSSGrad</div><div class="feat-desc">Create stunning CSS gradients with a visual editor. Linear, </div></div></a><a href="hashcraft/" class="feat-card"><span class="feat-emoji">Hash</span><div><div class="feat-title">HashCraft</div><div class="feat-desc">Free online hash generator. Create MD5, SHA-1, SHA-256, SHA-</div></div></a><a href="jsonprettify/" class="feat-card"><span class="feat-emoji">🔧</span><div><div class="feat-title">JSONPrettify</div><div class="feat-desc">Free JSON formatter, validator and minifier. Paste your JSON</div></div></a><a href="passcraft/" class="feat-card"><span class="feat-emoji">Password</span><div><div class="feat-title">PassCraft</div><div class="feat-desc">Generate secure, random passwords instantly. Customize lengt</div></div></a><a href="pixsqueeze/" class="feat-card"><span class="feat-emoji">Compress</span><div><div class="feat-title">PixSqueeze</div><div class="feat-desc">Free online image compressor. Reduce image file size without</div></div></a><a href="pomodoro/" class="feat-card"><span class="feat-emoji">🔧</span><div><div class="feat-title">Pomodoro</div><div class="feat-desc">Pomodoro timer for focused work sessions. 25 min work, 5 min</div></div></a><a href="qrcraft/" class="feat-card"><span class="feat-emoji">QR</span><div><div class="feat-title">QRCraft</div><div class="feat-desc">Generate QR codes for URLs, text, WiFi, email, phone numbers</div></div></a><a href="regexlab/" class="feat-card"><span class="feat-emoji">🔧</span><div><div class="feat-title">RegexLab</div><div class="feat-desc">Test and debug regular expressions in real-time. See matches</div></div></a><a href="typingtest/" class="feat-card"><span class="feat-emoji">Typing</span><div><div class="feat-title">TypingTest</div><div class="feat-desc">Test your typing speed and accuracy. Get WPM, accuracy %, an</div></div></a><a href="whiteboard/" class="feat-card"><span class="feat-emoji">🎨</span><div><div class="feat-title">Whiteboard</div><div class="feat-desc">Free online whiteboard. Simple drawing whiteboard with expor</div></div></a></div>
 </div>
 
 <div class="main">
-<div class="search-wrap">
-<div class="search-inner">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-<input type="text" id="search" placeholder="Search 107 tools..." oninput="filter()" autocomplete="off" spellcheck="false">
-<button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
-</div>
-</div>
-
-<div class="cat-filters">
-<button class="cat-btn active" onclick="setCat('All',this)"> All <span class="cat-count">107</span></button><button class="cat-btn" onclick="setCat('Dev',this)">💻 Dev <span class="cat-count">37</span></button><button class="cat-btn" onclick="setCat('Design',this)">🎨 Design <span class="cat-count">22</span></button><button class="cat-btn" onclick="setCat('Utility',this)">🔧 Utility <span class="cat-count">29</span></button><button class="cat-btn" onclick="setCat('Text',this)">📝 Text <span class="cat-count">7</span></button><button class="cat-btn" onclick="setCat('Image',this)">🖼️ Image <span class="cat-count">6</span></button><button class="cat-btn" onclick="setCat('AI',this)">🤖 AI <span class="cat-count">3</span></button><button class="cat-btn" onclick="setCat('Network',this)">🌐 Network <span class="cat-count">3</span></button>
-</div>
-
-<div class="grid" id="grid">
-<a href="gitignore/" class="tool" data-cat="Dev" data-name=".gitignore gen .gitignore generator by language dev">
-<div class="tool-emoji">📁</div>
-<div class="tool-info"><div class="tool-name">.gitignore Gen</div><div class="tool-desc">.gitignore generator by language</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="htaccess/" class="tool" data-cat="Dev" data-name=".htaccess gen .htaccess redirect/rewrite generator dev">
-<div class="tool-emoji">⚙️</div>
-<div class="tool-info"><div class="tool-name">.htaccess Gen</div><div class="tool-desc">.htaccess redirect/rewrite generator</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="agecalc/" class="tool" data-cat="Utility" data-name="age calc exact age calculator utility">
-<div class="tool-emoji">🎂</div>
-<div class="tool-info"><div class="tool-name">Age Calc</div><div class="tool-desc">Exact age calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="aidetector/" class="tool" data-cat="AI" data-name="ai detector ai content detector ai">
-<div class="tool-emoji">🤖</div>
-<div class="tool-info"><div class="tool-name">AI Detector</div><div class="tool-desc">AI content detector</div></div>
-<span class="tool-badge" style="--badge-color:#ec4899">AI</span>
-</a><a href="aspect/" class="tool" data-cat="Design" data-name="aspect aspect ratio calculator design">
-<div class="tool-emoji">📐</div>
-<div class="tool-info"><div class="tool-name">Aspect</div><div class="tool-desc">Aspect ratio calculator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="base64img/" class="tool" data-cat="Image" data-name="base64 image image to base64 & back image">
-<div class="tool-emoji">🖼️</div>
-<div class="tool-info"><div class="tool-name">Base64 Image</div><div class="tool-desc">Image to Base64 & back</div></div>
-<span class="tool-badge" style="--badge-color:#f59e0b">Image</span>
-</a><a href="baseshift/" class="tool" data-cat="Dev" data-name="baseshift number base converter dev">
-<div class="tool-emoji">🔢</div>
-<div class="tool-info"><div class="tool-name">BaseShift</div><div class="tool-desc">Number base converter</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="biogen/" class="tool" data-cat="Utility" data-name="bio generator instagram/tiktok/twitter bio ideas utility">
-<div class="tool-emoji">✍️</div>
-<div class="tool-info"><div class="tool-name">Bio Generator</div><div class="tool-desc">Instagram/TikTok/Twitter bio ideas</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="blindfold/" class="tool" data-cat="Utility" data-name="blindfold text redactor utility">
-<div class="tool-emoji">👁️</div>
-<div class="tool-info"><div class="tool-name">Blindfold</div><div class="tool-desc">Text redactor</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="bmi/" class="tool" data-cat="Utility" data-name="bmi bmi calculator utility">
-<div class="tool-emoji">⚖️</div>
-<div class="tool-info"><div class="tool-name">BMI</div><div class="tool-desc">BMI calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="border/" class="tool" data-cat="Design" data-name="border radius css border-radius blob shapes design">
-<div class="tool-emoji">🫧</div>
-<div class="tool-info"><div class="tool-name">Border Radius</div><div class="tool-desc">CSS border-radius blob shapes</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="boxshadow/" class="tool" data-cat="Design" data-name="box shadow css box shadow generator design">
-<div class="tool-emoji">🔲</div>
-<div class="tool-info"><div class="tool-name">Box Shadow</div><div class="tool-desc">CSS box shadow generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="caniuse/" class="tool" data-cat="Dev" data-name="browser support check css/js browser compatibility dev">
-<div class="tool-emoji">🌐</div>
-<div class="tool-info"><div class="tool-name">Browser Support</div><div class="tool-desc">Check CSS/JS browser compatibility</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="captiongen/" class="tool" data-cat="Utility" data-name="caption gen instagram/tiktok caption ideas utility">
-<div class="tool-emoji">💬</div>
-<div class="tool-info"><div class="tool-name">Caption Gen</div><div class="tool-desc">Instagram/TikTok caption ideas</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="casecraft/" class="tool" data-cat="Text" data-name="casecraft text case converter text">
-<div class="tool-emoji">🔤</div>
-<div class="tool-info"><div class="tool-name">CaseCraft</div><div class="tool-desc">Text case converter</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="chartmaker/" class="tool" data-cat="Utility" data-name="chartmaker quick chart creator utility">
-<div class="tool-emoji">📊</div>
-<div class="tool-info"><div class="tool-name">ChartMaker</div><div class="tool-desc">Quick chart creator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="chmod/" class="tool" data-cat="Dev" data-name="chmod calc unix file permission calculator dev">
-<div class="tool-emoji">🔐</div>
-<div class="tool-info"><div class="tool-name">Chmod Calc</div><div class="tool-desc">Unix file permission calculator</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="chromaforge/" class="tool" data-cat="Design" data-name="chromaforge color picker & converter design">
-<div class="tool-emoji">🎨</div>
-<div class="tool-info"><div class="tool-name">ChromaForge</div><div class="tool-desc">Color picker & converter</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="codescreenshot/" class="tool" data-cat="Dev" data-name="code screenshot beautiful code images like carbon dev">
-<div class="tool-emoji">📸</div>
-<div class="tool-info"><div class="tool-name">Code Screenshot</div><div class="tool-desc">Beautiful code images like Carbon</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="colorpalette/" class="tool" data-cat="Design" data-name="color palette random color palette generator design">
-<div class="tool-emoji">🎨</div>
-<div class="tool-info"><div class="tool-name">Color Palette</div><div class="tool-desc">Random color palette generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="colorblind/" class="tool" data-cat="Design" data-name="colorblind color blindness simulator design">
-<div class="tool-emoji">👓</div>
-<div class="tool-info"><div class="tool-name">ColorBlind</div><div class="tool-desc">Color blindness simulator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="colorname/" class="tool" data-cat="Design" data-name="colorname find nearest css named color design">
-<div class="tool-emoji">🎯</div>
-<div class="tool-info"><div class="tool-name">ColorName</div><div class="tool-desc">Find nearest CSS named color</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="compound/" class="tool" data-cat="Utility" data-name="compound compound interest calculator utility">
-<div class="tool-emoji">📈</div>
-<div class="tool-info"><div class="tool-name">Compound</div><div class="tool-desc">Compound interest calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="crontranslate/" class="tool" data-cat="Dev" data-name="cron translate cron expression explainer dev">
-<div class="tool-emoji">⏰</div>
-<div class="tool-info"><div class="tool-name">Cron Translate</div><div class="tool-desc">Cron expression explainer</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="csp/" class="tool" data-cat="Dev" data-name="csp builder content security policy builder dev">
-<div class="tool-emoji">🛡️</div>
-<div class="tool-info"><div class="tool-name">CSP Builder</div><div class="tool-desc">Content Security Policy builder</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="cssgrad/" class="tool" data-cat="Design" data-name="css gradient css gradient generator design">
-<div class="tool-emoji">🌈</div>
-<div class="tool-info"><div class="tool-name">CSS Gradient</div><div class="tool-desc">CSS gradient generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="cssminify/" class="tool" data-cat="Dev" data-name="css minifier minify & compress css dev">
-<div class="tool-emoji">🎨</div>
-<div class="tool-info"><div class="tool-name">CSS Minifier</div><div class="tool-desc">Minify & compress CSS</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="csvclean/" class="tool" data-cat="Utility" data-name="csv cleaner clean, dedupe & fix csv files utility">
-<div class="tool-emoji">🧹</div>
-<div class="tool-info"><div class="tool-name">CSV Cleaner</div><div class="tool-desc">Clean, dedupe & fix CSV files</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="curl2code/" class="tool" data-cat="Dev" data-name="curl → code convert curl to python/js/go/etc dev">
-<div class="tool-emoji">💻</div>
-<div class="tool-info"><div class="tool-name">cURL → Code</div><div class="tool-desc">Convert curl to Python/JS/Go/etc</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="duedatecalc/" class="tool" data-cat="Utility" data-name="date calc days between dates calculator utility">
-<div class="tool-emoji">📅</div>
-<div class="tool-info"><div class="tool-name">Date Calc</div><div class="tool-desc">Days between dates calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="diffcheck/" class="tool" data-cat="Dev" data-name="diffcheck text diff comparison dev">
-<div class="tool-emoji">📊</div>
-<div class="tool-info"><div class="tool-name">DiffCheck</div><div class="tool-desc">Text diff comparison</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="dpi/" class="tool" data-cat="Image" data-name="dpi calc dpi/ppi print size calculator image">
-<div class="tool-emoji">🖨️</div>
-<div class="tool-info"><div class="tool-name">DPI Calc</div><div class="tool-desc">DPI/PPI print size calculator</div></div>
-<span class="tool-badge" style="--badge-color:#f59e0b">Image</span>
-</a><a href="emailvalid/" class="tool" data-cat="Utility" data-name="email valid email validator & typo checker utility">
-<div class="tool-emoji">✉️</div>
-<div class="tool-info"><div class="tool-name">Email Valid</div><div class="tool-desc">Email validator & typo checker</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="emojiSearch/" class="tool" data-cat="Utility" data-name="emojisearch emoji finder utility">
-<div class="tool-emoji">😀</div>
-<div class="tool-info"><div class="tool-name">EmojiSearch</div><div class="tool-desc">Emoji finder</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="exif/" class="tool" data-cat="Image" data-name="exif viewer photo exif metadata viewer image">
-<div class="tool-emoji">📷</div>
-<div class="tool-info"><div class="tool-name">EXIF Viewer</div><div class="tool-desc">Photo EXIF metadata viewer</div></div>
-<span class="tool-badge" style="--badge-color:#f59e0b">Image</span>
-</a><a href="faviconforge/" class="tool" data-cat="Design" data-name="faviconforge emoji to favicon generator design">
-<div class="tool-emoji">⭐</div>
-<div class="tool-info"><div class="tool-name">FaviconForge</div><div class="tool-desc">Emoji to favicon generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="flexbox/" class="tool" data-cat="Dev" data-name="flexbox play interactive css flexbox playground dev">
-<div class="tool-emoji">📦</div>
-<div class="tool-info"><div class="tool-name">Flexbox Play</div><div class="tool-desc">Interactive CSS Flexbox playground</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="fliptext/" class="tool" data-cat="Text" data-name="fliptext upside down text text">
-<div class="tool-emoji">🔄</div>
-<div class="tool-info"><div class="tool-name">FlipText</div><div class="tool-desc">Upside down text</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="ttfpreview/" class="tool" data-cat="Design" data-name="font preview custom font file previewer design">
-<div class="tool-emoji">🔠</div>
-<div class="tool-info"><div class="tool-name">Font Preview</div><div class="tool-desc">Custom font file previewer</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="fontpreview/" class="tool" data-cat="Design" data-name="font preview test google fonts with custom text design">
-<div class="tool-emoji">🔤</div>
-<div class="tool-info"><div class="tool-name">Font Preview</div><div class="tool-desc">Test Google Fonts with custom text</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="fontpair/" class="tool" data-cat="Design" data-name="fontpair google fonts pairing tool design">
-<div class="tool-emoji">🔤</div>
-<div class="tool-info"><div class="tool-name">FontPair</div><div class="tool-desc">Google Fonts pairing tool</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="blurgen/" class="tool" data-cat="Design" data-name="glassmorph glassmorphism css generator design">
-<div class="tool-emoji">🔮</div>
-<div class="tool-info"><div class="tool-name">GlassMorph</div><div class="tool-desc">Glassmorphism CSS generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="gradient/" class="tool" data-cat="Design" data-name="gradient gen css gradient maker with presets design">
-<div class="tool-emoji">🌈</div>
-<div class="tool-info"><div class="tool-name">Gradient Gen</div><div class="tool-desc">CSS gradient maker with presets</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="hashcraft/" class="tool" data-cat="Dev" data-name="hashcraft generate md5/sha hashes dev">
-<div class="tool-emoji">🔒</div>
-<div class="tool-info"><div class="tool-name">HashCraft</div><div class="tool-desc">Generate MD5/SHA hashes</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="hashtag/" class="tool" data-cat="Utility" data-name="hashtag gen social media hashtag generator utility">
-<div class="tool-emoji">#️⃣</div>
-<div class="tool-info"><div class="tool-name">Hashtag Gen</div><div class="tool-desc">Social media hashtag generator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="htmlentity/" class="tool" data-cat="Dev" data-name="html entities html entity encoder & decoder dev">
-<div class="tool-emoji">&lt;&gt;</div>
-<div class="tool-info"><div class="tool-name">HTML Entities</div><div class="tool-desc">HTML entity encoder & decoder</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="htmlminify/" class="tool" data-cat="Dev" data-name="html minifier minify & compress html dev">
-<div class="tool-emoji">📄</div>
-<div class="tool-info"><div class="tool-name">HTML Minifier</div><div class="tool-desc">Minify & compress HTML</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="htmlpreview/" class="tool" data-cat="Dev" data-name="html preview live html previewer dev">
-<div class="tool-emoji">🌐</div>
-<div class="tool-info"><div class="tool-name">HTML Preview</div><div class="tool-desc">Live HTML previewer</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="imgcrop/" class="tool" data-cat="Image" data-name="imgcrop image cropper image">
-<div class="tool-emoji">✂️</div>
-<div class="tool-info"><div class="tool-name">ImgCrop</div><div class="tool-desc">Image cropper</div></div>
-<span class="tool-badge" style="--badge-color:#f59e0b">Image</span>
-</a><a href="invoicegen/" class="tool" data-cat="Utility" data-name="invoice gen invoice creator with pdf export utility">
-<div class="tool-emoji">📄</div>
-<div class="tool-info"><div class="tool-name">Invoice Gen</div><div class="tool-desc">Invoice creator with PDF export</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="ipscan/" class="tool" data-cat="Network" data-name="ip scan ip address lookup network">
-<div class="tool-emoji">🌐</div>
-<div class="tool-info"><div class="tool-name">IP Scan</div><div class="tool-desc">IP address lookup</div></div>
-<span class="tool-badge" style="--badge-color:#14b8a6">Network</span>
-</a><a href="ipv4calc/" class="tool" data-cat="Network" data-name="ipv4 calc subnet calculator network">
-<div class="tool-emoji">🔢</div>
-<div class="tool-info"><div class="tool-name">IPv4 Calc</div><div class="tool-desc">Subnet calculator</div></div>
-<span class="tool-badge" style="--badge-color:#14b8a6">Network</span>
-</a><a href="jsbeautify/" class="tool" data-cat="Dev" data-name="js beautifier format & pretty-print javascript dev">
-<div class="tool-emoji">✨</div>
-<div class="tool-info"><div class="tool-name">JS Beautifier</div><div class="tool-desc">Format & pretty-print JavaScript</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jsminify/" class="tool" data-cat="Dev" data-name="js minifier minify & compress javascript dev">
-<div class="tool-emoji">📦</div>
-<div class="tool-info"><div class="tool-name">JS Minifier</div><div class="tool-desc">Minify & compress JavaScript</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jsobfuscate/" class="tool" data-cat="Dev" data-name="js obfuscator obfuscate & protect javascript code dev">
-<div class="tool-emoji">🔒</div>
-<div class="tool-info"><div class="tool-name">JS Obfuscator</div><div class="tool-desc">Obfuscate & protect JavaScript code</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jsonfixer/" class="tool" data-cat="Dev" data-name="json fixer auto-fix broken json dev">
-<div class="tool-emoji">🔧</div>
-<div class="tool-info"><div class="tool-name">JSON Fixer</div><div class="tool-desc">Auto-fix broken JSON</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jsonpath/" class="tool" data-cat="Dev" data-name="json path navigate & query json data dev">
-<div class="tool-emoji">🗺️</div>
-<div class="tool-info"><div class="tool-name">JSON Path</div><div class="tool-desc">Navigate & query JSON data</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jsonprettify/" class="tool" data-cat="Dev" data-name="json prettify format & validate json dev">
-<div class="tool-emoji">📋</div>
-<div class="tool-info"><div class="tool-name">JSON Prettify</div><div class="tool-desc">Format & validate JSON</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jsontocode/" class="tool" data-cat="Dev" data-name="json to code json to typed code dev">
-<div class="tool-emoji">💻</div>
-<div class="tool-info"><div class="tool-name">JSON to Code</div><div class="tool-desc">JSON to typed code</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="jwt/" class="tool" data-cat="Dev" data-name="jwt decoder jwt token decoder & inspector dev">
-<div class="tool-emoji">🔓</div>
-<div class="tool-info"><div class="tool-name">JWT Decoder</div><div class="tool-desc">JWT token decoder & inspector</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="linkshorten/" class="tool" data-cat="Utility" data-name="linkshorten url shortener utility">
-<div class="tool-emoji">🔗</div>
-<div class="tool-info"><div class="tool-name">LinkShorten</div><div class="tool-desc">URL shortener</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="loan/" class="tool" data-cat="Utility" data-name="loan loan calculator utility">
-<div class="tool-emoji">🏦</div>
-<div class="tool-info"><div class="tool-name">Loan</div><div class="tool-desc">Loan calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="loremcraft/" class="tool" data-cat="Text" data-name="loremcraft lorem ipsum generator text">
-<div class="tool-emoji">📖</div>
-<div class="tool-info"><div class="tool-name">LoremCraft</div><div class="tool-desc">Lorem ipsum generator</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="markdownview/" class="tool" data-cat="Dev" data-name="markdown view markdown live preview dev">
-<div class="tool-emoji">📄</div>
-<div class="tool-info"><div class="tool-name">Markdown View</div><div class="tool-desc">Markdown live preview</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="metacheck/" class="tool" data-cat="Dev" data-name="metacheck website meta tag checker dev">
-<div class="tool-emoji">🔎</div>
-<div class="tool-info"><div class="tool-name">MetaCheck</div><div class="tool-desc">Website meta tag checker</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="metatags/" class="tool" data-cat="Dev" data-name="metatags meta tag generator dev">
-<div class="tool-emoji">🏷️</div>
-<div class="tool-info"><div class="tool-name">MetaTags</div><div class="tool-desc">Meta tag generator</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="noise/" class="tool" data-cat="Utility" data-name="noise white noise generator utility">
-<div class="tool-emoji">🎵</div>
-<div class="tool-info"><div class="tool-name">Noise</div><div class="tool-desc">White noise generator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="nanocolor/" class="tool" data-cat="Design" data-name="palette gen color palette generator design">
-<div class="tool-emoji">🌈</div>
-<div class="tool-info"><div class="tool-name">Palette Gen</div><div class="tool-desc">Color palette generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="passcraft/" class="tool" data-cat="Utility" data-name="passcraft generate secure passwords utility">
-<div class="tool-emoji">🔑</div>
-<div class="tool-info"><div class="tool-name">PassCraft</div><div class="tool-desc">Generate secure passwords</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="paycheck/" class="tool" data-cat="Utility" data-name="paycheck salary/hourly paycheck calculator utility">
-<div class="tool-emoji">💵</div>
-<div class="tool-info"><div class="tool-name">Paycheck</div><div class="tool-desc">Salary/hourly paycheck calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="pixsqueeze/" class="tool" data-cat="Image" data-name="pixsqueeze compress images in-browser image">
-<div class="tool-emoji">🖼️</div>
-<div class="tool-info"><div class="tool-name">PixSqueeze</div><div class="tool-desc">Compress images in-browser</div></div>
-<span class="tool-badge" style="--badge-color:#f59e0b">Image</span>
-</a><a href="placeholder/" class="tool" data-cat="Image" data-name="placeholder placeholder image generator image">
-<div class="tool-emoji">🖼️</div>
-<div class="tool-info"><div class="tool-name">Placeholder</div><div class="tool-desc">Placeholder image generator</div></div>
-<span class="tool-badge" style="--badge-color:#f59e0b">Image</span>
-</a><a href="pomodoro/" class="tool" data-cat="Utility" data-name="pomodoro pomodoro timer utility">
-<div class="tool-emoji">🍅</div>
-<div class="tool-info"><div class="tool-name">Pomodoro</div><div class="tool-desc">Pomodoro timer</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="privacypolicy/" class="tool" data-cat="Utility" data-name="privacy policy privacy policy generator for websites utility">
-<div class="tool-emoji">🔒</div>
-<div class="tool-info"><div class="tool-name">Privacy Policy</div><div class="tool-desc">Privacy policy generator for websites</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="promptbox/" class="tool" data-cat="AI" data-name="promptbox ai prompt templates ai">
-<div class="tool-emoji">🤖</div>
-<div class="tool-info"><div class="tool-name">PromptBox</div><div class="tool-desc">AI prompt templates</div></div>
-<span class="tool-badge" style="--badge-color:#ec4899">AI</span>
-</a><a href="pxrem/" class="tool" data-cat="Dev" data-name="px↔rem css px/rem/em converter dev">
-<div class="tool-emoji">📐</div>
-<div class="tool-info"><div class="tool-name">PX↔REM</div><div class="tool-desc">CSS px/rem/em converter</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="qrcraft/" class="tool" data-cat="Utility" data-name="qrcraft qr code generator utility">
-<div class="tool-emoji">📱</div>
-<div class="tool-info"><div class="tool-name">QRCraft</div><div class="tool-desc">QR code generator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="readtime/" class="tool" data-cat="Text" data-name="readtime reading time estimator text">
-<div class="tool-emoji">⏱️</div>
-<div class="tool-info"><div class="tool-name">ReadTime</div><div class="tool-desc">Reading time estimator</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="regex2english/" class="tool" data-cat="Dev" data-name="regex → english regex to plain english explainer dev">
-<div class="tool-emoji">🧠</div>
-<div class="tool-info"><div class="tool-name">Regex → English</div><div class="tool-desc">Regex to plain English explainer</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="regexlab/" class="tool" data-cat="Dev" data-name="regexlab test regex with live matching dev">
-<div class="tool-emoji">🔍</div>
-<div class="tool-info"><div class="tool-name">RegexLab</div><div class="tool-desc">Test regex with live matching</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="robots/" class="tool" data-cat="Dev" data-name="robots.txt robots.txt generator with presets dev">
-<div class="tool-emoji">🤖</div>
-<div class="tool-info"><div class="tool-name">Robots.txt</div><div class="tool-desc">robots.txt generator with presets</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="screensizer/" class="tool" data-cat="Design" data-name="screensizer screen resolution tester design">
-<div class="tool-emoji">🖥️</div>
-<div class="tool-info"><div class="tool-name">ScreenSizer</div><div class="tool-desc">Screen resolution tester</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="shadowcraft/" class="tool" data-cat="Design" data-name="shadowcraft css box-shadow generator design">
-<div class="tool-emoji">🎭</div>
-<div class="tool-info"><div class="tool-name">ShadowCraft</div><div class="tool-desc">CSS box-shadow generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="slugify/" class="tool" data-cat="Dev" data-name="slugify url slug generator dev">
-<div class="tool-emoji">🔗</div>
-<div class="tool-info"><div class="tool-name">Slugify</div><div class="tool-desc">URL slug generator</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="metatester/" class="tool" data-cat="Utility" data-name="social preview open graph & twitter card preview utility">
-<div class="tool-emoji">👁️</div>
-<div class="tool-info"><div class="tool-name">Social Preview</div><div class="tool-desc">Open Graph & Twitter Card preview</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="speedtest/" class="tool" data-cat="Network" data-name="speedtest internet speed test network">
-<div class="tool-emoji">🚀</div>
-<div class="tool-info"><div class="tool-name">SpeedTest</div><div class="tool-desc">Internet speed test</div></div>
-<span class="tool-badge" style="--badge-color:#14b8a6">Network</span>
-</a><a href="sqlformat/" class="tool" data-cat="Dev" data-name="sql format sql query formatter dev">
-<div class="tool-emoji">🗃️</div>
-<div class="tool-info"><div class="tool-name">SQL Format</div><div class="tool-desc">SQL query formatter</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="svgmake/" class="tool" data-cat="Design" data-name="svg make svg icon editor design">
-<div class="tool-emoji">✏️</div>
-<div class="tool-info"><div class="tool-name">SVG Make</div><div class="tool-desc">SVG icon editor</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="svgoptimize/" class="tool" data-cat="Design" data-name="svg optimize svg file optimizer & minifier design">
-<div class="tool-emoji">⚡</div>
-<div class="tool-info"><div class="tool-name">SVG Optimize</div><div class="tool-desc">SVG file optimizer & minifier</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="tableconvert/" class="tool" data-cat="Dev" data-name="tableconvert table format converter dev">
-<div class="tool-emoji">📊</div>
-<div class="tool-info"><div class="tool-name">TableConvert</div><div class="tool-desc">Table format converter</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="terms/" class="tool" data-cat="Utility" data-name="terms of service tos generator for websites & apps utility">
-<div class="tool-emoji">📜</div>
-<div class="tool-info"><div class="tool-name">Terms of Service</div><div class="tool-desc">ToS generator for websites & apps</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="textshadow/" class="tool" data-cat="Design" data-name="text shadow css text shadow & glow generator design">
-<div class="tool-emoji">✨</div>
-<div class="tool-info"><div class="tool-name">Text Shadow</div><div class="tool-desc">CSS text shadow & glow generator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="textcount/" class="tool" data-cat="Text" data-name="textcount word & character counter text">
-<div class="tool-emoji">📝</div>
-<div class="tool-info"><div class="tool-name">TextCount</div><div class="tool-desc">Word & character counter</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="texttable/" class="tool" data-cat="Text" data-name="texttable text table generator text">
-<div class="tool-emoji">📋</div>
-<div class="tool-info"><div class="tool-name">TextTable</div><div class="tool-desc">Text table generator</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="thumbmaker/" class="tool" data-cat="Design" data-name="thumbnail maker youtube thumbnail creator design">
-<div class="tool-emoji">🎬</div>
-<div class="tool-info"><div class="tool-name">Thumbnail Maker</div><div class="tool-desc">YouTube thumbnail creator</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="timestamp/" class="tool" data-cat="Dev" data-name="timestamp unix timestamp converter dev">
-<div class="tool-emoji">🕐</div>
-<div class="tool-info"><div class="tool-name">Timestamp</div><div class="tool-desc">Unix timestamp converter</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="tzconvert/" class="tool" data-cat="Utility" data-name="timezone timezone converter & meeting planner utility">
-<div class="tool-emoji">🌍</div>
-<div class="tool-info"><div class="tool-name">TimeZone</div><div class="tool-desc">Timezone converter & meeting planner</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="tipcalc/" class="tool" data-cat="Utility" data-name="tipcalc tip & bill split calculator utility">
-<div class="tool-emoji">💰</div>
-<div class="tool-info"><div class="tool-name">TipCalc</div><div class="tool-desc">Tip & bill split calculator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="titlegen/" class="tool" data-cat="Utility" data-name="title generator youtube viral title ideas utility">
-<div class="tool-emoji">🎯</div>
-<div class="tool-info"><div class="tool-name">Title Generator</div><div class="tool-desc">YouTube viral title ideas</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="tokencounter/" class="tool" data-cat="AI" data-name="tokencounter gpt token counter ai">
-<div class="tool-emoji">🔢</div>
-<div class="tool-info"><div class="tool-name">TokenCounter</div><div class="tool-desc">GPT token counter</div></div>
-<span class="tool-badge" style="--badge-color:#ec4899">AI</span>
-</a><a href="htcolor/" class="tool" data-cat="Design" data-name="tw color tailwind css color finder design">
-<div class="tool-emoji">🎨</div>
-<div class="tool-info"><div class="tool-name">TW Color</div><div class="tool-desc">Tailwind CSS color finder</div></div>
-<span class="tool-badge" style="--badge-color:#a855f7">Design</span>
-</a><a href="typingtest/" class="tool" data-cat="Utility" data-name="typingtest typing speed test utility">
-<div class="tool-emoji">⌨️</div>
-<div class="tool-info"><div class="tool-name">TypingTest</div><div class="tool-desc">Typing speed test</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="unitflip/" class="tool" data-cat="Utility" data-name="unitflip unit converter utility">
-<div class="tool-emoji">📏</div>
-<div class="tool-info"><div class="tool-name">UnitFlip</div><div class="tool-desc">Unit converter</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="urlencoder/" class="tool" data-cat="Dev" data-name="url encoder url encode & decode + parser dev">
-<div class="tool-emoji">🔗</div>
-<div class="tool-info"><div class="tool-name">URL Encoder</div><div class="tool-desc">URL encode & decode + parser</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a><a href="usernamegen/" class="tool" data-cat="Utility" data-name="username gen gaming & social media name generator utility">
-<div class="tool-emoji">👤</div>
-<div class="tool-info"><div class="tool-name">Username Gen</div><div class="tool-desc">Gaming & social media name generator</div></div>
-<span class="tool-badge" style="--badge-color:#6366f1">Utility</span>
-</a><a href="wordfreq/" class="tool" data-cat="Text" data-name="wordfreq word frequency analyzer text">
-<div class="tool-emoji">📊</div>
-<div class="tool-info"><div class="tool-name">WordFreq</div><div class="tool-desc">Word frequency analyzer</div></div>
-<span class="tool-badge" style="--badge-color:#10b981">Text</span>
-</a><a href="yamlconvert/" class="tool" data-cat="Dev" data-name="yaml ↔ json convert between yaml and json dev">
-<div class="tool-emoji">🔄</div>
-<div class="tool-info"><div class="tool-name">YAML ↔ JSON</div><div class="tool-desc">Convert between YAML and JSON</div></div>
-<span class="tool-badge" style="--badge-color:#3b82f6">Dev</span>
-</a>
-</div>
-<div class="no-results" id="noResults" style="display:none"><span>🔍</span>No tools found. Try a different search.</div>
+<div class="search-wrap"><input type="text" id="search" placeholder="Search 308 tools..." oninput="filterTools()"><kbd>/</kbd></div>
+<div class="cats"><button class="cat-btn active" onclick="filterCat('all')">All <span class="cat-count">308</span></button><button class="cat-btn" data-cat="Dev" onclick="filterCat('Dev')">💻 Dev <span class="cat-count">95</span></button><button class="cat-btn" data-cat="Design" onclick="filterCat('Design')">🎨 Design <span class="cat-count">83</span></button><button class="cat-btn" data-cat="Utility" onclick="filterCat('Utility')">🔧 Utility <span class="cat-count">66</span></button><button class="cat-btn" data-cat="Text" onclick="filterCat('Text')">📝 Text <span class="cat-count">32</span></button><button class="cat-btn" data-cat="Image" onclick="filterCat('Image')">🖼️ Image <span class="cat-count">15</span></button><button class="cat-btn" data-cat="Network" onclick="filterCat('Network')">🌐 Network <span class="cat-count">14</span></button><button class="cat-btn" data-cat="AI" onclick="filterCat('AI')">🤖 AI <span class="cat-count">3</span></button></div>
+<div class="grid" id="grid"><a href="accesscheck/" class="card"><span class="card-emoji">♿</span><span class="card-title">A11y Check</span><span class="card-cat">Dev</span></a><a href="agecalc/" class="card"><span class="card-emoji">How</span><span class="card-title">Age Calculator</span><span class="card-cat">Utility</span></a><a href="aidetector/" class="card"><span class="card-emoji">AI</span><span class="card-title">AI Detector</span><span class="card-cat">Text</span></a><a href="animatecss/" class="card"><span class="card-emoji">💫</span><span class="card-title">CSS Animate</span><span class="card-cat">Design</span></a><a href="apitester/" class="card"><span class="card-emoji">🔌</span><span class="card-title">API Tester</span><span class="card-cat">Dev</span></a><a href="areaconv/" class="card"><span class="card-emoji">📐</span><span class="card-title">Area Convert</span><span class="card-cat">Utility</span></a><a href="ascii/" class="card"><span class="card-emoji">📟</span><span class="card-title">ASCII Table</span><span class="card-cat">Utility</span></a><a href="aspect/" class="card"><span class="card-emoji">Aspect</span><span class="card-title">Aspect</span><span class="card-cat">Image</span></a><a href="aspect2/" class="card"><span class="card-emoji">📐</span><span class="card-title">Ratio Calc</span><span class="card-cat">Utility</span></a><a href="aspectcrop/" class="card"><span class="card-emoji">📐</span><span class="card-title">Aspect Crop</span><span class="card-cat">Image</span></a><a href="base64img/" class="card"><span class="card-emoji">🖼️</span><span class="card-title">Base64 Image Encoder/Decoder</span><span class="card-cat">Design</span></a><a href="base64text/" class="card"><span class="card-emoji">🔐</span><span class="card-title">Base64 Text</span><span class="card-cat">Dev</span></a><a href="baseshift/" class="card"><span class="card-emoji">Number</span><span class="card-title">BaseShift</span><span class="card-cat">Utility</span></a><a href="binary/" class="card"><span class="card-emoji">🔢</span><span class="card-title">Binary Converter</span><span class="card-cat">Utility</span></a><a href="biogen/" class="card"><span class="card-emoji">✍️</span><span class="card-title">Bio Generator</span><span class="card-cat">Utility</span></a><a href="blindfold/" class="card"><span class="card-emoji">Encrypt</span><span class="card-title">Blindfold</span><span class="card-cat">Text</span></a><a href="blurgen/" class="card"><span class="card-emoji">Glassmorphism</span><span class="card-title">GlassMorph</span><span class="card-cat">Design</span></a><a href="bmi/" class="card"><span class="card-emoji">BMI</span><span class="card-title">BMI Calculator</span><span class="card-cat">Utility</span></a><a href="bmrcalc/" class="card"><span class="card-emoji">💪</span><span class="card-title">BMR Calculator</span><span class="card-cat">Utility</span></a><a href="border/" class="card"><span class="card-emoji">🫧</span><span class="card-title">CSS Border Radius Generator</span><span class="card-cat">Design</span></a><a href="boxmodel/" class="card"><span class="card-emoji">📦</span><span class="card-title">CSS Box Model</span><span class="card-cat">Design</span></a><a href="boxshadow/" class="card"><span class="card-emoji">🔲</span><span class="card-title">CSS Box Shadow Generator</span><span class="card-cat">Design</span></a><a href="braille/" class="card"><span class="card-emoji">⠃</span><span class="card-title">Braille Converter</span><span class="card-cat">Text</span></a><a href="breadcrumb/" class="card"><span class="card-emoji">🍞</span><span class="card-title">Breadcrumb Gen</span><span class="card-cat">Dev</span></a><a href="buttongen/" class="card"><span class="card-emoji">🔘</span><span class="card-title">Button Generator</span><span class="card-cat">Design</span></a><a href="calorie/" class="card"><span class="card-emoji">🔥</span><span class="card-title">Calorie Calc</span><span class="card-cat">AI</span></a><a href="caniuse/" class="card"><span class="card-emoji">🌐</span><span class="card-title">CSS/JS Browser Support Checker</span><span class="card-cat">Design</span></a><a href="captiongen/" class="card"><span class="card-emoji">💬</span><span class="card-title">Caption Generator</span><span class="card-cat">Utility</span></a><a href="cardvalid/" class="card"><span class="card-emoji">💳</span><span class="card-title">Card Validator</span><span class="card-cat">Utility</span></a><a href="caseconv/" class="card"><span class="card-emoji">Aa</span><span class="card-title">Case Converter</span><span class="card-cat">Text</span></a><a href="casecraft/" class="card"><span class="card-emoji">Text</span><span class="card-title">CaseCraft</span><span class="card-cat">Text</span></a><a href="charmap/" class="card"><span class="card-emoji">🔣</span><span class="card-title">Character Map</span><span class="card-cat">Utility</span></a><a href="chartmaker/" class="card"><span class="card-emoji">Create</span><span class="card-title">ChartMaker</span><span class="card-cat">Utility</span></a><a href="chmod/" class="card"><span class="card-emoji">Chmod</span><span class="card-title">Chmod Calculator</span><span class="card-cat">Utility</span></a><a href="chromaforge/" class="card"><span class="card-emoji">🔧</span><span class="card-title">ChromaForge</span><span class="card-cat">Design</span></a><a href="clipboard/" class="card"><span class="card-emoji">📋</span><span class="card-title">Clipboard Tool</span><span class="card-cat">Design</span></a><a href="codeformat/" class="card"><span class="card-emoji">✨</span><span class="card-title">Code Formatter</span><span class="card-cat">Design</span></a><a href="codescreen/" class="card"><span class="card-emoji">📷</span><span class="card-title">Code to Image</span><span class="card-cat">Dev</span></a><a href="codescreenshot/" class="card"><span class="card-emoji">📸</span><span class="card-title">Code Screenshot</span><span class="card-cat">Design</span></a><a href="colorblind/" class="card"><span class="card-emoji">Color</span><span class="card-title">ColorBlind</span><span class="card-cat">Design</span></a><a href="colorblind2/" class="card"><span class="card-emoji">👁️</span><span class="card-title">Color Blind Sim</span><span class="card-cat">Design</span></a><a href="colorcontrast2/" class="card"><span class="card-emoji">🔲</span><span class="card-title">Contrast Ratio</span><span class="card-cat">Design</span></a><a href="colorconvert/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Color Converter</span><span class="card-cat">Design</span></a><a href="colorextract/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Color Extract</span><span class="card-cat">Design</span></a><a href="colorharmony/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Color Harmony</span><span class="card-cat">Design</span></a><a href="colormixer/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Color Mixer</span><span class="card-cat">Design</span></a><a href="colorname/" class="card"><span class="card-emoji">Color</span><span class="card-title">ColorName</span><span class="card-cat">Design</span></a><a href="colorpalette/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Color Palette Generator</span><span class="card-cat">Design</span></a><a href="colorshades/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Color Shades</span><span class="card-cat">Design</span></a><a href="colorwheel/" class="card"><span class="card-emoji">🎡</span><span class="card-title">Color Wheel</span><span class="card-cat">Design</span></a><a href="compound/" class="card"><span class="card-emoji">Compound</span><span class="card-title">Compound Interest Calculator</span><span class="card-cat">Utility</span></a><a href="containerquery/" class="card"><span class="card-emoji">📦</span><span class="card-title">Container Queries</span><span class="card-cat">Design</span></a><a href="contrast/" class="card"><span class="card-emoji">👁️</span><span class="card-title">Contrast Checker</span><span class="card-cat">Design</span></a><a href="cookiecheck/" class="card"><span class="card-emoji">🍪</span><span class="card-title">Cookie Manager</span><span class="card-cat">Utility</span></a><a href="countdown/" class="card"><span class="card-emoji">⏳</span><span class="card-title">Countdown Timer</span><span class="card-cat">Dev</span></a><a href="countdown2/" class="card"><span class="card-emoji">🎉</span><span class="card-title">Event Countdown</span><span class="card-cat">Utility</span></a><a href="crontab/" class="card"><span class="card-emoji">⏰</span><span class="card-title">Crontab Editor</span><span class="card-cat">Network</span></a><a href="crontranslate/" class="card"><span class="card-emoji">Cron</span><span class="card-title">CronTranslate</span><span class="card-cat">Text</span></a><a href="csp/" class="card"><span class="card-emoji">CSP</span><span class="card-title">CSP Builder</span><span class="card-cat">Image</span></a><a href="cssbg/" class="card"><span class="card-emoji">🎨</span><span class="card-title">CSS Background</span><span class="card-cat">Design</span></a><a href="cssclip/" class="card"><span class="card-emoji">✂️</span><span class="card-title">CSS Clip Path</span><span class="card-cat">Design</span></a><a href="csseasing/" class="card"><span class="card-emoji">〰️</span><span class="card-title">CSS Easing</span><span class="card-cat">Design</span></a><a href="cssfilter/" class="card"><span class="card-emoji">🎭</span><span class="card-title">CSS Filter</span><span class="card-cat">Design</span></a><a href="cssgrad/" class="card"><span class="card-emoji">🔧</span><span class="card-title">CSSGrad</span><span class="card-cat">Design</span></a><a href="cssgrid/" class="card"><span class="card-emoji">📐</span><span class="card-title">CSS Grid</span><span class="card-cat">Design</span></a><a href="cssgrid2/" class="card"><span class="card-emoji">📐</span><span class="card-title">Grid Template</span><span class="card-cat">Design</span></a><a href="cssminify/" class="card"><span class="card-emoji">🎨</span><span class="card-title">CSS Minifier</span><span class="card-cat">Design</span></a><a href="cssmq/" class="card"><span class="card-emoji">📱</span><span class="card-title">Media Queries</span><span class="card-cat">Design</span></a><a href="csspurge/" class="card"><span class="card-emoji">🧹</span><span class="card-title">CSS Purge</span><span class="card-cat">Design</span></a><a href="cssreset/" class="card"><span class="card-emoji">🔄</span><span class="card-title">CSS Reset Gen</span><span class="card-cat">Design</span></a><a href="csstooltip/" class="card"><span class="card-emoji">💬</span><span class="card-title">CSS Tooltips</span><span class="card-cat">Design</span></a><a href="csstransform/" class="card"><span class="card-emoji">🔄</span><span class="card-title">CSS Transform</span><span class="card-cat">Design</span></a><a href="cssunits/" class="card"><span class="card-emoji">📏</span><span class="card-title">CSS Unit Converter</span><span class="card-cat">Design</span></a><a href="cssvariables/" class="card"><span class="card-emoji">🎨</span><span class="card-title">CSS Variables</span><span class="card-cat">Design</span></a><a href="cssvars/" class="card"><span class="card-emoji">🎨</span><span class="card-title">CSS Variables</span><span class="card-cat">Design</span></a><a href="csvclean/" class="card"><span class="card-emoji">CSV</span><span class="card-title">CSV Cleaner</span><span class="card-cat">Dev</span></a><a href="csvviewer/" class="card"><span class="card-emoji">📊</span><span class="card-title">CSV Viewer</span><span class="card-cat">Dev</span></a><a href="curl2code/" class="card"><span class="card-emoji">cURL</span><span class="card-title">cURL to Code</span><span class="card-cat">Dev</span></a><a href="curlgen/" class="card"><span class="card-emoji">🔗</span><span class="card-title">cURL Generator</span><span class="card-cat">Design</span></a><a href="dataconvert/" class="card"><span class="card-emoji">💾</span><span class="card-title">Data Size</span><span class="card-cat">Utility</span></a><a href="datasize/" class="card"><span class="card-emoji">💾</span><span class="card-title">Data Size</span><span class="card-cat">Utility</span></a><a href="datauri/" class="card"><span class="card-emoji">📎</span><span class="card-title">Data URI Gen</span><span class="card-cat">Dev</span></a><a href="daterange/" class="card"><span class="card-emoji">📅</span><span class="card-title">Date Range</span><span class="card-cat">Utility</span></a><a href="diffcheck/" class="card"><span class="card-emoji">🔧</span><span class="card-title">DiffCheck</span><span class="card-cat">Dev</span></a><a href="diffmerge/" class="card"><span class="card-emoji">🔀</span><span class="card-title">JSON Diff</span><span class="card-cat">Dev</span></a><a href="diffwords/" class="card"><span class="card-emoji">📝</span><span class="card-title">Word Diff</span><span class="card-cat">Dev</span></a><a href="discountcalc/" class="card"><span class="card-emoji">🏷️</span><span class="card-title">Discount Calc</span><span class="card-cat">Utility</span></a><a href="dnslookup/" class="card"><span class="card-emoji">🌐</span><span class="card-title">DNS Lookup</span><span class="card-cat">Dev</span></a><a href="dpi/" class="card"><span class="card-emoji">DPI</span><span class="card-title">DPI Calculator</span><span class="card-cat">Dev</span></a><a href="duedatecalc/" class="card"><span class="card-emoji">Date</span><span class="card-title">Date Calculator</span><span class="card-cat">Utility</span></a><a href="duplicateremover/" class="card"><span class="card-emoji">🧹</span><span class="card-title">Duplicate Remover</span><span class="card-cat">Text</span></a><a href="electricitycalc/" class="card"><span class="card-emoji">⚡</span><span class="card-title">Electricity Cost</span><span class="card-cat">Utility</span></a><a href="emailvalid/" class="card"><span class="card-emoji">Email</span><span class="card-title">Email Validator</span><span class="card-cat">Dev</span></a><a href="embedgen/" class="card"><span class="card-emoji">📦</span><span class="card-title">Embed Generator</span><span class="card-cat">Dev</span></a><a href="emojiSearch/" class="card"><span class="card-emoji">🔧</span><span class="card-title">EmojiSearch</span><span class="card-cat">Text</span></a><a href="emojisearch/" class="card"><span class="card-emoji">😀</span><span class="card-title">Emoji Search</span><span class="card-cat">Text</span></a><a href="emojitext/" class="card"><span class="card-emoji">✨</span><span class="card-title">Emoji Text</span><span class="card-cat">Text</span></a><a href="envparser/" class="card"><span class="card-emoji">📄</span><span class="card-title">ENV Parser</span><span class="card-cat">Utility</span></a><a href="epoch/" class="card"><span class="card-emoji">⏲️</span><span class="card-title">Epoch Converter</span><span class="card-cat">Utility</span></a><a href="exif/" class="card"><span class="card-emoji">EXIF</span><span class="card-title">EXIF Viewer</span><span class="card-cat">Image</span></a><a href="favicon2/" class="card"><span class="card-emoji">⭐</span><span class="card-title">Favicon Gen</span><span class="card-cat">Design</span></a><a href="faviconforge/" class="card"><span class="card-emoji">Favicon</span><span class="card-title">FaviconForge</span><span class="card-cat">Design</span></a><a href="fibonacci/" class="card"><span class="card-emoji">🌀</span><span class="card-title">Fibonacci Gen</span><span class="card-cat">Utility</span></a><a href="fileconv/" class="card"><span class="card-emoji">🔄</span><span class="card-title">File Converter</span><span class="card-cat">Dev</span></a><a href="flexbox/" class="card"><span class="card-emoji">📦</span><span class="card-title">Flexbox Playground</span><span class="card-cat">Design</span></a><a href="flexboxplay/" class="card"><span class="card-emoji">📐</span><span class="card-title">Flexbox Play</span><span class="card-cat">Design</span></a><a href="fliptext/" class="card"><span class="card-emoji">Fancy</span><span class="card-title">FlipText</span><span class="card-cat">Dev</span></a><a href="fontpair/" class="card"><span class="card-emoji">Font</span><span class="card-title">FontPair</span><span class="card-cat">Design</span></a><a href="fontpreview/" class="card"><span class="card-emoji">🔤</span><span class="card-title">Font Preview</span><span class="card-cat">Design</span></a><a href="fontsize/" class="card"><span class="card-emoji">🔤</span><span class="card-title">Font Scale</span><span class="card-cat">Design</span></a><a href="frequencycalc/" class="card"><span class="card-emoji">〰️</span><span class="card-title">Frequency Calc</span><span class="card-cat">Design</span></a><a href="fuelcalc/" class="card"><span class="card-emoji">⛽</span><span class="card-title">Fuel Cost</span><span class="card-cat">Network</span></a><a href="gitcommit/" class="card"><span class="card-emoji">📝</span><span class="card-title">Git Commit Msg</span><span class="card-cat">Dev</span></a><a href="gitignore/" class="card"><span class="card-emoji">.gitignore</span><span class="card-title">.gitignore Generator</span><span class="card-cat">Dev</span></a><a href="gitignoregen/" class="card"><span class="card-emoji">📋</span><span class="card-title">Gitignore Gen</span><span class="card-cat">Dev</span></a><a href="gitshhcmd/" class="card"><span class="card-emoji">📚</span><span class="card-title">Git Cheatsheet</span><span class="card-cat">Dev</span></a><a href="glasscard/" class="card"><span class="card-emoji">🪟</span><span class="card-title">Glass Card</span><span class="card-cat">Design</span></a><a href="glassmorphism/" class="card"><span class="card-emoji">🔮</span><span class="card-title">Glassmorphism</span><span class="card-cat">Design</span></a><a href="gradient/" class="card"><span class="card-emoji">🌈</span><span class="card-title">Gradient Generator</span><span class="card-cat">Design</span></a><a href="gradientbg/" class="card"><span class="card-emoji">🌈</span><span class="card-title">BG Gradients</span><span class="card-cat">Design</span></a><a href="gradienttext/" class="card"><span class="card-emoji">🌈</span><span class="card-title">Gradient Text</span><span class="card-cat">Design</span></a><a href="gridgallery/" class="card"><span class="card-emoji">🖼️</span><span class="card-title">Grid Gallery</span><span class="card-cat">Design</span></a><a href="gridgen/" class="card"><span class="card-emoji">📐</span><span class="card-title">CSS Grid Gen</span><span class="card-cat">Design</span></a><a href="hashcraft/" class="card"><span class="card-emoji">Hash</span><span class="card-title">HashCraft</span><span class="card-cat">Dev</span></a><a href="hashgen/" class="card"><span class="card-emoji">🔒</span><span class="card-title">Hash Generator</span><span class="card-cat">Dev</span></a><a href="hashtag/" class="card"><span class="card-emoji">#</span><span class="card-title">Hashtag Generator</span><span class="card-cat">Dev</span></a><a href="headers/" class="card"><span class="card-emoji">📡</span><span class="card-title">HTTP Headers</span><span class="card-cat">Dev</span></a><a href="hslpicker/" class="card"><span class="card-emoji">🌈</span><span class="card-title">HSL Picker</span><span class="card-cat">Design</span></a><a href="htaccess/" class="card"><span class="card-emoji">.htaccess</span><span class="card-title">HTAccess Generator</span><span class="card-cat">Dev</span></a><a href="htcolor/" class="card"><span class="card-emoji">Tailwind</span><span class="card-title">Tailwind Color Finder</span><span class="card-cat">Design</span></a><a href="htmlboiler/" class="card"><span class="card-emoji">📄</span><span class="card-title">HTML Boilerplate</span><span class="card-cat">Dev</span></a><a href="htmlcolor/" class="card"><span class="card-emoji">🎨</span><span class="card-title">HTML Colors</span><span class="card-cat">Design</span></a><a href="htmlentities/" class="card"><span class="card-emoji">🏷️</span><span class="card-title">HTML Entities</span><span class="card-cat">Dev</span></a><a href="htmlentity/" class="card"><span class="card-emoji">&lt;/&gt;</span><span class="card-title">HTML Entity Encoder/Decoder</span><span class="card-cat">Dev</span></a><a href="htmlescape/" class="card"><span class="card-emoji">🔒</span><span class="card-title">HTML Escape</span><span class="card-cat">Dev</span></a><a href="htmlminify/" class="card"><span class="card-emoji">📄</span><span class="card-title">HTML Minifier</span><span class="card-cat">Dev</span></a><a href="htmlpreview/" class="card"><span class="card-emoji">Hello</span><span class="card-title">HTMLPreview</span><span class="card-cat">Design</span></a><a href="htmltable2md/" class="card"><span class="card-emoji">📋</span><span class="card-title">Table to MD</span><span class="card-cat">Dev</span></a><a href="httpstatus/" class="card"><span class="card-emoji">🌐</span><span class="card-title">HTTP Status</span><span class="card-cat">Dev</span></a><a href="iban/" class="card"><span class="card-emoji">🏦</span><span class="card-title">IBAN Validator</span><span class="card-cat">Utility</span></a><a href="imagecompare/" class="card"><span class="card-emoji">🔍</span><span class="card-title">Image Compare</span><span class="card-cat">Image</span></a><a href="imagecrop2/" class="card"><span class="card-emoji">✂️</span><span class="card-title">Image Cropper</span><span class="card-cat">Image</span></a><a href="imagetext/" class="card"><span class="card-emoji">🖼️</span><span class="card-title">Image + Text</span><span class="card-cat">Image</span></a><a href="imgcrop/" class="card"><span class="card-emoji">Image</span><span class="card-title">ImgCrop</span><span class="card-cat">Image</span></a><a href="imgfilter/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Image Filter</span><span class="card-cat">Design</span></a><a href="imgpalette/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Image Palette</span><span class="card-cat">Design</span></a><a href="imgresize/" class="card"><span class="card-emoji">📐</span><span class="card-title">Image Resize</span><span class="card-cat">Image</span></a><a href="imgrotate/" class="card"><span class="card-emoji">🔄</span><span class="card-title">Image Rotate</span><span class="card-cat">Image</span></a><a href="imgtobase64/" class="card"><span class="card-emoji">🖼️</span><span class="card-title">Img → Base64</span><span class="card-cat">Dev</span></a><a href="inputgen/" class="card"><span class="card-emoji">📝</span><span class="card-title">Input Generator</span><span class="card-cat">Design</span></a><a href="invoicegen/" class="card"><span class="card-emoji">Invoice</span><span class="card-title">Invoice Generator</span><span class="card-cat">Utility</span></a><a href="ipinfo/" class="card"><span class="card-emoji">🌐</span><span class="card-title">IP Info</span><span class="card-cat">Network</span></a><a href="ipscan/" class="card"><span class="card-emoji">What's</span><span class="card-title">IPScan</span><span class="card-cat">Network</span></a><a href="ipsubnet/" class="card"><span class="card-emoji">🌐</span><span class="card-title">Subnet Calc</span><span class="card-cat">Network</span></a><a href="ipv4calc/" class="card"><span class="card-emoji">IPv4</span><span class="card-title">IPv4Calc</span><span class="card-cat">Network</span></a><a href="ipv4tov6/" class="card"><span class="card-emoji">🔢</span><span class="card-title">IPv4 ↔ IPv6</span><span class="card-cat">Network</span></a><a href="jsbeautify/" class="card"><span class="card-emoji">✨</span><span class="card-title">JavaScript Beautifier</span><span class="card-cat">Dev</span></a><a href="jsminify/" class="card"><span class="card-emoji">📦</span><span class="card-title">JavaScript Minifier</span><span class="card-cat">Dev</span></a><a href="jsobfuscate/" class="card"><span class="card-emoji">🔒</span><span class="card-title">JavaScript Obfuscator</span><span class="card-cat">Dev</span></a><a href="jsoncleaner/" class="card"><span class="card-emoji">🧹</span><span class="card-title">JSON Cleaner</span><span class="card-cat">Dev</span></a><a href="jsoncsv/" class="card"><span class="card-emoji">📊</span><span class="card-title">JSON ↔ CSV</span><span class="card-cat">Dev</span></a><a href="jsonfixer/" class="card"><span class="card-emoji">🔧</span><span class="card-title">JSONFixer</span><span class="card-cat">Dev</span></a><a href="jsonformat2/" class="card"><span class="card-emoji">📋</span><span class="card-title">JSON Formatter</span><span class="card-cat">Dev</span></a><a href="jsonl/" class="card"><span class="card-emoji">📋</span><span class="card-title">JSONL Tool</span><span class="card-cat">Dev</span></a><a href="jsonpath/" class="card"><span class="card-emoji">🗺️</span><span class="card-title">JSON Path Finder</span><span class="card-cat">Dev</span></a><a href="jsonpath2/" class="card"><span class="card-emoji">🔍</span><span class="card-title">JSONPath Test</span><span class="card-cat">Dev</span></a><a href="jsonprettify/" class="card"><span class="card-emoji">🔧</span><span class="card-title">JSONPrettify</span><span class="card-cat">Dev</span></a><a href="jsonschema/" class="card"><span class="card-emoji">📐</span><span class="card-title">JSON Schema</span><span class="card-cat">Dev</span></a><a href="jsontocode/" class="card"><span class="card-emoji">🔧</span><span class="card-title">JSON to Code</span><span class="card-cat">Dev</span></a><a href="jsonview/" class="card"><span class="card-emoji">🔍</span><span class="card-title">JSON Viewer</span><span class="card-cat">Dev</span></a><a href="jwt/" class="card"><span class="card-emoji">JWT</span><span class="card-title">JWT Decoder</span><span class="card-cat">Dev</span></a><a href="jwt2/" class="card"><span class="card-emoji">🔐</span><span class="card-title">JWT Builder</span><span class="card-cat">Dev</span></a><a href="jwtdebug/" class="card"><span class="card-emoji">🔑</span><span class="card-title">JWT Debugger</span><span class="card-cat">Dev</span></a><a href="keycode/" class="card"><span class="card-emoji">⌨️</span><span class="card-title">Key Code</span><span class="card-cat">Dev</span></a><a href="leetspeak/" class="card"><span class="card-emoji">1337</span><span class="card-title">Leet Speak</span><span class="card-cat">Text</span></a><a href="lengthconv/" class="card"><span class="card-emoji">📏</span><span class="card-title">Length Convert</span><span class="card-cat">Utility</span></a><a href="linecounter/" class="card"><span class="card-emoji">📏</span><span class="card-title">Line Counter</span><span class="card-cat">Dev</span></a><a href="linesorter/" class="card"><span class="card-emoji">📑</span><span class="card-title">Line Sorter</span><span class="card-cat">Text</span></a><a href="linkprev/" class="card"><span class="card-emoji">🔗</span><span class="card-title">Link Preview</span><span class="card-cat">Utility</span></a><a href="linkshorten/" class="card"><span class="card-emoji">URL</span><span class="card-title">LinkShorten</span><span class="card-cat">Dev</span></a><a href="lipsum/" class="card"><span class="card-emoji">📖</span><span class="card-title">Lorem Ipsum Pro</span><span class="card-cat">Text</span></a><a href="loadergen/" class="card"><span class="card-emoji">⏳</span><span class="card-title">Loader Generator</span><span class="card-cat">Design</span></a><a href="loan/" class="card"><span class="card-emoji">Loan</span><span class="card-title">LoanCalc</span><span class="card-cat">Utility</span></a><a href="loremcraft/" class="card"><span class="card-emoji">Placeholder</span><span class="card-title">LoremCraft</span><span class="card-cat">Text</span></a><a href="markdownhtml/" class="card"><span class="card-emoji">📝</span><span class="card-title">MD → HTML</span><span class="card-cat">Dev</span></a><a href="markdownlinks/" class="card"><span class="card-emoji">🔗</span><span class="card-title">Link Checker</span><span class="card-cat">Dev</span></a><a href="markdownpreview/" class="card"><span class="card-emoji">📝</span><span class="card-title">MD Preview</span><span class="card-cat">Dev</span></a><a href="markdowntable/" class="card"><span class="card-emoji">📋</span><span class="card-title">Markdown Table</span><span class="card-cat">Dev</span></a><a href="markdownview/" class="card"><span class="card-emoji">$1</h1>');</span><span class="card-title">MarkdownView</span><span class="card-cat">Dev</span></a><a href="matrix/" class="card"><span class="card-emoji">📐</span><span class="card-title">Matrix Calc</span><span class="card-cat">Network</span></a><a href="metacheck/" class="card"><span class="card-emoji">Meta</span><span class="card-title">MetaCheck</span><span class="card-cat">Utility</span></a><a href="metatags/" class="card"><span class="card-emoji">SEO</span><span class="card-title">MetaTags</span><span class="card-cat">Dev</span></a><a href="metatester/" class="card"><span class="card-emoji">👁️</span><span class="card-title">Social Media Preview</span><span class="card-cat">Utility</span></a><a href="metatool/" class="card"><span class="card-emoji">🏷️</span><span class="card-title">Meta Generator</span><span class="card-cat">Utility</span></a><a href="minifier/" class="card"><span class="card-emoji">📦</span><span class="card-title">Code Minifier</span><span class="card-cat">Design</span></a><a href="morse2/" class="card"><span class="card-emoji">📻</span><span class="card-title">Morse Audio</span><span class="card-cat">Dev</span></a><a href="morseCode/" class="card"><span class="card-emoji">📡</span><span class="card-title">Morse Code</span><span class="card-cat">Dev</span></a><a href="mortgage/" class="card"><span class="card-emoji">🏠</span><span class="card-title">Mortgage Calc</span><span class="card-cat">Utility</span></a><a href="nanocolor/" class="card"><span class="card-emoji">Color</span><span class="card-title">Color Palette Generator</span><span class="card-cat">Design</span></a><a href="nato/" class="card"><span class="card-emoji">🎖️</span><span class="card-title">NATO Alphabet</span><span class="card-cat">Text</span></a><a href="neumorphism/" class="card"><span class="card-emoji">🫧</span><span class="card-title">Neumorphism</span><span class="card-cat">Design</span></a><a href="noise/" class="card"><span class="card-emoji">Noise</span><span class="card-title">NoiseMachine</span><span class="card-cat">Utility</span></a><a href="notes/" class="card"><span class="card-emoji">📒</span><span class="card-title">Quick Notes</span><span class="card-cat">Utility</span></a><a href="numbersys/" class="card"><span class="card-emoji">🔢</span><span class="card-title">Number Systems</span><span class="card-cat">Utility</span></a><a href="objsize/" class="card"><span class="card-emoji">📦</span><span class="card-title">Object Size</span><span class="card-cat">Dev</span></a><a href="opengraph/" class="card"><span class="card-emoji">📎</span><span class="card-title">OG Debugger</span><span class="card-cat">Dev</span></a><a href="passcraft/" class="card"><span class="card-emoji">Password</span><span class="card-title">PassCraft</span><span class="card-cat">Text</span></a><a href="passphrase/" class="card"><span class="card-emoji">🔐</span><span class="card-title">Passphrase</span><span class="card-cat">Text</span></a><a href="passwordstrength/" class="card"><span class="card-emoji">🔐</span><span class="card-title">Password Strength</span><span class="card-cat">Text</span></a><a href="paycheck/" class="card"><span class="card-emoji">Paycheck</span><span class="card-title">Paycheck Calculator</span><span class="card-cat">Utility</span></a><a href="percentage/" class="card"><span class="card-emoji">📊</span><span class="card-title">Percentage Calc</span><span class="card-cat">Utility</span></a><a href="percentcalc/" class="card"><span class="card-emoji">📊</span><span class="card-title">Percent Calc</span><span class="card-cat">Utility</span></a><a href="pixelart/" class="card"><span class="card-emoji">🎮</span><span class="card-title">Pixel Art</span><span class="card-cat">Image</span></a><a href="pixeldensity/" class="card"><span class="card-emoji">📱</span><span class="card-title">PPI Calculator</span><span class="card-cat">Dev</span></a><a href="pixsqueeze/" class="card"><span class="card-emoji">Compress</span><span class="card-title">PixSqueeze</span><span class="card-cat">Image</span></a><a href="placeholder/" class="card"><span class="card-emoji">Placeholder</span><span class="card-title">Placeholder Image Generator</span><span class="card-cat">Design</span></a><a href="placeholderimg/" class="card"><span class="card-emoji">🖼️</span><span class="card-title">Placeholder Img</span><span class="card-cat">Design</span></a><a href="pomodoro/" class="card"><span class="card-emoji">🔧</span><span class="card-title">Pomodoro</span><span class="card-cat">Utility</span></a><a href="pressureconv/" class="card"><span class="card-emoji">🔧</span><span class="card-title">Pressure Convert</span><span class="card-cat">Utility</span></a><a href="prime/" class="card"><span class="card-emoji">🔢</span><span class="card-title">Prime Checker</span><span class="card-cat">Utility</span></a><a href="privacycheck/" class="card"><span class="card-emoji">🔒</span><span class="card-title">Privacy Check</span><span class="card-cat">Utility</span></a><a href="privacypolicy/" class="card"><span class="card-emoji">🔒</span><span class="card-title">Privacy Policy Generator</span><span class="card-cat">Utility</span></a><a href="promptbox/" class="card"><span class="card-emoji">AI</span><span class="card-title">PromptBox</span><span class="card-cat">AI</span></a><a href="pxrem/" class="card"><span class="card-emoji">PX</span><span class="card-title">PX ↔ REM Converter</span><span class="card-cat">Design</span></a><a href="qrcraft/" class="card"><span class="card-emoji">QR</span><span class="card-title">QRCraft</span><span class="card-cat">Dev</span></a><a href="qrreader/" class="card"><span class="card-emoji">📱</span><span class="card-title">QR Reader</span><span class="card-cat">Dev</span></a><a href="quickmath/" class="card"><span class="card-emoji">🧮</span><span class="card-title">Quick Math</span><span class="card-cat">Utility</span></a><a href="randname/" class="card"><span class="card-emoji">🎭</span><span class="card-title">Random Name</span><span class="card-cat">Utility</span></a><a href="randomcolor/" class="card"><span class="card-emoji">🎲</span><span class="card-title">Random Color</span><span class="card-cat">Design</span></a><a href="randomgen/" class="card"><span class="card-emoji">🎲</span><span class="card-title">Random Generator</span><span class="card-cat">Design</span></a><a href="readtime/" class="card"><span class="card-emoji">Reading</span><span class="card-title">ReadTime</span><span class="card-cat">Text</span></a><a href="regex2english/" class="card"><span class="card-emoji">Regex</span><span class="card-title">Regex Explainer</span><span class="card-cat">Dev</span></a><a href="regex2plain/" class="card"><span class="card-emoji">📖</span><span class="card-title">Regex Explain</span><span class="card-cat">Dev</span></a><a href="regexgen/" class="card"><span class="card-emoji">🔧</span><span class="card-title">Regex Builder</span><span class="card-cat">Dev</span></a><a href="regexlab/" class="card"><span class="card-emoji">🔧</span><span class="card-title">RegexLab</span><span class="card-cat">Dev</span></a><a href="responsiveimg/" class="card"><span class="card-emoji">📸</span><span class="card-title">Responsive Images</span><span class="card-cat">Dev</span></a><a href="responsivetest/" class="card"><span class="card-emoji">📱</span><span class="card-title">Responsive Test</span><span class="card-cat">Dev</span></a><a href="robots/" class="card"><span class="card-emoji">robots.txt</span><span class="card-title">Robots.txt Generator</span><span class="card-cat">Utility</span></a><a href="roman/" class="card"><span class="card-emoji">🏛️</span><span class="card-title">Roman Numerals</span><span class="card-cat">Utility</span></a><a href="scientific/" class="card"><span class="card-emoji">🔬</span><span class="card-title">Scientific Calc</span><span class="card-cat">Utility</span></a><a href="screensizeinfo/" class="card"><span class="card-emoji">🖥️</span><span class="card-title">Screen Info</span><span class="card-cat">Dev</span></a><a href="screensizer/" class="card"><span class="card-emoji">🔧</span><span class="card-title">ScreenSizer</span><span class="card-cat">Design</span></a><a href="scrollspy/" class="card"><span class="card-emoji">📜</span><span class="card-title">Scroll Progress</span><span class="card-cat">Design</span></a><a href="seocheck/" class="card"><span class="card-emoji">🔍</span><span class="card-title">SEO Checker</span><span class="card-cat">Utility</span></a><a href="shadowcraft/" class="card"><span class="card-emoji">CSS</span><span class="card-title">ShadowCraft</span><span class="card-cat">Design</span></a><a href="slugify/" class="card"><span class="card-emoji">URL</span><span class="card-title">Slugify</span><span class="card-cat">Text</span></a><a href="socialformat/" class="card"><span class="card-emoji">📱</span><span class="card-title">Social Format</span><span class="card-cat">Dev</span></a><a href="socialshare/" class="card"><span class="card-emoji">📤</span><span class="card-title">Share Links</span><span class="card-cat">Utility</span></a><a href="speedcalc/" class="card"><span class="card-emoji">🏎️</span><span class="card-title">Speed Calc</span><span class="card-cat">Network</span></a><a href="speedtest/" class="card"><span class="card-emoji">Page</span><span class="card-title">SpeedTest</span><span class="card-cat">Network</span></a><a href="speedtype/" class="card"><span class="card-emoji">⌨️</span><span class="card-title">Speed Typing</span><span class="card-cat">Network</span></a><a href="sqlformat/" class="card"><span class="card-emoji">SQL</span><span class="card-title">SQL Formatter</span><span class="card-cat">Dev</span></a><a href="sqlgen/" class="card"><span class="card-emoji">🗃️</span><span class="card-title">SQL Generator</span><span class="card-cat">Dev</span></a><a href="stopwatch/" class="card"><span class="card-emoji">⏱️</span><span class="card-title">Stopwatch</span><span class="card-cat">Utility</span></a><a href="svgmake/" class="card"><span class="card-emoji">SVG</span><span class="card-title">SVGMake</span><span class="card-cat">Design</span></a><a href="svgoptimize/" class="card"><span class="card-emoji">SVG</span><span class="card-title">SVG Optimizer</span><span class="card-cat">Design</span></a><a href="svgtool/" class="card"><span class="card-emoji">✏️</span><span class="card-title">SVG Editor</span><span class="card-cat">Design</span></a><a href="svgwave/" class="card"><span class="card-emoji">🌊</span><span class="card-title">SVG Waves</span><span class="card-cat">Design</span></a><a href="tableconvert/" class="card"><span class="card-emoji">Table</span><span class="card-title">TableConvert</span><span class="card-cat">Dev</span></a><a href="tableformat/" class="card"><span class="card-emoji">📊</span><span class="card-title">Table Formatter</span><span class="card-cat">Dev</span></a><a href="tablehtml/" class="card"><span class="card-emoji">📊</span><span class="card-title">Table Generator</span><span class="card-cat">Dev</span></a><a href="tableofcontents/" class="card"><span class="card-emoji">📑</span><span class="card-title">TOC Generator</span><span class="card-cat">Dev</span></a><a href="tempconv2/" class="card"><span class="card-emoji">🌡️</span><span class="card-title">Temperature</span><span class="card-cat">Utility</span></a><a href="tempconvert/" class="card"><span class="card-emoji">🌡️</span><span class="card-title">Temperature</span><span class="card-cat">Utility</span></a><a href="terms/" class="card"><span class="card-emoji">📜</span><span class="card-title">Terms of Service Generator</span><span class="card-cat">Utility</span></a><a href="textcount/" class="card"><span class="card-emoji">Word</span><span class="card-title">TextCount</span><span class="card-cat">Text</span></a><a href="textdiff/" class="card"><span class="card-emoji">📝</span><span class="card-title">Text Diff Pro</span><span class="card-cat">Dev</span></a><a href="textdiff2/" class="card"><span class="card-emoji">📝</span><span class="card-title">Inline Diff</span><span class="card-cat">Dev</span></a><a href="textencrypt/" class="card"><span class="card-emoji">🔒</span><span class="card-title">Text Encrypt</span><span class="card-cat">Text</span></a><a href="texthash/" class="card"><span class="card-emoji">🔐</span><span class="card-title">Text Hash</span><span class="card-cat">Dev</span></a><a href="textreverse/" class="card"><span class="card-emoji">🔄</span><span class="card-title">Text Reverse</span><span class="card-cat">Text</span></a><a href="textrotate/" class="card"><span class="card-emoji">🔃</span><span class="card-title">Text Rotator</span><span class="card-cat">Image</span></a><a href="textshadow/" class="card"><span class="card-emoji">✨</span><span class="card-title">CSS Text Shadow Generator</span><span class="card-cat">Design</span></a><a href="textstat/" class="card"><span class="card-emoji">📊</span><span class="card-title">Text Statistics</span><span class="card-cat">Text</span></a><a href="texttable/" class="card"><span class="card-emoji">Text</span><span class="card-title">TextTable</span><span class="card-cat">Dev</span></a><a href="texttoimg/" class="card"><span class="card-emoji">🖼️</span><span class="card-title">Text to Image</span><span class="card-cat">Image</span></a><a href="texttransform/" class="card"><span class="card-emoji">🔠</span><span class="card-title">Text Transform</span><span class="card-cat">Text</span></a><a href="thumbmaker/" class="card"><span class="card-emoji">🎬</span><span class="card-title">YouTube Thumbnail Maker</span><span class="card-cat">Design</span></a><a href="timecalc/" class="card"><span class="card-emoji">⏰</span><span class="card-title">Time Calculator</span><span class="card-cat">Utility</span></a><a href="timestamp/" class="card"><span class="card-emoji">🔧</span><span class="card-title">Timestamp</span><span class="card-cat">Utility</span></a><a href="timestamp2/" class="card"><span class="card-emoji">🕐</span><span class="card-title">Unix Timestamp</span><span class="card-cat">Utility</span></a><a href="tipcalc/" class="card"><span class="card-emoji">Tip</span><span class="card-title">Tip Calculator</span><span class="card-cat">Network</span></a><a href="titlegen/" class="card"><span class="card-emoji">🎯</span><span class="card-title">YouTube Title Generator</span><span class="card-cat">AI</span></a><a href="todo/" class="card"><span class="card-emoji">✅</span><span class="card-title">Todo App</span><span class="card-cat">Utility</span></a><a href="tokencounter/" class="card"><span class="card-emoji">AI</span><span class="card-title">TokenCounter</span><span class="card-cat">Dev</span></a><a href="toml/" class="card"><span class="card-emoji">📄</span><span class="card-title">TOML ↔ JSON</span><span class="card-cat">Dev</span></a><a href="tsplayground/" class="card"><span class="card-emoji">📘</span><span class="card-title">TS Types</span><span class="card-cat">Dev</span></a><a href="ttfpreview/" class="card"><span class="card-emoji">Font</span><span class="card-title">Font Preview</span><span class="card-cat">Design</span></a><a href="typingtest/" class="card"><span class="card-emoji">Typing</span><span class="card-title">TypingTest</span><span class="card-cat">Network</span></a><a href="tzconvert/" class="card"><span class="card-emoji">Timezone</span><span class="card-title">TimeZone Converter</span><span class="card-cat">Utility</span></a><a href="unicode/" class="card"><span class="card-emoji">🔣</span><span class="card-title">Unicode Lookup</span><span class="card-cat">Dev</span></a><a href="unitconv/" class="card"><span class="card-emoji">📐</span><span class="card-title">Unit Converter</span><span class="card-cat">Utility</span></a><a href="unitflip/" class="card"><span class="card-emoji">Unit</span><span class="card-title">UnitFlip</span><span class="card-cat">Text</span></a><a href="unitprice/" class="card"><span class="card-emoji">🛒</span><span class="card-title">Unit Price</span><span class="card-cat">Image</span></a><a href="urlencoder/" class="card"><span class="card-emoji">🔗</span><span class="card-title">URL Encoder/Decoder</span><span class="card-cat">Dev</span></a><a href="useragent/" class="card"><span class="card-emoji">🖥️</span><span class="card-title">User Agent</span><span class="card-cat">Text</span></a><a href="usernamegen/" class="card"><span class="card-emoji">👤</span><span class="card-title">Username Generator</span><span class="card-cat">Text</span></a><a href="volumeconv/" class="card"><span class="card-emoji">🧪</span><span class="card-title">Volume Convert</span><span class="card-cat">Utility</span></a><a href="wavy/" class="card"><span class="card-emoji">〰️</span><span class="card-title">Wavy Text</span><span class="card-cat">Text</span></a><a href="weighconv/" class="card"><span class="card-emoji">⚖️</span><span class="card-title">Weight Convert</span><span class="card-cat">Utility</span></a><a href="whiteboard/" class="card"><span class="card-emoji">🎨</span><span class="card-title">Whiteboard</span><span class="card-cat">Utility</span></a><a href="wordcloud/" class="card"><span class="card-emoji">☁️</span><span class="card-title">Word Cloud</span><span class="card-cat">Text</span></a><a href="wordcounter/" class="card"><span class="card-emoji">📊</span><span class="card-title">Word Counter Pro</span><span class="card-cat">Text</span></a><a href="wordfreq/" class="card"><span class="card-emoji">Word</span><span class="card-title">WordFreq</span><span class="card-cat">Text</span></a><a href="worldclock/" class="card"><span class="card-emoji">🕐</span><span class="card-title">World Clock</span><span class="card-cat">Network</span></a><a href="xmlformat/" class="card"><span class="card-emoji">📋</span><span class="card-title">XML Formatter</span><span class="card-cat">Dev</span></a><a href="xmljson/" class="card"><span class="card-emoji">🔄</span><span class="card-title">XML ↔ JSON</span><span class="card-cat">Dev</span></a><a href="yamlconvert/" class="card"><span class="card-emoji">🔄</span><span class="card-title">YAML ↔ JSON Converter</span><span class="card-cat">Dev</span></a></div>
+<div class="no-results" id="noResults">No tools found. Try a different search term.</div>
 </div>
 
 <footer>
-<div class="footer-inner">
-<div class="footer-left">© 2024 TinyTools · 107 free tools for builders</div>
-<div class="footer-right">
-<a href="/privacypolicy/" class="footer-link">Privacy</a>
-<a href="/terms/" class="footer-link">Terms</a>
-</div>
-</div>
+<p>TinyTools — 308 free tools, no signup, no tracking. Built with ❤️</p>
+<p style="margin-top:.3rem"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
 </footer>
 
 <script>
-let currentCat='All';
-const searchInput=document.getElementById('search');
-const clearBtn=document.getElementById('clearBtn');
-
-function setCat(cat,el){
-  currentCat=cat;
-  document.querySelectorAll('.cat-btn').forEach(f=>f.classList.remove('active'));
-  el.classList.add('active');
-  filter();
-}
-
-function filter(){
-  const q=searchInput.value.toLowerCase().trim();
-  clearBtn.style.display=q?'block':'none';
-  const tools=document.querySelectorAll('.tool');
-  let visible=0;
-  tools.forEach(t=>{
-    const matchCat=currentCat==='All'||t.dataset.cat===currentCat;
-    const matchSearch=!q||t.dataset.name.includes(q);
-    const show=matchCat&&matchSearch;
-    t.style.display=show?'flex':'none';
-    if(show)visible++;
-  });
-  document.getElementById('noResults').style.display=visible?'none':'block';
-}
-
-function clearSearch(){
-  searchInput.value='';
-  clearBtn.style.display='none';
-  filter();
-  searchInput.focus();
-}
-
-// Keyboard shortcut: / to focus search
-document.addEventListener('keydown',e=>{
-  if(e.key==='/'&&document.activeElement!==searchInput){e.preventDefault();searchInput.focus()}
-  if(e.key==='Escape'){clearSearch()}
-});
+let currentCat='all';
+document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('search').focus()}if(e.key==='Escape'){document.getElementById('search').value='';document.getElementById('search').blur();filterTools()}});
+function filterTools(){const q=document.getElementById('search').value.toLowerCase();const cards=document.querySelectorAll('.grid .card');let shown=0;
+cards.forEach(c=>{const title=c.querySelector('.card-title').textContent.toLowerCase();const cat=c.querySelector('.card-cat').textContent.toLowerCase();
+const match=(q===''||title.includes(q)||cat.includes(q))&&(currentCat==='all'||cat===currentCat.toLowerCase());
+c.style.display=match?'':'none';if(match)shown++});
+document.getElementById('noResults').style.display=shown?'none':'block'}
+function filterCat(cat){currentCat=cat;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat||(cat==='all'&&!b.dataset.cat)));
+if(cat==='all')document.querySelectorAll('.cat-btn')[0].classList.add('active');
+filterTools()}
 </script>
 </body>
 </html>
