@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Beautifier — Format & Pretty Print JS Code Online</title>
+<meta name="description" content="Beautify and format JavaScript code online. Auto-indent, fix formatting, pretty print minified JS. Free JavaScript formatter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+main{max-width:850px;margin:0 auto;padding:1.5rem}
+h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem;color:#34d399}
+.opts{display:flex;gap:.8rem;justify-content:center;margin-bottom:.8rem;flex-wrap:wrap}
+.opts label{font-size:.72rem;display:flex;align-items:center;gap:.3rem;color:#aaa}
+.opts select,.opts input[type=number]{background:#1a1a1a;border:1px solid #333;border-radius:4px;color:#e5e5e5;padding:.2rem .4rem;font-size:.72rem;width:50px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem}
+@media(max-width:650px){.split{grid-template-columns:1fr}}
+.pane{background:#141414;border:1px solid #262626;border-radius:10px;overflow:hidden}
+.pane-head{display:flex;justify-content:space-between;padding:.4rem .7rem;border-bottom:1px solid #262626;font-size:.65rem;color:#888;font-weight:600}
+.pane-head button{background:#34d399;color:#000;border:none;padding:.2rem .5rem;border-radius:4px;font-size:.6rem;font-weight:700;cursor:pointer}
+.pane textarea{width:100%;min-height:350px;padding:.6rem;background:transparent;border:none;color:#e5e5e5;font-size:.75rem;font-family:'SF Mono',monospace;outline:none;resize:vertical;line-height:1.6;tab-size:2}
+.btn{padding:.5rem 1.5rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;background:#34d399;color:#000;display:block;margin:0 auto}
+</style>
+</head>
+<body>
+<main>
+<h1>✨ JavaScript Beautifier</h1>
+<div class="opts">
+<label>Indent: <select id="indentChar"><option value="space">Spaces</option><option value="tab">Tabs</option></select></label>
+<label>Size: <input type="number" id="indentSize" value="2" min="1" max="8"></label>
+<label><input type="checkbox" id="addSemis" checked> Add semicolons</label>
+<label><input type="checkbox" id="singleQuotes"> Single quotes</label>
+</div>
+<div class="split">
+<div class="pane"><div class="pane-head"><span>Minified / Ugly Input</span><button onclick="loadSample()">Sample</button></div><textarea id="input" placeholder="Paste minified JS...">function fibonacci(n){if(n<=0)return 0;if(n===1)return 1;let prev=0;let curr=1;for(let i=2;i<=n;i++){const temp=curr;curr=prev+curr;prev=temp}return curr}const seq=[];for(let i=0;i<20;i++){seq.push(fibonacci(i))}console.log("Fibonacci:",seq.join(", "))</textarea></div>
+<div class="pane"><div class="pane-head"><span>Beautified Output</span><button onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy</button></div><textarea id="output" readonly></textarea></div>
+</div>
+<button class="btn" onclick="beautify()">Beautify</button>
+</main>
+<script>
+function beautify(){
+  const code=document.getElementById('input').value;
+  if(!code.trim()){document.getElementById('output').value='';return}
+  
+  const useTab=document.getElementById('indentChar').value==='tab';
+  const size=parseInt(document.getElementById('indentSize').value)||2;
+  const indent=useTab?'\t':' '.repeat(size);
+  const addSemis=document.getElementById('addSemis').checked;
+  const singleQ=document.getElementById('singleQuotes').checked;
+  
+  let result='';
+  let level=0;
+  let inString=false;
+  let stringChar='';
+  let i=0;
+  let needNewline=false;
+  
+  while(i<code.length){
+    const ch=code[i];
+    const next=code[i+1]||'';
+    
+    // String handling
+    if(!inString&&(ch==='"'||ch==="'"||ch==='`')){
+      inString=true;stringChar=ch;
+      if(singleQ&&ch==='"')result+="'";
+      else result+=ch;
+      i++;continue;
+    }
+    if(inString){
+      if(ch==='\\'){ result+=ch+next;i+=2;continue}
+      if(ch===stringChar){
+        inString=false;
+        if(singleQ&&ch==='"')result+="'";
+        else result+=ch;
+        i++;continue;
+      }
+      result+=ch;i++;continue;
+    }
+    
+    if(ch==='{'){
+      result+=' {\n'+indent.repeat(level+1);
+      level++;i++;continue;
+    }
+    if(ch==='}'){
+      level=Math.max(0,level-1);
+      result+='\n'+indent.repeat(level)+'}';
+      if(next!==';'&&next!==','&&next!==')'&&next!=='}')result+='\n'+indent.repeat(level);
+      i++;continue;
+    }
+    if(ch===';'){
+      result+=';\n'+indent.repeat(level);
+      i++;
+      while(i<code.length&&code[i]===' ')i++;
+      continue;
+    }
+    if(ch===','&&!inString){
+      result+=', ';i++;
+      while(i<code.length&&code[i]===' ')i++;
+      continue;
+    }
+    
+    // Operators spacing
+    if((ch==='='||ch==='!'||ch==='<'||ch==='>')&&next==='='){
+      result+=' '+ch+'=';i+=2;
+      if(code[i]==='='){result+='=';i++}
+      result+=' ';continue;
+    }
+    if(ch==='='&&next!=='='&&next!=='>'){
+      result+=' = ';i++;continue;
+    }
+    
+    result+=ch;
+    i++;
+  }
+  
+  // Clean up
+  result=result.replace(/\n\s*\n\s*\n/g,'\n\n');
+  result=result.replace(/\n\s+$/gm,'');
+  result=result.trim();
+  
+  document.getElementById('output').value=result;
+}
+
+function loadSample(){
+  document.getElementById('input').value='class Router{constructor(){this.routes={GET:{},POST:{}}}get(path,handler){this.routes.GET[path]=handler;return this}post(path,handler){this.routes.POST[path]=handler;return this}handle(method,path,req){const handler=this.routes[method]?.[path];if(!handler){return{status:404,body:"Not Found"}}return handler(req)}}const router=new Router();router.get("/users",(req)=>{return{status:200,body:[{id:1,name:"John"}]}});console.log(router.handle("GET","/users",{}))';
+  beautify();
+}
+beautify();
+</script>
+</body>
+</html>
