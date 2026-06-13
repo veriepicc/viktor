@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradient Generator — CSS Gradient Maker with Live Preview</title>
+<meta name="description" content="Create beautiful CSS gradients with live preview. Linear, radial, conic. Copy CSS code instantly. Free gradient generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.preview{width:100%;height:200px;border-radius:14px;margin-bottom:1rem;border:1px solid #222;transition:all .3s}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.row{display:flex;gap:.5rem;margin-bottom:.6rem;align-items:center;flex-wrap:wrap}
+.field{flex:1;min-width:80px}.field label{display:block;font-size:.6rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
+.field input,.field select{width:100%;padding:.4rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.8rem;outline:none;font-family:inherit}
+.field input[type=color]{height:35px;padding:2px;cursor:pointer}.field input[type=range]{accent-color:#8b5cf6}
+.stops{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.6rem}
+.stop{display:flex;gap:.4rem;align-items:center}.stop input[type=color]{width:50px;height:30px;border:1px solid #333;border-radius:4px;background:#1a1a1a;padding:1px;cursor:pointer}
+.stop input[type=range]{flex:1;accent-color:#8b5cf6}.stop .rm{background:none;border:none;color:#ef4444;cursor:pointer;font-size:1.2rem;padding:0 .3rem}
+.btn{padding:.5rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;border:none;color:#fff}
+.btn-primary{background:#8b5cf6}.btn-secondary{background:#222;color:#ccc}
+.btn-row{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.code{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.75rem;color:#a5f3fc;word-break:break-all;cursor:pointer;position:relative}
+.code:hover::after{content:'click to copy';position:absolute;top:4px;right:8px;font-size:.55rem;color:#888;font-family:'Inter',sans-serif}
+.presets{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.8rem}
+.swatch{width:44px;height:28px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.swatch:hover{border-color:#fff;transform:scale(1.1)}
+</style>
+</head>
+<body>
+<main>
+<h1>🌈 Gradient Generator</h1>
+<div class="preview" id="preview"></div>
+<div class="card">
+<div class="row">
+<div class="field"><label>Type</label><select id="type" onchange="render()"><option value="linear">Linear</option><option value="radial">Radial</option><option value="conic">Conic</option></select></div>
+<div class="field"><label>Angle</label><input type="range" id="angle" min="0" max="360" value="135" oninput="render()"><span id="angleVal" style="font-size:.65rem;color:#888">135°</span></div>
+</div>
+<label style="font-size:.6rem;color:#888;font-weight:600;text-transform:uppercase;margin-bottom:.3rem;display:block">Color Stops</label>
+<div class="stops" id="stops"></div>
+<div class="btn-row">
+<button class="btn btn-secondary" onclick="addStop()">+ Add Stop</button>
+<button class="btn btn-secondary" onclick="randomize()">🎲 Random</button>
+</div>
+<label style="font-size:.6rem;color:#888;font-weight:600;text-transform:uppercase;margin-bottom:.3rem;display:block">Presets</label>
+<div class="presets" id="presets"></div>
+</div>
+<div class="code" id="code" onclick="navigator.clipboard.writeText(this.textContent)"></div>
+</main>
+<script>
+let stops=[{color:'#8b5cf6',pos:0},{color:'#ec4899',pos:100}];
+const presets=[
+  [{color:'#667eea',pos:0},{color:'#764ba2',pos:100}],
+  [{color:'#f093fb',pos:0},{color:'#f5576c',pos:100}],
+  [{color:'#4facfe',pos:0},{color:'#00f2fe',pos:100}],
+  [{color:'#43e97b',pos:0},{color:'#38f9d7',pos:100}],
+  [{color:'#fa709a',pos:0},{color:'#fee140',pos:100}],
+  [{color:'#a18cd1',pos:0},{color:'#fbc2eb',pos:100}],
+  [{color:'#fccb90',pos:0},{color:'#d57eeb',pos:100}],
+  [{color:'#e0c3fc',pos:0},{color:'#8ec5fc',pos:100}],
+  [{color:'#f5f7fa',pos:0},{color:'#c3cfe2',pos:100}],
+  [{color:'#0c0c0c',pos:0},{color:'#434343',pos:50},{color:'#0c0c0c',pos:100}],
+  [{color:'#ff0844',pos:0},{color:'#ffb199',pos:100}],
+  [{color:'#96fbc4',pos:0},{color:'#f9f586',pos:100}],
+];
+document.getElementById('presets').innerHTML=presets.map((p,i)=>{
+  const css=`linear-gradient(135deg,${p.map(s=>s.color+' '+s.pos+'%').join(',')})`;
+  return `<div class="swatch" style="background:${css}" onclick="loadPreset(${i})"></div>`;
+}).join('');
+
+function loadPreset(i){stops=JSON.parse(JSON.stringify(presets[i]));renderStops();render()}
+
+function renderStops(){
+  document.getElementById('stops').innerHTML=stops.map((s,i)=>`
+    <div class="stop">
+      <input type="color" value="${s.color}" oninput="stops[${i}].color=this.value;render()">
+      <input type="range" min="0" max="100" value="${s.pos}" oninput="stops[${i}].pos=+this.value;render()">
+      <span style="font-size:.65rem;color:#888;min-width:28px">${s.pos}%</span>
+      ${stops.length>2?`<button class="rm" onclick="stops.splice(${i},1);renderStops();render()">×</button>`:''}
+    </div>
+  `).join('');
+}
+
+function addStop(){
+  const hue=Math.random()*360|0;
+  stops.push({color:`hsl(${hue},70%,60%)`,pos:50});
+  // Convert hsl to hex
+  const c=document.createElement('canvas').getContext('2d');
+  c.fillStyle=`hsl(${hue},70%,60%)`;
+  stops[stops.length-1].color=c.fillStyle;
+  renderStops();render();
+}
+
+function randomize(){
+  const n=2+Math.random()*2|0;
+  stops=[];
+  for(let i=0;i<n;i++){
+    const hue=Math.random()*360|0;
+    const c=document.createElement('canvas').getContext('2d');
+    c.fillStyle=`hsl(${hue},${60+Math.random()*30|0}%,${50+Math.random()*20|0}%)`;
+    stops.push({color:c.fillStyle,pos:(i/(n-1)*100)|0});
+  }
+  document.getElementById('angle').value=Math.random()*360|0;
+  renderStops();render();
+}
+
+function render(){
+  const type=document.getElementById('type').value;
+  const angle=document.getElementById('angle').value;
+  document.getElementById('angleVal').textContent=angle+'°';
+  const colorStops=stops.map(s=>`${s.color} ${s.pos}%`).join(', ');
+  let css;
+  if(type==='linear')css=`linear-gradient(${angle}deg, ${colorStops})`;
+  else if(type==='radial')css=`radial-gradient(circle, ${colorStops})`;
+  else css=`conic-gradient(from ${angle}deg, ${colorStops})`;
+  
+  document.getElementById('preview').style.background=css;
+  document.getElementById('code').textContent=`background: ${css};`;
+}
+renderStops();render();
+</script>
+</body>
+</html>
