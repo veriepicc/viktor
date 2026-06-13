@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TokenCounter — AI Token Counter & Cost Calculator for GPT-4, Claude, Gemini</title>
+<meta name="description" content="Count tokens and estimate API costs for ChatGPT, Claude, and Gemini. Free AI token calculator with live counting.">
+<meta name="keywords" content="token counter, gpt token counter, claude token counter, ai token calculator, api cost calculator, openai tokens">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#f97316;--accent2:#fb923c;--text:#e5e5e5;--muted:#737373;--green:#22c55e}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:750px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.7rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.model-select{display:flex;gap:.3rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.model{padding:.4rem .9rem;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.model.active{border-color:var(--accent);color:var(--accent);background:rgba(249,115,22,.08)}
+textarea{width:100%;min-height:200px;padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'SF Mono',monospace;font-size:.88rem;line-height:1.7;resize:vertical;outline:none;margin-bottom:1.2rem}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:#444}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:1.5rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;text-align:center}
+.stat .num{font-size:1.5rem;font-weight:800;color:var(--accent);font-family:'SF Mono',monospace}
+.stat .label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+.cost-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cost-table h3{padding:.7rem 1rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);background:#151515}
+.cost-row{display:flex;padding:.5rem 1rem;border-bottom:1px solid var(--border);font-size:.82rem;align-items:center}
+.cost-row:last-child{border-bottom:none}
+.cost-row .model-name{flex:1;font-weight:600}
+.cost-row .input-cost{width:90px;text-align:right;color:var(--muted);font-family:monospace;font-size:.78rem}
+.cost-row .output-cost{width:90px;text-align:right;color:var(--muted);font-family:monospace;font-size:.78rem}
+.cost-row .total-cost{width:90px;text-align:right;color:var(--green);font-weight:700;font-family:monospace;font-size:.82rem}
+.cost-header{font-weight:600;color:var(--muted)!important;font-size:.7rem!important}
+.cost-header .model-name{color:var(--muted)}
+.note{font-size:.72rem;color:var(--muted);text-align:center;margin-top:1.5rem;line-height:1.6}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">Token<span>Counter</span></div></nav>
+<main>
+<h1>AI Token Counter</h1>
+<p class="sub">Count tokens and estimate API costs for all major AI models.</p>
+<textarea id="input" placeholder="Paste your text here to count tokens..." oninput="count()">Hello, world! This is a sample text to demonstrate the token counter. Each word is roughly 1-2 tokens, but punctuation, spaces, and special characters can split tokens differently.</textarea>
+<div class="stats" id="stats"></div>
+<div class="cost-table">
+<h3>Cost Estimate (for this text as input prompt)</h3>
+<div class="cost-row cost-header"><span class="model-name">Model</span><span class="input-cost">Input</span><span class="output-cost">~500 tok out</span><span class="total-cost">Total</span></div>
+<div id="costRows"></div>
+</div>
+<div class="note">Token counts are <strong>estimates</strong> based on the ~4 chars/token heuristic. Actual counts vary by model tokenizer. Prices as of June 2026.</div>
+</main>
+<footer>&copy; 2026 TokenCounter &mdash; AI token counter. Nothing is sent anywhere.</footer>
+<script>
+const models=[
+{name:'GPT-4o',input:2.5,output:10,per:1e6},
+{name:'GPT-4o mini',input:0.15,output:0.6,per:1e6},
+{name:'GPT-4.1',input:2,output:8,per:1e6},
+{name:'GPT-4.1 mini',input:0.4,output:1.6,per:1e6},
+{name:'GPT-4.1 nano',input:0.1,output:0.4,per:1e6},
+{name:'Claude Sonnet 4',input:3,output:15,per:1e6},
+{name:'Claude Haiku 3.5',input:0.8,output:4,per:1e6},
+{name:'Claude Opus 4',input:15,output:75,per:1e6},
+{name:'Gemini 2.5 Pro',input:1.25,output:10,per:1e6},
+{name:'Gemini 2.5 Flash',input:0.15,output:0.6,per:1e6},
+{name:'DeepSeek V3',input:0.27,output:1.1,per:1e6},
+{name:'Llama 4 Scout',input:0.18,output:0.59,per:1e6},
+];
+
+function estimateTokens(text){
+  if(!text.trim())return 0;
+  // GPT-style tokenizer heuristic: ~4 chars per token for English
+  // Better heuristic: split on whitespace and punctuation boundaries
+  const words=text.split(/\s+/).filter(Boolean);
+  let tokens=0;
+  for(const word of words){
+    // Short common words = 1 token, longer words = more
+    if(word.length<=4)tokens+=1;
+    else if(word.length<=8)tokens+=2;
+    else tokens+=Math.ceil(word.length/4);
+    // Punctuation at end usually a separate token
+    if(/[.,!?;:'")\]]$/.test(word))tokens+=0;// already counted
+  }
+  return Math.max(1,tokens);
+}
+
+function count(){
+  const text=document.getElementById('input').value;
+  const tokens=estimateTokens(text);
+  const chars=text.length;
+  const words=text.trim()?text.trim().split(/\s+/).length:0;
+  const lines=text?text.split('\n').length:0;
+
+  document.getElementById('stats').innerHTML=
+    `<div class="stat"><div class="num">${tokens.toLocaleString()}</div><div class="label">Tokens (est.)</div></div>`+
+    `<div class="stat"><div class="num">${words.toLocaleString()}</div><div class="label">Words</div></div>`+
+    `<div class="stat"><div class="num">${chars.toLocaleString()}</div><div class="label">Characters</div></div>`+
+    `<div class="stat"><div class="num">${lines}</div><div class="label">Lines</div></div>`;
+
+  const outputTokens=500;
+  document.getElementById('costRows').innerHTML=models.map(m=>{
+    const inCost=tokens*m.input/m.per;
+    const outCost=outputTokens*m.output/m.per;
+    const total=inCost+outCost;
+    return`<div class="cost-row"><span class="model-name">${m.name}</span><span class="input-cost">$${inCost<0.001?inCost.toExponential(1):inCost.toFixed(4)}</span><span class="output-cost">$${outCost<0.001?outCost.toExponential(1):outCost.toFixed(4)}</span><span class="total-cost">$${total<0.001?total.toExponential(1):total.toFixed(4)}</span></div>`;
+  }).join('');
+}
+count();
+</script>
+</body>
+</html>
