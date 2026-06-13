@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Image Encoder/Decoder — Convert Images to Base64 & Back</title>
+<meta name="description" content="Convert images to Base64 strings and Base64 back to images. Get CSS, HTML, and Markdown embed code. Free Base64 image converter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#111;color:#e5e5e5;min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:1.5rem}
+h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem;color:#60a5fa}
+.tabs{display:flex;gap:.3rem;margin-bottom:1rem}
+.tab{flex:1;padding:.5rem;text-align:center;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:1px solid #333;color:#888;background:#1a1a1a}
+.tab.active{background:#60a5fa;color:#fff;border-color:#60a5fa}
+.card{background:#1a1a1a;border:1px solid #262626;border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.drop{border:2px dashed #333;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border .2s}
+.drop:hover{border-color:#60a5fa}
+.drop p{color:#666;font-size:.78rem}
+.drop input{display:none}
+.preview{margin:1rem 0;text-align:center}
+.preview img{max-width:100%;max-height:200px;border-radius:8px;border:1px solid #333}
+.output{position:relative}
+.output textarea{width:100%;min-height:100px;padding:.6rem;background:#111;border:1px solid #333;border-radius:8px;color:#e5e5e5;font-size:.7rem;font-family:'SF Mono',monospace;outline:none;resize:vertical}
+.output button{position:absolute;top:.4rem;right:.4rem;background:#60a5fa;color:#fff;border:none;padding:.2rem .5rem;border-radius:4px;font-size:.6rem;font-weight:700;cursor:pointer}
+.stats{display:flex;gap:.5rem;margin:.5rem 0}
+.stat{flex:1;padding:.4rem;background:#111;border:1px solid #262626;border-radius:6px;text-align:center;font-size:.7rem}
+.stat b{color:#60a5fa}
+.formats{display:flex;flex-direction:column;gap:.4rem;margin-top:.8rem}
+.format{position:relative}
+.format label{display:block;font-size:.6rem;color:#888;text-transform:uppercase;font-weight:600;margin-bottom:.2rem}
+.format textarea{width:100%;height:50px;padding:.4rem;background:#111;border:1px solid #262626;border-radius:6px;color:#999;font-size:.65rem;font-family:'SF Mono',monospace;outline:none;resize:none}
+.format button{position:absolute;top:0;right:0;background:#333;color:#e5e5e5;border:none;padding:.15rem .4rem;border-radius:3px;font-size:.55rem;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>🖼️ Base64 Image Converter</h1>
+<div class="tabs">
+<div class="tab active" onclick="setMode('encode',this)">Image → Base64</div>
+<div class="tab" onclick="setMode('decode',this)">Base64 → Image</div>
+</div>
+<div id="encodeMode">
+<div class="card">
+<div class="drop" onclick="document.getElementById('fi').click()">
+<p>📎 Drop an image or click to browse</p>
+<input type="file" id="fi" accept="image/*" onchange="encodeImage(event)">
+</div>
+<div class="preview" id="encPreview"></div>
+<div class="stats" id="encStats" style="display:none">
+<div class="stat">Original: <b id="origSize">-</b></div>
+<div class="stat">Base64: <b id="b64Size">-</b></div>
+<div class="stat">Type: <b id="imgType">-</b></div>
+</div>
+<div class="output" id="encOutput" style="display:none">
+<textarea id="b64Output" readonly></textarea>
+<button onclick="navigator.clipboard.writeText(document.getElementById('b64Output').value)">Copy</button>
+</div>
+<div class="formats" id="encFormats" style="display:none">
+<div class="format"><label>HTML &lt;img&gt;</label><textarea id="htmlEmbed" readonly></textarea><button onclick="navigator.clipboard.writeText(document.getElementById('htmlEmbed').value)">Copy</button></div>
+<div class="format"><label>CSS background</label><textarea id="cssEmbed" readonly></textarea><button onclick="navigator.clipboard.writeText(document.getElementById('cssEmbed').value)">Copy</button></div>
+<div class="format"><label>Markdown</label><textarea id="mdEmbed" readonly></textarea><button onclick="navigator.clipboard.writeText(document.getElementById('mdEmbed').value)">Copy</button></div>
+</div>
+</div>
+</div>
+<div id="decodeMode" style="display:none">
+<div class="card">
+<div class="output"><textarea id="b64Input" placeholder="Paste Base64 string here..." oninput="decodeImage()"></textarea></div>
+<div class="preview" id="decPreview" style="margin-top:1rem"></div>
+<div style="text-align:center;margin-top:.5rem"><button onclick="downloadDecoded()" style="background:#60a5fa;color:#fff;border:none;padding:.4rem 1rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:none" id="dlBtn">Download Image</button></div>
+</div>
+</div>
+</main>
+<script>
+function setMode(m,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('encodeMode').style.display=m==='encode'?'block':'none';document.getElementById('decodeMode').style.display=m==='decode'?'block':'none'}
+let decodedUrl='';
+function encodeImage(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const b64=ev.target.result;
+    document.getElementById('encPreview').innerHTML=`<img src="${b64}">`;
+    document.getElementById('b64Output').value=b64;
+    document.getElementById('origSize').textContent=(file.size/1024).toFixed(1)+' KB';
+    document.getElementById('b64Size').textContent=(b64.length/1024).toFixed(1)+' KB';
+    document.getElementById('imgType').textContent=file.type;
+    document.getElementById('htmlEmbed').value=`<img src="${b64}" alt="image">`;
+    document.getElementById('cssEmbed').value=`background-image: url(${b64});`;
+    document.getElementById('mdEmbed').value=`![image](${b64})`;
+    document.getElementById('encStats').style.display='flex';
+    document.getElementById('encOutput').style.display='block';
+    document.getElementById('encFormats').style.display='flex';
+  };
+  reader.readAsDataURL(file);
+}
+function decodeImage(){
+  let b64=document.getElementById('b64Input').value.trim();
+  if(!b64)return;
+  if(!b64.startsWith('data:'))b64='data:image/png;base64,'+b64;
+  try{
+    document.getElementById('decPreview').innerHTML=`<img src="${b64}" onerror="this.parentElement.innerHTML='<p style=color:red>Invalid Base64</p>'">`;
+    decodedUrl=b64;
+    document.getElementById('dlBtn').style.display='inline-block';
+  }catch(e){}
+}
+function downloadDecoded(){
+  if(!decodedUrl)return;
+  const a=document.createElement('a');a.download='decoded-image.png';a.href=decodedUrl;a.click();
+}
+</script>
+</body>
+</html>
