@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Interest Calculator — Investment Growth & Savings Calculator</title>
+<meta name="description" content="Calculate compound interest on investments and savings. See growth chart with monthly contributions. Free compound interest calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#fafaf9;color:#1c1917;min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #e7e5e4;border-radius:14px;padding:1.5rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#78716c;margin-bottom:.3rem}
+.field input{width:100%;padding:.55rem;border:1px solid #e7e5e4;border-radius:6px;font-size:.95rem;outline:none;font-family:inherit}
+.field input:focus{border-color:#0d9488}
+.row{display:flex;gap:.8rem}.row .field{flex:1}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem}
+.result{text-align:center;padding:.8rem;background:#f5f5f4;border-radius:10px}
+.result .num{font-size:1.2rem;font-weight:800;color:#0d9488}
+.result .label{font-size:.62rem;color:#78716c;text-transform:uppercase;letter-spacing:.04em;margin-top:.2rem}
+.chart-area{position:relative;height:200px;margin:1rem 0}
+canvas{width:100%!important;height:100%!important}
+.breakdown{font-size:.78rem}
+.breakdown table{width:100%;border-collapse:collapse}
+.breakdown th{text-align:left;padding:.3rem .4rem;font-size:.65rem;text-transform:uppercase;color:#78716c;border-bottom:2px solid #e7e5e4}
+.breakdown td{padding:.3rem .4rem;border-bottom:1px solid #f5f5f4}
+.breakdown .y{font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<h1>Compound Interest</h1>
+<div class="card">
+<div class="field"><label>Initial Investment ($)</label><input type="number" id="principal" value="10000" oninput="calc()"></div>
+<div class="row">
+<div class="field"><label>Monthly Contribution ($)</label><input type="number" id="monthly" value="500" oninput="calc()"></div>
+<div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="rate" value="8" step="0.1" oninput="calc()"></div>
+</div>
+<div class="row">
+<div class="field"><label>Years</label><input type="number" id="years" value="20" oninput="calc()"></div>
+<div class="field"><label>Compound Frequency</label><select id="freq" style="width:100%;padding:.55rem;border:1px solid #e7e5e4;border-radius:6px;font-size:.95rem;outline:none" onchange="calc()"><option value="12">Monthly</option><option value="4">Quarterly</option><option value="1">Annually</option><option value="365">Daily</option></select></div>
+</div>
+</div>
+<div class="card">
+<div class="results" id="results"></div>
+<div class="chart-area"><canvas id="chart"></canvas></div>
+</div>
+<div class="card">
+<div class="breakdown" id="breakdown"></div>
+</div>
+</main>
+<script>
+function calc(){
+  const P=parseFloat(document.getElementById('principal').value)||0;
+  const monthly=parseFloat(document.getElementById('monthly').value)||0;
+  const annualRate=parseFloat(document.getElementById('rate').value)||0;
+  const years=parseInt(document.getElementById('years').value)||1;
+  const n=parseInt(document.getElementById('freq').value);
+  const r=annualRate/100;
+
+  // Calculate year by year
+  const data=[];
+  let balance=P;
+  let totalContributions=P;
+  
+  for(let y=1;y<=years;y++){
+    for(let m=0;m<12;m++){
+      balance+=monthly;
+      totalContributions+=monthly;
+      balance*=(1+r/n)**(n/12);
+    }
+    data.push({year:y,balance,contributions:totalContributions,interest:balance-totalContributions});
+  }
+
+  const final=data[data.length-1];
+  const fmt=v=>'$'+Math.round(v).toLocaleString();
+
+  document.getElementById('results').innerHTML=`
+    <div class="result"><div class="num">${fmt(final.balance)}</div><div class="label">Final Balance</div></div>
+    <div class="result"><div class="num">${fmt(final.contributions)}</div><div class="label">Total Invested</div></div>
+    <div class="result"><div class="num">${fmt(final.interest)}</div><div class="label">Total Interest</div></div>`;
+
+  // Chart
+  drawChart(data);
+
+  // Breakdown table
+  let html='<table><tr><th>Year</th><th>Balance</th><th>Contributions</th><th>Interest Earned</th></tr>';
+  data.forEach(d=>{
+    html+=`<tr><td class="y">${d.year}</td><td>${fmt(d.balance)}</td><td>${fmt(d.contributions)}</td><td>${fmt(d.interest)}</td></tr>`;
+  });
+  html+='</table>';
+  document.getElementById('breakdown').innerHTML=html;
+}
+
+function drawChart(data){
+  const canvas=document.getElementById('chart');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=200*dpr;
+  ctx.scale(dpr,dpr);
+  const W=rect.width,H=200;
+  ctx.clearRect(0,0,W,H);
+
+  const maxVal=Math.max(...data.map(d=>d.balance));
+  const pad={t:10,r:10,b:25,l:60};
+  const cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+
+  // Grid
+  ctx.strokeStyle='#e7e5e4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+cH*(1-i/4);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#a8a29e';ctx.font='10px Inter';ctx.textAlign='right';
+    ctx.fillText('$'+Math.round(maxVal*i/4/1000)+'k',pad.l-5,y+3);
+  }
+
+  // Bars
+  const barW=Math.max(2,cW/data.length-2);
+  data.forEach((d,i)=>{
+    const x=pad.l+i*(cW/data.length)+(cW/data.length-barW)/2;
+    const contH=(d.contributions/maxVal)*cH;
+    const intH=(d.interest/maxVal)*cH;
+    // Contributions
+    ctx.fillStyle='#99f6e4';
+    ctx.fillRect(x,pad.t+cH-contH-intH,barW,contH);
+    // Interest
+    ctx.fillStyle='#0d9488';
+    ctx.fillRect(x,pad.t+cH-intH,barW,intH);
+    // Year label
+    if(data.length<=20||i%Math.ceil(data.length/10)===0){
+      ctx.fillStyle='#a8a29e';ctx.font='9px Inter';ctx.textAlign='center';
+      ctx.fillText('Y'+d.year,x+barW/2,H-5);
+    }
+  });
+}
+calc();
+window.addEventListener('resize',calc);
+</script>
+</body>
+</html>
