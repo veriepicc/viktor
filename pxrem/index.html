@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PX ↔ REM Converter — CSS Unit Converter with Reference Table</title>
+<meta name="description" content="Convert between px, rem, em CSS units instantly. Customizable base font size. Full reference table. Free CSS unit converter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f9fafb;color:#111827;min-height:100vh}
+main{max-width:500px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.converter{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:1.5rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:.3rem}
+.field input{width:100%;padding:.6rem;border:1px solid #e5e7eb;border-radius:8px;font-size:1.1rem;font-weight:700;font-family:'SF Mono',monospace;outline:none;text-align:center}
+.field input:focus{border-color:#6366f1}
+.arrow{text-align:center;font-size:1.5rem;color:#d1d5db;margin:.3rem 0}
+.base{display:flex;align-items:center;gap:.5rem;justify-content:center;margin-bottom:1rem}
+.base label{font-size:.72rem;color:#6b7280;font-weight:600}
+.base input{width:60px;padding:.3rem;border:1px solid #e5e7eb;border-radius:5px;font-size:.82rem;text-align:center;outline:none;font-family:'SF Mono',monospace}
+.table-wrap{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.table-wrap h3{padding:.6rem 1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;border-bottom:1px solid #e5e7eb;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+th{text-align:left;padding:.4rem .8rem;font-weight:600;color:#6b7280;font-size:.65rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;background:#f9fafb}
+td{padding:.35rem .8rem;border-bottom:1px solid #f3f4f6;font-family:'SF Mono',monospace}
+tr:hover td{background:#f9fafb}
+.preview{font-size:.78rem;color:#6b7280;text-align:center;margin-top:.5rem}
+.preview span{display:inline-block;background:#6366f1;color:#fff;padding:.2rem .5rem;border-radius:4px;margin-left:.3rem;transition:font-size .2s}
+</style>
+</head>
+<body>
+<main>
+<h1>PX ↔ REM</h1>
+<div class="base"><label>Base font-size:</label><input type="number" id="base" value="16" oninput="convert()"><label>px</label></div>
+<div class="converter">
+<div class="field"><label>Pixels (px)</label><input type="number" id="px" value="16" step="1" oninput="fromPx()"></div>
+<div class="arrow">⇅</div>
+<div class="field"><label>REM</label><input type="number" id="rem" value="1" step="0.0625" oninput="fromRem()"></div>
+<div class="preview">Preview: <span id="previewText" style="font-size:16px">Aa</span></div>
+</div>
+<div class="table-wrap">
+<h3>Quick Reference</h3>
+<table id="refTable"></table>
+</div>
+</main>
+<script>
+function getBase(){return parseFloat(document.getElementById('base').value)||16}
+function fromPx(){
+  const px=parseFloat(document.getElementById('px').value)||0;
+  document.getElementById('rem').value=(px/getBase()).toFixed(4).replace(/\.?0+$/,'');
+  document.getElementById('previewText').style.fontSize=px+'px';
+  buildTable();
+}
+function fromRem(){
+  const rem=parseFloat(document.getElementById('rem').value)||0;
+  const px=rem*getBase();
+  document.getElementById('px').value=px;
+  document.getElementById('previewText').style.fontSize=px+'px';
+  buildTable();
+}
+function convert(){fromPx();buildTable()}
+function buildTable(){
+  const base=getBase();
+  const pxValues=[8,10,12,14,16,18,20,24,28,32,36,40,48,56,64,72,80,96];
+  let html='<tr><th>PX</th><th>REM</th><th>PT</th></tr>';
+  pxValues.forEach(px=>{
+    const rem=(px/base).toFixed(4).replace(/\.?0+$/,'');
+    const pt=(px*0.75).toFixed(1).replace(/\.0$/,'');
+    html+=`<tr><td>${px}px</td><td>${rem}rem</td><td>${pt}pt</td></tr>`;
+  });
+  document.getElementById('refTable').innerHTML=html;
+}
+fromPx();buildTable();
+</script>
+</body>
+</html>
