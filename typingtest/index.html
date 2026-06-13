@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypingTest — Free Online Typing Speed Test (WPM)</title>
+<meta name="description" content="Test your typing speed and accuracy. Get WPM, accuracy %, and detailed stats. Free online typing speed test.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌨️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#232634;--surface:#303446;--border:#414559;--accent:#ca9ee6;--green:#a6d189;--red:#e78284;--yellow:#e5c890;--text:#c6d0f5;--muted:#737994}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+.container{max-width:700px;width:100%}
+h1{text-align:center;font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+.time-options{display:flex;gap:.3rem;justify-content:center;margin-bottom:1.5rem}
+.time-opt{padding:.4rem 1rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.time-opt.active{border-color:var(--accent);color:var(--accent);background:rgba(202,158,230,.08)}
+.text-display{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;font-size:1.15rem;line-height:2;margin-bottom:1rem;min-height:120px;position:relative;font-family:'SF Mono',monospace;letter-spacing:.02em}
+.text-display .char{transition:color .05s}
+.char-correct{color:var(--green)}
+.char-wrong{color:var(--red);text-decoration:underline}
+.char-current{background:rgba(202,158,230,.3);border-radius:2px}
+.char-pending{color:var(--muted)}
+.input-area{position:relative}
+.input-area input{width:100%;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:1rem;font-family:'SF Mono',monospace;outline:none;opacity:.01;position:absolute;top:0;left:0}
+.timer{text-align:center;font-size:2.5rem;font-weight:900;color:var(--accent);margin-bottom:1rem;font-family:'SF Mono',monospace}
+.stats{display:none;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-top:1.5rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem;text-align:center}
+.stat .num{font-size:1.6rem;font-weight:800;font-family:'SF Mono',monospace}
+.stat .label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem}
+.wpm-color{color:var(--accent)}
+.acc-color{color:var(--green)}
+.restart{display:block;margin:1.5rem auto 0;background:var(--accent);color:#232634;border:none;padding:.6rem 2rem;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer}
+.restart:hover{opacity:.85}
+.hint{text-align:center;color:var(--muted);font-size:.75rem;margin-top:.5rem}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Typing Speed Test</h1>
+<p class="sub">Start typing to begin. How fast can you go?</p>
+<div class="time-options" id="timeOpts">
+<div class="time-opt" onclick="setTime(15,this)">15s</div>
+<div class="time-opt active" onclick="setTime(30,this)">30s</div>
+<div class="time-opt" onclick="setTime(60,this)">60s</div>
+<div class="time-opt" onclick="setTime(120,this)">120s</div>
+</div>
+<div class="timer" id="timer">30</div>
+<div class="text-display" id="textDisplay" onclick="document.getElementById('hiddenInput').focus()"></div>
+<div class="input-area"><input id="hiddenInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+<p class="hint" id="hint">Click the text and start typing</p>
+<div class="stats" id="stats"></div>
+<button class="restart" onclick="restart()">Restart</button>
+</div>
+<script>
+const wordList='the be to of and a in that have i it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us'.split(' ');
+let duration=30,timer=null,startTime=null,charIndex=0,correct=0,wrong=0,started=false,done=false;
+let textChars=[];
+
+function generateText(){
+  const words=[];for(let i=0;i<80;i++)words.push(wordList[Math.floor(Math.random()*wordList.length)]);
+  return words.join(' ');
+}
+
+function render(){
+  const display=document.getElementById('textDisplay');
+  display.innerHTML=textChars.map((c,i)=>{
+    let cls='char-pending';
+    if(i<charIndex)cls=c.correct?'char-correct':'char-wrong';
+    else if(i===charIndex)cls='char-current char-pending';
+    return`<span class="${cls}">${c.char==' '?'&nbsp;':esc(c.char)}</span>`;
+  }).join('');
+}
+
+function setTime(t,el){
+  if(started&&!done)return;
+  duration=t;
+  document.querySelectorAll('.time-opt').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  restart();
+}
+
+function restart(){
+  clearInterval(timer);timer=null;startTime=null;charIndex=0;correct=0;wrong=0;started=false;done=false;
+  const text=generateText();
+  textChars=text.split('').map(c=>({char:c,correct:null}));
+  render();
+  document.getElementById('timer').textContent=duration;
+  document.getElementById('stats').style.display='none';
+  document.getElementById('hint').style.display='block';
+  const inp=document.getElementById('hiddenInput');inp.value='';inp.disabled=false;inp.focus();
+}
+
+document.getElementById('hiddenInput').addEventListener('keydown',e=>{
+  if(done)return;
+  if(e.key==='Tab'||e.key==='Escape')return;
+  if(!started){
+    started=true;
+    startTime=Date.now();
+    document.getElementById('hint').style.display='none';
+    timer=setInterval(tick,100);
+  }
+  if(e.key==='Backspace'){
+    if(charIndex>0){charIndex--;textChars[charIndex].correct=null;render()}
+    e.preventDefault();return;
+  }
+  if(e.key.length!==1)return;
+  e.preventDefault();
+  if(charIndex>=textChars.length)return;
+  const isCorrect=e.key===textChars[charIndex].char;
+  textChars[charIndex].correct=isCorrect;
+  if(isCorrect)correct++;else wrong++;
+  charIndex++;
+  render();
+  if(charIndex>=textChars.length)endTest();
+});
+
+function tick(){
+  const elapsed=(Date.now()-startTime)/1000;
+  const remaining=Math.max(0,Math.ceil(duration-elapsed));
+  document.getElementById('timer').textContent=remaining;
+  if(remaining<=0)endTest();
+}
+
+function endTest(){
+  done=true;clearInterval(timer);
+  document.getElementById('hiddenInput').disabled=true;
+  const elapsed=Math.min(duration,(Date.now()-startTime)/1000);
+  const totalChars=correct+wrong;
+  const wpm=Math.round((correct/5)/(elapsed/60));
+  const accuracy=totalChars?Math.round((correct/totalChars)*100):0;
+  const cpm=Math.round(correct/(elapsed/60));
+
+  document.getElementById('stats').style.display='grid';
+  document.getElementById('stats').innerHTML=
+    `<div class="stat"><div class="num wpm-color">${wpm}</div><div class="label">WPM</div></div>`+
+    `<div class="stat"><div class="num acc-color">${accuracy}%</div><div class="label">Accuracy</div></div>`+
+    `<div class="stat"><div class="num">${cpm}</div><div class="label">CPM</div></div>`+
+    `<div class="stat"><div class="num" style="color:var(--red)">${wrong}</div><div class="label">Errors</div></div>`;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+restart();
+document.getElementById('hiddenInput').focus();
+</script>
+</body>
+</html>
