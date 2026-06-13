@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVGMake — Simple SVG Shape & Pattern Generator</title>
+<meta name="description" content="Generate SVG shapes, icons, and patterns instantly. Download as SVG or copy the code. Free online SVG generator.">
+<meta name="keywords" content="svg generator, svg shapes, svg icons, svg pattern, create svg online, svg maker">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔷</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafaf9;--surface:#fff;--border:#e7e5e4;--accent:#dc2626;--accent2:#ef4444;--text:#1c1917;--muted:#a8a29e}
+body{font-family:'Space Grotesk','Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:800px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem}
+.layout{display:grid;grid-template-columns:1fr 280px;gap:1.5rem}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
+.canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.canvas-wrap .preview{flex:1;display:flex;align-items:center;justify-content:center;min-height:350px;background:repeating-conic-gradient(#f5f5f4 0% 25%,#fff 0% 50%) 50%/20px 20px}
+.canvas-wrap .preview svg{filter:drop-shadow(0 2px 8px rgba(0,0,0,.08))}
+.canvas-wrap .actions{padding:.6rem;border-top:1px solid var(--border);display:flex;gap:.4rem}
+.canvas-wrap .actions button{flex:1;padding:.45rem;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all .15s}
+.canvas-wrap .actions button:hover{border-color:var(--accent);color:var(--accent)}
+.canvas-wrap .actions button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sidebar{display:flex;flex-direction:column;gap:1rem}
+.ctrl-group{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.ctrl-group h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.7rem;font-weight:700}
+.shapes{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem}
+.shape-btn{padding:.5rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;text-align:center;font-size:1.1rem;background:var(--surface);transition:all .15s}
+.shape-btn:hover,.shape-btn.active{border-color:var(--accent);background:#fef2f2}
+.field{margin-bottom:.7rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.25rem;font-weight:600}
+.field input[type=range]{width:100%;accent-color:var(--accent)}
+.field input[type=color]{width:100%;height:32px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none}
+.field .val{float:right;font-size:.72rem;color:var(--accent);font-weight:700}
+.field select{width:100%;padding:.35rem .5rem;border:1px solid var(--border);border-radius:5px;font-size:.8rem;font-family:inherit;background:var(--surface)}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<nav><div class="logo">SVG<span>Make</span></div></nav>
+<main>
+<h1>SVG Shape Generator</h1>
+<p class="sub">Create and customize SVG shapes. Download or copy the code.</p>
+<div class="layout">
+<div class="canvas-wrap">
+<div class="preview" id="preview"></div>
+<div class="actions">
+<button class="primary" onclick="downloadSVG()">Download SVG</button>
+<button onclick="copySVG()">Copy Code</button>
+<button onclick="copyDataURI()">Data URI</button>
+</div>
+</div>
+<div class="sidebar">
+<div class="ctrl-group">
+<h3>Shape</h3>
+<div class="shapes" id="shapes"></div>
+</div>
+<div class="ctrl-group">
+<h3>Style</h3>
+<div class="field"><label>Fill Color</label><input type="color" id="fill" value="#dc2626" oninput="render()"></div>
+<div class="field"><label>Stroke Color</label><input type="color" id="stroke" value="#1c1917" oninput="render()"></div>
+<div class="field"><label>Stroke Width <span class="val" id="swVal">2</span></label><input type="range" id="strokeWidth" min="0" max="10" value="2" oninput="document.getElementById('swVal').textContent=this.value;render()"></div>
+<div class="field"><label>Size <span class="val" id="sizeVal">120</span></label><input type="range" id="size" min="20" max="250" value="120" oninput="document.getElementById('sizeVal').textContent=this.value;render()"></div>
+<div class="field"><label>Rotation <span class="val" id="rotVal">0°</span></label><input type="range" id="rotation" min="0" max="360" value="0" oninput="document.getElementById('rotVal').textContent=this.value+'°';render()"></div>
+<div class="field"><label>Opacity <span class="val" id="opVal">1</span></label><input type="range" id="opacity" min="0" max="100" value="100" oninput="document.getElementById('opVal').textContent=(this.value/100).toFixed(2);render()"></div>
+</div>
+</div>
+</div>
+</main>
+<footer>&copy; 2026 SVGMake &mdash; SVG shape generator. Runs in your browser.</footer>
+<script>
+const shapeList=['circle','square','triangle','star','pentagon','hexagon','diamond','cross','heart','arrow','ring','bolt'];
+let currentShape='circle';
+const shapesEl=document.getElementById('shapes');
+shapeList.forEach(s=>{const d=document.createElement('div');d.className='shape-btn'+(s===currentShape?' active':'');d.textContent={'circle':'●','square':'■','triangle':'▲','star':'★','pentagon':'⬠','hexagon':'⬡','diamond':'◆','cross':'✚','heart':'♥','arrow':'➤','ring':'◎','bolt':'⚡'}[s];d.title=s;d.onclick=()=>{currentShape=s;document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('active'));d.classList.add('active');render()};shapesEl.appendChild(d)});
+function getSVGContent(){const s=parseInt(document.getElementById('size').value),fill=document.getElementById('fill').value,stroke=document.getElementById('stroke').value,sw=document.getElementById('strokeWidth').value,rot=document.getElementById('rotation').value,op=document.getElementById('opacity').value/100;
+const cx=150,cy=150;let shape='';const r=s/2;
+switch(currentShape){
+case'circle':shape=`<circle cx="${cx}" cy="${cy}" r="${r}"/>`;break;
+case'square':shape=`<rect x="${cx-r}" y="${cy-r}" width="${s}" height="${s}"/>`;break;
+case'triangle':{const pts=`${cx},${cy-r} ${cx-r},${cy+r*.7} ${cx+r},${cy+r*.7}`;shape=`<polygon points="${pts}"/>`;break}
+case'star':{let pts='';for(let i=0;i<10;i++){const a=Math.PI/2+i*Math.PI/5;const d=i%2===0?r:r*.4;pts+=`${cx+Math.cos(a)*d},${cy-Math.sin(a)*d} `}shape=`<polygon points="${pts.trim()}"/>`;break}
+case'pentagon':{let pts='';for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;pts+=`${cx+Math.cos(a)*r},${cy+Math.sin(a)*r} `}shape=`<polygon points="${pts.trim()}"/>`;break}
+case'hexagon':{let pts='';for(let i=0;i<6;i++){const a=i*Math.PI/3;pts+=`${cx+Math.cos(a)*r},${cy+Math.sin(a)*r} `}shape=`<polygon points="${pts.trim()}"/>`;break}
+case'diamond':shape=`<polygon points="${cx},${cy-r} ${cx+r*.6},${cy} ${cx},${cy+r} ${cx-r*.6},${cy}"/>`;break;
+case'cross':shape=`<polygon points="${cx-r*.25},${cy-r} ${cx+r*.25},${cy-r} ${cx+r*.25},${cy-r*.25} ${cx+r},${cy-r*.25} ${cx+r},${cy+r*.25} ${cx+r*.25},${cy+r*.25} ${cx+r*.25},${cy+r} ${cx-r*.25},${cy+r} ${cx-r*.25},${cy+r*.25} ${cx-r},${cy+r*.25} ${cx-r},${cy-r*.25} ${cx-r*.25},${cy-r*.25}"/>`;break;
+case'heart':shape=`<path d="M${cx},${cy+r*.3} C${cx},${cy-r*.5} ${cx-r},${cy-r*.5} ${cx-r},${cy-r*.1} C${cx-r},${cy+r*.3} ${cx},${cy+r*.7} ${cx},${cy+r} C${cx},${cy+r*.7} ${cx+r},${cy+r*.3} ${cx+r},${cy-r*.1} C${cx+r},${cy-r*.5} ${cx},${cy-r*.5} ${cx},${cy+r*.3}Z"/>`;break;
+case'arrow':shape=`<polygon points="${cx+r},${cy} ${cx},${cy-r*.6} ${cx},${cy-r*.2} ${cx-r},${cy-r*.2} ${cx-r},${cy+r*.2} ${cx},${cy+r*.2} ${cx},${cy+r*.6}"/>`;break;
+case'ring':shape=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${fill}" stroke-width="${r*.3}"/>`;break;
+case'bolt':shape=`<polygon points="${cx+r*.1},${cy-r} ${cx-r*.4},${cy+r*.05} ${cx+r*.05},${cy+r*.05} ${cx-r*.1},${cy+r} ${cx+r*.4},${cy-r*.05} ${cx-r*.05},${cy-r*.05}"/>`;break}
+const style=currentShape==='ring'?`opacity="${op}"`:`fill="${fill}" stroke="${stroke}" stroke-width="${sw}" opacity="${op}"`;
+return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300"><g transform="rotate(${rot},${cx},${cy})" ${style}>${shape}</g></svg>`}
+function render(){document.getElementById('preview').innerHTML=getSVGContent()}
+function downloadSVG(){const blob=new Blob([getSVGContent()],{type:'image/svg+xml'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=currentShape+'.svg';a.click()}
+function copySVG(){navigator.clipboard.writeText(getSVGContent())}
+function copyDataURI(){navigator.clipboard.writeText('data:image/svg+xml,'+encodeURIComponent(getSVGContent()))}
+render();
+</script>
+</body>
+</html>
