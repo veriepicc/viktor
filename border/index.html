@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Border Radius Generator — Fancy Blob Shapes Free</title>
+<meta name="description" content="Create custom CSS border-radius shapes with live preview. Organic blobs, fancy shapes, copy CSS. Free border radius generator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🫧</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:550px;margin:0 auto;padding:2rem 1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.preview-area{width:100%;aspect-ratio:1;max-height:300px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;background:#111;border-radius:14px;border:1px solid #222}
+.blob{width:200px;height:200px;background:linear-gradient(135deg,#8b5cf6,#ec4899);transition:border-radius .3s}
+.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.card h3{font-size:.6rem;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:.5rem}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.field{display:flex;flex-direction:column}.field label{font-size:.58rem;color:#888;font-weight:600;margin-bottom:.2rem}
+.field input[type=range]{accent-color:#8b5cf6;width:100%}
+.field .val{font-size:.6rem;color:#555;text-align:right}
+.row{display:flex;gap:.5rem;margin-bottom:.5rem}
+.field2{flex:1}.field2 label{display:block;font-size:.58rem;color:#888;font-weight:600;margin-bottom:.2rem}
+.field2 input[type=color]{width:100%;height:30px;padding:2px;background:#1a1a1a;border:1px solid #333;border-radius:5px}
+.btn{padding:.4rem .8rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;background:#8b5cf6;color:#fff}
+.btn-sm{background:#222;color:#ccc}
+.btn-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem}
+.code{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.72rem;color:#a5f3fc;word-break:break-all;cursor:pointer;margin-top:1rem}
+</style>
+</head>
+<body>
+<main>
+<h1>🫧 Border Radius Generator</h1>
+<div class="preview-area"><div class="blob" id="blob"></div></div>
+<div class="card">
+<h3>Corners (8-value border-radius)</h3>
+<div class="sliders">
+<div class="field"><label>Top-Left ↗</label><input type="range" min="0" max="100" value="30" id="tl1" oninput="render()"><span class="val" id="tl1v"></span></div>
+<div class="field"><label>Top-Right ↘</label><input type="range" min="0" max="100" value="70" id="tr1" oninput="render()"><span class="val" id="tr1v"></span></div>
+<div class="field"><label>Bottom-Right ↙</label><input type="range" min="0" max="100" value="70" id="br1" oninput="render()"><span class="val" id="br1v"></span></div>
+<div class="field"><label>Bottom-Left ↖</label><input type="range" min="0" max="100" value="30" id="bl1" oninput="render()"><span class="val" id="bl1v"></span></div>
+<div class="field"><label>TL vertical</label><input type="range" min="0" max="100" value="70" id="tl2" oninput="render()"><span class="val" id="tl2v"></span></div>
+<div class="field"><label>TR vertical</label><input type="range" min="0" max="100" value="30" id="tr2" oninput="render()"><span class="val" id="tr2v"></span></div>
+<div class="field"><label>BR vertical</label><input type="range" min="0" max="100" value="30" id="br2" oninput="render()"><span class="val" id="br2v"></span></div>
+<div class="field"><label>BL vertical</label><input type="range" min="0" max="100" value="70" id="bl2" oninput="render()"><span class="val" id="bl2v"></span></div>
+</div>
+</div>
+<div class="card">
+<h3>Style</h3>
+<div class="row">
+<div class="field2"><label>Color 1</label><input type="color" id="c1" value="#8b5cf6" oninput="render()"></div>
+<div class="field2"><label>Color 2</label><input type="color" id="c2" value="#ec4899" oninput="render()"></div>
+<div class="field2"><label>Size</label><input type="range" id="size" min="100" max="280" value="200" oninput="render()" style="margin-top:8px;accent-color:#8b5cf6"></div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn" onclick="randomize()">🎲 Random</button>
+<button class="btn btn-sm" onclick="circle()">⭕ Circle</button>
+<button class="btn btn-sm" onclick="square()">⬜ Square</button>
+<button class="btn btn-sm" onclick="pill()">💊 Pill</button>
+</div>
+<div class="code" id="code" onclick="navigator.clipboard.writeText(this.textContent)"></div>
+</main>
+<script>
+const ids=['tl1','tr1','br1','bl1','tl2','tr2','br2','bl2'];
+
+function getVals(){return ids.map(id=>document.getElementById(id).value)}
+function setVals(vals){ids.forEach((id,i)=>{document.getElementById(id).value=vals[i]})}
+
+function render(){
+  const v=getVals();
+  ids.forEach((id,i)=>{document.getElementById(id+'v').textContent=v[i]+'%'});
+  const br=`${v[0]}% ${v[1]}% ${v[2]}% ${v[3]}% / ${v[4]}% ${v[5]}% ${v[6]}% ${v[7]}%`;
+  const blob=document.getElementById('blob');
+  blob.style.borderRadius=br;
+  blob.style.width=blob.style.height=document.getElementById('size').value+'px';
+  blob.style.background=`linear-gradient(135deg,${document.getElementById('c1').value},${document.getElementById('c2').value})`;
+  document.getElementById('code').textContent=`border-radius: ${br};`;
+}
+
+function randomize(){
+  setVals(Array.from({length:8},()=>Math.random()*100|0));
+  render();
+}
+function circle(){setVals([50,50,50,50,50,50,50,50]);render()}
+function square(){setVals([0,0,0,0,0,0,0,0]);render()}
+function pill(){setVals([50,50,50,50,50,50,50,50]);document.getElementById('size').value=200;render()}
+
+render();
+</script>
+</body>
+</html>
