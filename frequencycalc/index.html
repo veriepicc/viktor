@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frequency Calc — Convert between frequency, wavelength & period | TinyTools</title>
+<meta name="description" content="Free online frequency calc. Convert between frequency, wavelength & period. No signup, no tracking. 100% client-side.">
+<meta name="keywords" content="frequency calculator, wavelength calculator, hz to wavelength">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>〰️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050505;--surface:#0e0e0e;--surface2:#161616;--border:#1c1c1c;--border2:#2a2a2a;--text:#ededed;--text2:#a0a0a0;--muted:#666;--accent:#6366f1;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--yellow:#eab308}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 1rem}
+.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
+.tt-nav a{text-decoration:none;color:var(--text);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
+.tt-nav a:hover{opacity:.7}
+.tt-nav .tt-logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tt-nav .tt-back{color:var(--text2);font-size:.68rem}
+.hero{text-align:center;padding:2.5rem 1rem 1.5rem}
+.hero h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--text2);font-size:.9rem;max-width:500px;margin:0 auto}
+.container{max-width:800px;margin:0 auto;padding:0 1.5rem 3rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:.8rem}
+.card h3{font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--text2)}
+label{display:block;font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
+input[type="text"],input[type="number"],input[type="url"],input[type="email"],input[type="color"],select,textarea{width:100%;padding:.55rem .7rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.82rem;font-family:inherit;outline:none;transition:border-color .2s;margin-bottom:.5rem}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{min-height:100px;resize:vertical;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.78rem}
+button,.btn{padding:.5rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+button:hover,.btn:hover{filter:brightness(1.15)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent)}
+.btn-row{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0}
+.output{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.7rem;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.78rem;min-height:60px;white-space:pre-wrap;word-break:break-all;margin-top:.5rem;position:relative}
+.output:empty::before{content:'Output will appear here...';color:var(--muted)}
+.copy-btn{position:absolute;top:.4rem;right:.4rem;padding:.25rem .5rem;font-size:.65rem;background:var(--border2);border-radius:5px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+.tag{display:inline-block;padding:.2rem .5rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:.68rem;margin:.15rem;cursor:pointer;transition:all .15s}
+.tag:hover,.tag.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.slider-wrap{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.slider-wrap input[type="range"]{flex:1;accent-color:var(--accent)}
+.slider-val{font-size:.72rem;font-weight:700;color:var(--accent);min-width:35px;text-align:right}
+.preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;min-height:80px;display:flex;align-items:center;justify-content:center;margin:.5rem 0}
+.stat{text-align:center;padding:.5rem}
+.stat-num{font-size:1.3rem;font-weight:800;color:var(--accent)}
+.stat-label{font-size:.6rem;color:var(--muted);text-transform:uppercase}
+.stats-row{display:flex;justify-content:center;gap:1.5rem;margin:.5rem 0}
+footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.65rem;border-top:1px solid var(--border);margin-top:2rem}
+.checkboxes label{display:flex;align-items:center;gap:.4rem;font-size:.78rem;text-transform:none;letter-spacing:0;cursor:pointer;margin-bottom:.3rem;color:var(--text)}
+input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px}
+.color-preview{width:100%;height:50px;border-radius:8px;border:1px solid var(--border);margin:.5rem 0}
+.table-wrap{overflow-x:auto;margin:.5rem 0}
+table{width:100%;border-collapse:collapse;font-size:.75rem}
+th,td{padding:.4rem .6rem;border:1px solid var(--border);text-align:left}
+th{background:var(--surface2);font-weight:600;font-size:.68rem;text-transform:uppercase;color:var(--text2)}
+tr:hover td{background:var(--surface2)}
+</style>
+</head>
+<body style="padding-top:48px"><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
+<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+<div class="hero"><h1>〰️ <em>Frequency Calc</em></h1><p>Convert between frequency, wavelength & period</p></div>
+<div class="container">
+<div class="card">
+<div class="grid-2">
+<div><label>Frequency (Hz)</label><input type="number" id="freq" placeholder="440" oninput="fromFreq()"></div>
+<div><label>Wavelength (m)</label><input type="number" id="wave" placeholder="0.773" step="0.001" oninput="fromWave()"></div>
+<div><label>Period (s)</label><input type="number" id="period" step="0.0001" oninput="fromPeriod()"></div>
+<div><label>Medium</label><select id="medium" onchange="recalc()"><option value="340">Sound in Air</option><option value="1480">Sound in Water</option><option value="299792458">Light/EM</option></select></div>
+</div>
+</div>
+<div class="card"><h3>Results</h3><div class="output" id="out"></div></div>
+</div>
+<footer>Part of <a href="../" style="color:var(--accent);text-decoration:none;font-weight:600">TinyTools</a> — free tools for builders</footer>
+<script>
+function copyText(id){const el=document.getElementById(id);const t=el.innerText||el.value;navigator.clipboard.writeText(t);const btn=el.parentElement.querySelector('.copy-btn')||el.nextElementSibling;if(btn){const o=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=o,1200)}}
+let lastSrc='freq';
+function getSpeed(){return parseFloat(document.getElementById('medium').value)}
+function fromFreq(){lastSrc='freq';const f=parseFloat(document.getElementById('freq').value);if(!f)return;
+const s=getSpeed();document.getElementById('wave').value=(s/f).toPrecision(6);document.getElementById('period').value=(1/f).toPrecision(6);show(f)}
+function fromWave(){lastSrc='wave';const w=parseFloat(document.getElementById('wave').value);if(!w)return;
+const s=getSpeed();const f=s/w;document.getElementById('freq').value=f.toPrecision(6);document.getElementById('period').value=(1/f).toPrecision(6);show(f)}
+function fromPeriod(){lastSrc='period';const p=parseFloat(document.getElementById('period').value);if(!p)return;
+const f=1/p;const s=getSpeed();document.getElementById('freq').value=f.toPrecision(6);document.getElementById('wave').value=(s/f).toPrecision(6);show(f)}
+function recalc(){if(lastSrc==='freq')fromFreq();else if(lastSrc==='wave')fromWave();else fromPeriod()}
+function show(f){let note='';if(f>=20&&f<=20000){const notes=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const n=12*Math.log2(f/440)+69;const name=notes[Math.round(n)%12];const oct=Math.floor(Math.round(n)/12)-1;note='\nMusical note: ~'+name+oct}
+document.getElementById('out').textContent='Frequency: '+f.toPrecision(6)+' Hz\nWavelength: '+(getSpeed()/f).toPrecision(6)+' m\nPeriod: '+(1/f).toPrecision(6)+' s\nAngular freq: '+(2*Math.PI*f).toPrecision(6)+' rad/s'+note}
+</script>
+</body>
+</html>
