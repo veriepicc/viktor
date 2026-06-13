@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXIF Viewer — View Photo Metadata, Camera Settings & GPS Location</title>
+<meta name="description" content="View EXIF data from photos — camera model, settings, GPS coordinates, date taken. Free online EXIF metadata viewer. No upload.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#f59e0b;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.drop{border:2px dashed var(--border);border-radius:14px;padding:3rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:1.5rem}
+.drop:hover{border-color:var(--accent)}
+.drop .icon{font-size:2.5rem;margin-bottom:.5rem}
+.drop p{color:var(--muted);font-size:.85rem}
+.drop input{display:none}
+.thumb{text-align:center;margin-bottom:1rem}
+.thumb img{max-width:100%;max-height:250px;border-radius:10px;border:1px solid var(--border)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:.8rem;overflow:hidden}
+.section h3{padding:.5rem .8rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);border-bottom:1px solid var(--border);font-weight:700}
+.row{display:flex;padding:.35rem .8rem;border-bottom:1px solid rgba(42,42,42,.5);font-size:.78rem}
+.row:last-child{border-bottom:none}
+.row .key{flex:1;color:var(--muted)}
+.row .val{flex:1;font-weight:600;text-align:right}
+.no-exif{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+<h1>EXIF Viewer</h1>
+<div class="drop" id="dropZone" onclick="document.getElementById('fi').click()">
+<div class="icon">📷</div>
+<p>Drop a JPEG image or click to browse</p>
+<input type="file" id="fi" accept="image/jpeg,image/tiff" onchange="handleFile(event)">
+</div>
+<div id="result"></div>
+</main>
+<script>
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--accent)'});
+dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';if(e.dataTransfer.files[0])readExif(e.dataTransfer.files[0])});
+function handleFile(e){if(e.target.files[0])readExif(e.target.files[0])}
+
+function readExif(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const buf=e.target.result;
+    const view=new DataView(buf);
+    
+    // Show thumbnail
+    const thumbURL=URL.createObjectURL(file);
+    let html=`<div class="thumb"><img src="${thumbURL}"></div>`;
+    html+=`<div class="section"><h3>File Info</h3>
+      <div class="row"><span class="key">Name</span><span class="val">${file.name}</span></div>
+      <div class="row"><span class="key">Size</span><span class="val">${(file.size/1024).toFixed(1)} KB</span></div>
+      <div class="row"><span class="key">Type</span><span class="val">${file.type}</span></div>
+      <div class="row"><span class="key">Last Modified</span><span class="val">${new Date(file.lastModified).toLocaleString()}</span></div>
+    </div>`;
+    
+    // Parse EXIF
+    const exif=parseExif(view);
+    if(exif){
+      if(exif.camera.length){
+        html+=`<div class="section"><h3>Camera</h3>${exif.camera.map(r=>`<div class="row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div>`;
+      }
+      if(exif.settings.length){
+        html+=`<div class="section"><h3>Settings</h3>${exif.settings.map(r=>`<div class="row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div>`;
+      }
+      if(exif.image.length){
+        html+=`<div class="section"><h3>Image</h3>${exif.image.map(r=>`<div class="row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div>`;
+      }
+      if(exif.gps.length){
+        html+=`<div class="section"><h3>GPS</h3>${exif.gps.map(r=>`<div class="row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div>`;
+      }
+    }else{
+      html+=`<div class="no-exif">No EXIF data found. Only JPEG files with EXIF metadata are supported.</div>`;
+    }
+    document.getElementById('result').innerHTML=html;
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseExif(view){
+  if(view.getUint16(0)!==0xFFD8)return null;
+  let offset=2;
+  while(offset<view.byteLength){
+    if(view.getUint8(offset)!==0xFF)break;
+    const marker=view.getUint8(offset+1);
+    if(marker===0xE1){
+      const exifData=parseExifData(view,offset+4);
+      return exifData;
+    }
+    const len=view.getUint16(offset+2);
+    offset+=2+len;
+  }
+  return null;
+}
+
+function parseExifData(view,start){
+  if(getString(view,start,4)!=='Exif')return null;
+  const tiffStart=start+6;
+  const bigEndian=view.getUint16(tiffStart)===0x4D4D;
+  const g16=(o)=>bigEndian?view.getUint16(tiffStart+o):view.getUint16(tiffStart+o,true);
+  const g32=(o)=>bigEndian?view.getUint32(tiffStart+o):view.getUint32(tiffStart+o,true);
+  
+  const ifdOffset=g32(4);
+  const tags=readIFD(view,tiffStart,ifdOffset,bigEndian);
+  
+  // Read sub-IFD (EXIF IFD)
+  let exifTags={};
+  if(tags[0x8769]){
+    exifTags=readIFD(view,tiffStart,tags[0x8769],bigEndian);
+  }
+  
+  // Read GPS IFD
+  let gpsTags={};
+  if(tags[0x8825]){
+    gpsTags=readIFD(view,tiffStart,tags[0x8825],bigEndian);
+  }
+  
+  const camera=[],settings=[],image=[],gps=[];
+  
+  if(tags[0x010F])camera.push(['Make',tags[0x010F]]);
+  if(tags[0x0110])camera.push(['Model',tags[0x0110]]);
+  if(tags[0x0131])camera.push(['Software',tags[0x0131]]);
+  
+  if(exifTags[0x829A])settings.push(['Exposure',exifTags[0x829A]]);
+  if(exifTags[0x829D])settings.push(['F-Number',exifTags[0x829D]]);
+  if(exifTags[0x8827])settings.push(['ISO',exifTags[0x8827]]);
+  if(exifTags[0x920A])settings.push(['Focal Length',exifTags[0x920A]]);
+  if(exifTags[0x9209])settings.push(['Flash',exifTags[0x9209]===0?'No Flash':'Flash Fired']);
+  if(exifTags[0xA405])settings.push(['Focal Length (35mm)',exifTags[0xA405]+'mm']);
+  
+  if(exifTags[0x9003])image.push(['Date Taken',exifTags[0x9003]]);
+  if(tags[0xA002]||exifTags[0xA002])image.push(['Width',(tags[0xA002]||exifTags[0xA002])+'px']);
+  if(tags[0xA003]||exifTags[0xA003])image.push(['Height',(tags[0xA003]||exifTags[0xA003])+'px']);
+  if(exifTags[0xA001])image.push(['Color Space',exifTags[0xA001]===1?'sRGB':'Uncalibrated']);
+  
+  return{camera,settings,image,gps};
+}
+
+function readIFD(view,tiffStart,offset,bigEndian){
+  const g16=(o)=>bigEndian?view.getUint16(tiffStart+o):view.getUint16(tiffStart+o,true);
+  const g32=(o)=>bigEndian?view.getUint32(tiffStart+o):view.getUint32(tiffStart+o,true);
+  
+  const tags={};
+  try{
+    const count=g16(offset);
+    for(let i=0;i<count;i++){
+      const entryOffset=offset+2+i*12;
+      const tag=g16(entryOffset);
+      const type=g16(entryOffset+2);
+      const numValues=g32(entryOffset+4);
+      const valueOffset=entryOffset+8;
+      
+      if(type===2){// ASCII
+        const strOffset=numValues>4?g32(valueOffset):valueOffset;
+        tags[tag]=getString(view,tiffStart+strOffset,numValues-1);
+      }else if(type===3){// SHORT
+        tags[tag]=g16(valueOffset);
+      }else if(type===4){// LONG
+        tags[tag]=g32(valueOffset);
+      }else if(type===5){// RATIONAL
+        const rOffset=g32(valueOffset);
+        const num=g32(rOffset);
+        const den=g32(rOffset+4);
+        tags[tag]=den===1?num+'':num+'/'+den;
+      }else{
+        tags[tag]=g32(valueOffset);
+      }
+    }
+  }catch(e){}
+  return tags;
+}
+
+function getString(view,offset,length){
+  let str='';
+  for(let i=0;i<length;i++){const c=view.getUint8(offset+i);if(c===0)break;str+=String.fromCharCode(c)}
+  return str;
+}
+</script>
+</body>
+</html>
