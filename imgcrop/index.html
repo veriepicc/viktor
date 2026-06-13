@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImgCrop — Free Online Image Cropper & Resizer</title>
+<meta name="description" content="Crop and resize images for social media — Instagram, Twitter, YouTube, LinkedIn. Free online image cropper. No upload needed.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#111;--surface:#1a1a1a;--border:#2a2a2a;--accent:#22d3ee;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.upload-zone{border:2px dashed var(--border);border-radius:14px;padding:3rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:1.5rem}
+.upload-zone:hover{border-color:var(--accent)}
+.upload-zone .icon{font-size:2rem;margin-bottom:.5rem}
+.upload-zone p{color:var(--muted);font-size:.85rem}
+.upload-zone input{display:none}
+.presets{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:1rem}
+.preset{padding:.3rem .6rem;border-radius:6px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.preset.active{border-color:var(--accent);color:var(--accent)}
+.canvas-area{position:relative;display:flex;justify-content:center;margin-bottom:1rem;background:repeating-conic-gradient(#1a1a1a 0% 25%,#151515 0% 50%) 50%/16px 16px;border-radius:10px;min-height:100px;overflow:hidden}
+canvas{max-width:100%;cursor:crosshair}
+.actions{display:flex;gap:.5rem;justify-content:center}
+.btn{padding:.5rem 1.5rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--accent);color:#111}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.info{font-size:.72rem;color:var(--muted);text-align:center;margin-top:.5rem}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>Image Cropper</h1>
+<div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+<div class="icon">📂</div>
+<p>Drop an image here or click to upload</p>
+<input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
+</div>
+<div class="hidden" id="editor">
+<div class="presets">
+<div class="preset active" onclick="setRatio(0,this)">Free</div>
+<div class="preset" onclick="setRatio(1,this)">1:1</div>
+<div class="preset" onclick="setRatio(16/9,this)">16:9</div>
+<div class="preset" onclick="setRatio(9/16,this)">9:16</div>
+<div class="preset" onclick="setRatio(4/3,this)">4:3</div>
+<div class="preset" onclick="setRatio(4/5,this)">4:5</div>
+<div class="preset" onclick="setRatio(1.91,this)">1.91:1 OG</div>
+<div class="preset" onclick="setRatio(2/1,this)">2:1 Twitter</div>
+</div>
+<div class="canvas-area"><canvas id="canvas"></canvas></div>
+<div class="actions">
+<button class="btn btn-primary" onclick="download()">Download Crop</button>
+<button class="btn btn-secondary" onclick="resetCrop()">Reset</button>
+</div>
+<div class="info" id="info"></div>
+</div>
+</main>
+<script>
+let img=null,canvas,ctx,cropX=0,cropY=0,cropW=0,cropH=0,isDragging=false,dragStart={},ratio=0,scale=1;
+canvas=document.getElementById('canvas');ctx=canvas.getContext('2d');
+
+// Drag and drop
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--accent)'});
+dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';if(e.dataTransfer.files[0])loadImage(e.dataTransfer.files[0])});
+
+function handleFile(e){if(e.target.files[0])loadImage(e.target.files[0])}
+function loadImage(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    img=new Image();
+    img.onload=()=>{
+      const maxW=Math.min(650,window.innerWidth-48);
+      scale=Math.min(1,maxW/img.width);
+      canvas.width=img.width*scale;canvas.height=img.height*scale;
+      cropX=0;cropY=0;cropW=canvas.width;cropH=canvas.height;
+      document.getElementById('dropZone').classList.add('hidden');
+      document.getElementById('editor').classList.remove('hidden');
+      draw();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function setRatio(r,el){ratio=r;document.querySelectorAll('.preset').forEach(p=>p.classList.remove('active'));el.classList.add('active');
+  if(ratio>0){
+    const maxW=canvas.width,maxH=canvas.height;
+    if(maxW/maxH>ratio){cropH=maxH;cropW=cropH*ratio;cropX=(maxW-cropW)/2;cropY=0}
+    else{cropW=maxW;cropH=cropW/ratio;cropY=(maxH-cropH)/2;cropX=0}
+  }else{cropX=0;cropY=0;cropW=canvas.width;cropH=canvas.height}
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  // Darken outside crop
+  ctx.fillStyle='rgba(0,0,0,0.6)';
+  ctx.fillRect(0,0,canvas.width,cropY);
+  ctx.fillRect(0,cropY+cropH,canvas.width,canvas.height-cropY-cropH);
+  ctx.fillRect(0,cropY,cropX,cropH);
+  ctx.fillRect(cropX+cropW,cropY,canvas.width-cropX-cropW,cropH);
+  // Crop border
+  ctx.strokeStyle='#22d3ee';ctx.lineWidth=2;ctx.strokeRect(cropX,cropY,cropW,cropH);
+  // Grid
+  ctx.strokeStyle='rgba(34,211,238,0.3)';ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(cropX+cropW/3,cropY);ctx.lineTo(cropX+cropW/3,cropY+cropH);
+  ctx.moveTo(cropX+2*cropW/3,cropY);ctx.lineTo(cropX+2*cropW/3,cropY+cropH);
+  ctx.moveTo(cropX,cropY+cropH/3);ctx.lineTo(cropX+cropW,cropY+cropH/3);
+  ctx.moveTo(cropX,cropY+2*cropH/3);ctx.lineTo(cropX+cropW,cropY+2*cropH/3);
+  ctx.stroke();
+  // Info
+  const rW=Math.round(cropW/scale),rH=Math.round(cropH/scale);
+  document.getElementById('info').textContent=`Crop: ${rW} × ${rH}px`;
+}
+
+canvas.addEventListener('mousedown',e=>{const r=canvas.getBoundingClientRect();isDragging=true;dragStart={x:e.clientX-r.left,y:e.clientY-r.top,cx:cropX,cy:cropY}});
+canvas.addEventListener('mousemove',e=>{if(!isDragging)return;const r=canvas.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;
+  cropX=Math.max(0,Math.min(canvas.width-cropW,dragStart.cx+mx-dragStart.x));
+  cropY=Math.max(0,Math.min(canvas.height-cropH,dragStart.cy+my-dragStart.y));draw()});
+canvas.addEventListener('mouseup',()=>isDragging=false);
+canvas.addEventListener('mouseleave',()=>isDragging=false);
+
+function resetCrop(){cropX=0;cropY=0;cropW=canvas.width;cropH=canvas.height;draw()}
+function download(){
+  const c=document.createElement('canvas');
+  c.width=Math.round(cropW/scale);c.height=Math.round(cropH/scale);
+  const cx=c.getContext('2d');
+  cx.drawImage(img,cropX/scale,cropY/scale,cropW/scale,cropH/scale,0,0,c.width,c.height);
+  const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='cropped.png';a.click();
+}
+</script>
+</body>
+</html>
