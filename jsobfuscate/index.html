@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Obfuscator — Protect & Minify Your JS Code Online</title>
+<meta name="description" content="Obfuscate JavaScript code online. Variable renaming, string encoding, dead code injection, control flow flattening. Protect your source code for free.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono','Fira Code',monospace;background:#0d1117;color:#c9d1d9;min-height:100vh}
+main{max-width:900px;margin:0 auto;padding:1.5rem}
+h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem;font-family:'Inter',sans-serif;color:#58a6ff}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem}
+@media(max-width:700px){.split{grid-template-columns:1fr}}
+.pane{background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.pane-head{display:flex;justify-content:space-between;align-items:center;padding:.4rem .7rem;border-bottom:1px solid #30363d;font-size:.65rem;color:#8b949e;font-family:'Inter',sans-serif;font-weight:600}
+.pane-head button{background:#238636;color:#fff;border:none;padding:.2rem .5rem;border-radius:4px;font-size:.6rem;font-weight:700;cursor:pointer}
+.pane textarea{flex:1;min-height:280px;padding:.6rem;background:transparent;border:none;color:#c9d1d9;font-size:.78rem;font-family:inherit;outline:none;resize:vertical;line-height:1.6}
+.opts{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:.8rem;margin-bottom:.8rem}
+.opts h3{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;color:#8b949e;margin-bottom:.5rem;font-family:'Inter',sans-serif}
+.opts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.4rem}
+.opt{display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:#c9d1d9;cursor:pointer}
+.opt input{accent-color:#58a6ff}
+.opt select{background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#c9d1d9;padding:.15rem .3rem;font-size:.7rem}
+.stats{display:flex;gap:1rem;justify-content:center;margin-bottom:.5rem}
+.stat{font-size:.7rem;color:#8b949e;font-family:'Inter',sans-serif}.stat b{color:#58a6ff}
+.btn-row{display:flex;gap:.4rem;justify-content:center}
+.btn{padding:.5rem 1.2rem;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif}
+.btn-primary{background:#238636;color:#fff}
+.btn-secondary{background:#30363d;color:#c9d1d9}
+</style>
+</head>
+<body>
+<main>
+<h1>🔒 JavaScript Obfuscator</h1>
+<div class="opts">
+<h3>Obfuscation Options</h3>
+<div class="opts-grid">
+<label class="opt"><input type="checkbox" id="renameVars" checked> Rename variables</label>
+<label class="opt"><input type="checkbox" id="encodeStrings" checked> Encode strings</label>
+<label class="opt"><input type="checkbox" id="deadCode" checked> Inject dead code</label>
+<label class="opt"><input type="checkbox" id="hexLiterals" checked> Hex number literals</label>
+<label class="opt"><input type="checkbox" id="shuffleKeys" checked> Shuffle object keys</label>
+<label class="opt"><input type="checkbox" id="controlFlow"> Control flow flatten</label>
+<label class="opt"><input type="checkbox" id="selfDefend"> Self-defending</label>
+<label class="opt"><input type="checkbox" id="minifyOut" checked> Minify output</label>
+<label class="opt">Intensity: <select id="intensity"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+</div>
+</div>
+<div class="split">
+<div class="pane">
+<div class="pane-head"><span>📝 Input JavaScript</span><button onclick="loadSample()">Sample</button></div>
+<textarea id="input" placeholder="Paste your JavaScript here..." oninput="updateStats()">// Example: user authentication
+function validateUser(username, password) {
+  const MIN_LENGTH = 8;
+  const SPECIAL_CHARS = /[!@#$%^&*]/;
+  
+  if (username.length < 3) {
+    return { valid: false, error: "Username too short" };
+  }
+  
+  if (password.length < MIN_LENGTH) {
+    return { valid: false, error: "Password must be at least 8 characters" };
+  }
+  
+  if (!SPECIAL_CHARS.test(password)) {
+    return { valid: false, error: "Password needs a special character" };
+  }
+  
+  const hash = btoa(password + ":" + username);
+  return { valid: true, token: hash };
+}
+
+const users = ["admin", "user1", "guest"];
+const result = validateUser("admin", "P@ssw0rd!");
+console.log(result);</textarea>
+</div>
+<div class="pane">
+<div class="pane-head"><span>🔒 Obfuscated Output</span><button onclick="copyOutput()">Copy</button></div>
+<textarea id="output" readonly placeholder="Obfuscated code appears here..."></textarea>
+</div>
+</div>
+<div class="stats">
+<div class="stat">Input: <b id="inSize">0</b> chars</div>
+<div class="stat">Output: <b id="outSize">0</b> chars</div>
+<div class="stat">Ratio: <b id="ratio">-</b></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="obfuscate()">🔒 Obfuscate</button>
+<button class="btn btn-secondary" onclick="document.getElementById('input').value='';document.getElementById('output').value=''">Clear</button>
+<button class="btn btn-secondary" onclick="downloadOutput()">Download</button>
+</div>
+</main>
+<script>
+function obfuscate(){
+  const code=document.getElementById('input').value;
+  if(!code.trim())return;
+  
+  const opts={
+    renameVars:document.getElementById('renameVars').checked,
+    encodeStrings:document.getElementById('encodeStrings').checked,
+    deadCode:document.getElementById('deadCode').checked,
+    hexLiterals:document.getElementById('hexLiterals').checked,
+    shuffleKeys:document.getElementById('shuffleKeys').checked,
+    controlFlow:document.getElementById('controlFlow').checked,
+    selfDefend:document.getElementById('selfDefend').checked,
+    minify:document.getElementById('minifyOut').checked,
+    intensity:document.getElementById('intensity').value
+  };
+  
+  let out=code;
+  
+  // Variable renaming
+  if(opts.renameVars){
+    const varMap={};let vi=0;
+    const reserved=new Set(['if','else','for','while','do','switch','case','break','continue','return','function','var','let','const','class','new','this','typeof','instanceof','in','of','try','catch','finally','throw','async','await','import','export','default','from','true','false','null','undefined','void','delete','yield','console','window','document','Math','Date','Array','Object','String','Number','Boolean','RegExp','JSON','Promise','Set','Map','Error','btoa','atob','parseInt','parseFloat','isNaN','encodeURI','decodeURI','setTimeout','setInterval','length','test','push','pop','shift','log','toString']);
+    // Find variable names
+    const varPattern=/\b(?:var|let|const|function)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+    const paramPattern=/\(([^)]*)\)/g;
+    let match;
+    while((match=varPattern.exec(code))!==null){
+      const name=match[1];
+      if(!reserved.has(name)&&!varMap[name]){
+        varMap[name]='_'+genHex(vi++);
+      }
+    }
+    // Also grab function params
+    const funcParamRegex=/function\s+\w*\s*\(([^)]*)\)/g;
+    while((match=funcParamRegex.exec(code))!==null){
+      match[1].split(',').map(p=>p.trim()).filter(Boolean).forEach(p=>{
+        if(!reserved.has(p)&&!varMap[p])varMap[p]='_'+genHex(vi++);
+      });
+    }
+    
+    Object.entries(varMap).sort((a,b)=>b[0].length-a[0].length).forEach(([orig,obf])=>{
+      out=out.replace(new RegExp('\\b'+escapeRegex(orig)+'\\b','g'),obf);
+    });
+  }
+  
+  // String encoding
+  if(opts.encodeStrings){
+    out=out.replace(/"([^"\\]*(\\.[^"\\]*)*)"/g,(m,str)=>{
+      if(str.length<2)return m;
+      const encoded=Array.from(str).map(c=>'\\x'+c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+      return '"'+encoded+'"';
+    });
+  }
+  
+  // Hex number literals
+  if(opts.hexLiterals){
+    out=out.replace(/\b(\d+)\b/g,(m,num)=>{
+      const n=parseInt(num);
+      if(isNaN(n)||n<2)return m;
+      return '0x'+n.toString(16);
+    });
+  }
+  
+  // Dead code injection
+  if(opts.deadCode){
+    const deadSnippets=[
+      'var _dc'+rnd()+'=typeof window!=="undefined"?window:global;',
+      'void(function(){var _x'+rnd()+'=Math.random()*0xffffff|0;return _x'+rnd()+'^0xdeadbeef})();',
+      'if(false){console.log(Math.PI*'+rnd()+')}',
+      'var _trap'+rnd()+'=function(){return arguments.callee};',
+    ];
+    const intensity=opts.intensity==='high'?4:opts.intensity==='medium'?2:1;
+    for(let i=0;i<intensity;i++){
+      const snippet=deadSnippets[i%deadSnippets.length];
+      const lines=out.split('\n');
+      const pos=Math.floor(Math.random()*lines.length);
+      lines.splice(pos,0,snippet);
+      out=lines.join('\n');
+    }
+  }
+  
+  // Self-defending wrapper
+  if(opts.selfDefend){
+    out='(function(){var _sd=function(){var _r=_sd.constructor("return /\" + this + \"/")().constructor("^([^ ]+( +[^ ]+)+)+[^ ]}");return!_r.test(arguments.callee.toString())};if(!_sd()){'+out+'}else{while(true){}}})();';
+  }
+  
+  // Control flow flattening (basic)
+  if(opts.controlFlow){
+    out='var _cfs="'+btoa(rnd()+'')+'";switch(_cfs.length%3){case 0:break;case 1:break;default:break;};'+out;
+  }
+  
+  // Minify
+  if(opts.minify){
+    out=out.replace(/\/\/[^\n]*/g,'');
+    out=out.replace(/\/\*[\s\S]*?\*\//g,'');
+    out=out.replace(/\n\s*/g,'');
+    out=out.replace(/\s{2,}/g,' ');
+  }
+  
+  document.getElementById('output').value=out;
+  updateStats();
+}
+
+function genHex(n){
+  const chars='abcdef';
+  let r='';
+  do{r=chars[n%6]+r;n=Math.floor(n/6)}while(n>0);
+  return r+'x'+(Math.random()*0xfff|0).toString(16);
+}
+function rnd(){return Math.random()*0xffff|0}
+function escapeRegex(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+
+function updateStats(){
+  const inLen=document.getElementById('input').value.length;
+  const outLen=document.getElementById('output').value.length;
+  document.getElementById('inSize').textContent=inLen.toLocaleString();
+  document.getElementById('outSize').textContent=outLen.toLocaleString();
+  document.getElementById('ratio').textContent=inLen?((outLen/inLen)*100).toFixed(0)+'%':'-';
+}
+
+function copyOutput(){navigator.clipboard.writeText(document.getElementById('output').value)}
+function downloadOutput(){
+  const a=document.createElement('a');
+  a.download='obfuscated.js';
+  a.href=URL.createObjectURL(new Blob([document.getElementById('output').value],{type:'text/javascript'}));
+  a.click();
+}
+function loadSample(){
+  document.getElementById('input').value=`// Shopping cart system
+class ShoppingCart {
+  constructor() {
+    this.items = [];
+    this.discount = 0;
+  }
+  
+  addItem(name, price, qty) {
+    this.items.push({ name, price, quantity: qty });
+    return this;
+  }
+  
+  applyDiscount(code) {
+    const codes = { "SAVE10": 0.1, "HALF": 0.5, "VIP": 0.25 };
+    this.discount = codes[code] || 0;
+    return this.discount > 0;
+  }
+  
+  getTotal() {
+    const subtotal = this.items.reduce((sum, item) => 
+      sum + (item.price * item.quantity), 0);
+    return subtotal * (1 - this.discount);
+  }
+}
+
+const cart = new ShoppingCart();
+cart.addItem("Widget", 29.99, 2);
+cart.addItem("Gadget", 49.99, 1);
+cart.applyDiscount("SAVE10");
+console.log("Total:", cart.getTotal());`;
+  updateStats();
+}
+updateStats();
+</script>
+</body>
+</html>
