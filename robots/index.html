@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robots.txt Generator — Create & Validate robots.txt Rules</title>
+<meta name="description" content="Generate robots.txt files for your website. Control search engine crawling. Allow/disallow paths, set sitemap URL. Free robots.txt builder.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0c0c;--surface:#161616;--border:#262626;--accent:#22c55e;--text:#e5e5e5;--muted:#737373}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+main{max-width:650px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.card h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.8rem;font-weight:700}
+.presets{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:1rem}
+.preset{padding:.35rem .7rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--bg);transition:all .15s}
+.preset:hover{border-color:var(--accent);color:var(--accent)}
+.field{margin-bottom:.8rem}
+.field label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.3rem}
+.field input{width:100%;padding:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;font-family:inherit;outline:none}
+.field input:focus{border-color:var(--accent)}
+.agent-block{border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.6rem;background:rgba(0,0,0,.2)}
+.agent-block .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.agent-block .head input{flex:1;padding:.4rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.82rem;outline:none}
+.rule-row{display:flex;gap:.3rem;margin-bottom:.3rem;align-items:center}
+.rule-row select{padding:.35rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.78rem;outline:none}
+.rule-row input{flex:1;padding:.35rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.78rem;outline:none}
+.rule-row button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem}
+.btn-sm{background:var(--bg);color:var(--accent);border:1px solid var(--border);padding:.3rem .6rem;border-radius:5px;font-size:.68rem;font-weight:600;cursor:pointer}
+.btn{background:var(--accent);color:#0c0c0c;border:none;padding:.4rem .8rem;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer}
+.output{background:#050505;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.output-head{display:flex;justify-content:space-between;padding:.4rem .8rem;border-bottom:1px solid var(--border);align-items:center}
+.output-head span{font-size:.72rem;color:var(--muted)}
+.output pre{padding:.8rem;font-size:.8rem;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--accent);font-family:'SF Mono',monospace}
+</style>
+</head>
+<body>
+<main>
+<h1>robots.txt Generator</h1>
+<div class="card">
+<h3>Quick Presets</h3>
+<div class="presets">
+<div class="preset" onclick="preset('allow')">Allow All</div>
+<div class="preset" onclick="preset('block')">Block All</div>
+<div class="preset" onclick="preset('standard')">Standard</div>
+<div class="preset" onclick="preset('wordpress')">WordPress</div>
+<div class="preset" onclick="preset('noai')">Block AI Bots</div>
+</div>
+</div>
+<div class="card">
+<h3>Sitemap URL</h3>
+<div class="field"><input id="sitemap" placeholder="https://example.com/sitemap.xml" oninput="gen()"></div>
+</div>
+<div class="card">
+<h3>User-Agent Rules</h3>
+<div id="agents"></div>
+<button class="btn-sm" onclick="addAgent()">+ Add User-Agent</button>
+</div>
+<div class="output">
+<div class="output-head"><span>robots.txt</span><button class="btn" onclick="cp()">Copy</button></div>
+<pre id="output"></pre>
+</div>
+</main>
+<script>
+let agents=[{name:'*',rules:[{type:'Allow',path:'/'}]}];
+
+function preset(p){
+  if(p==='allow')agents=[{name:'*',rules:[{type:'Allow',path:'/'}]}];
+  if(p==='block')agents=[{name:'*',rules:[{type:'Disallow',path:'/'}]}];
+  if(p==='standard')agents=[{name:'*',rules:[{type:'Allow',path:'/'},{type:'Disallow',path:'/admin/'},{type:'Disallow',path:'/private/'},{type:'Disallow',path:'/tmp/'}]}];
+  if(p==='wordpress')agents=[{name:'*',rules:[{type:'Allow',path:'/'},{type:'Disallow',path:'/wp-admin/'},{type:'Allow',path:'/wp-admin/admin-ajax.php'},{type:'Disallow',path:'/wp-includes/'},{type:'Disallow',path:'/?s='},{type:'Disallow',path:'/search/'}]}];
+  if(p==='noai')agents=[{name:'*',rules:[{type:'Allow',path:'/'}]},{name:'GPTBot',rules:[{type:'Disallow',path:'/'}]},{name:'ChatGPT-User',rules:[{type:'Disallow',path:'/'}]},{name:'Google-Extended',rules:[{type:'Disallow',path:'/'}]},{name:'CCBot',rules:[{type:'Disallow',path:'/'}]},{name:'anthropic-ai',rules:[{type:'Disallow',path:'/'}]}];
+  render();gen();
+}
+function addAgent(){agents.push({name:'',rules:[{type:'Disallow',path:'/'}]});render();gen()}
+function render(){
+  document.getElementById('agents').innerHTML=agents.map((a,i)=>`<div class="agent-block"><div class="head"><input placeholder="User-agent (e.g. *)" value="${a.name}" oninput="agents[${i}].name=this.value;gen()"><button style="background:none;border:none;color:var(--muted);cursor:pointer;margin-left:.5rem" onclick="agents.splice(${i},1);render();gen()">×</button></div>${a.rules.map((r,j)=>`<div class="rule-row"><select onchange="agents[${i}].rules[${j}].type=this.value;gen()"><option value="Allow" ${r.type==='Allow'?'selected':''}>Allow</option><option value="Disallow" ${r.type==='Disallow'?'selected':''}>Disallow</option></select><input placeholder="/path/" value="${r.path}" oninput="agents[${i}].rules[${j}].path=this.value;gen()"><button onclick="agents[${i}].rules.splice(${j},1);render();gen()">×</button></div>`).join('')}<button class="btn-sm" onclick="agents[${i}].rules.push({type:'Disallow',path:''});render();gen()" style="margin-top:.3rem">+ Rule</button></div>`).join('');
+}
+function gen(){
+  let lines=[];
+  agents.forEach((a,i)=>{
+    if(i>0)lines.push('');
+    lines.push(`User-agent: ${a.name||'*'}`);
+    a.rules.forEach(r=>lines.push(`${r.type}: ${r.path}`));
+  });
+  const sitemap=document.getElementById('sitemap').value.trim();
+  if(sitemap){lines.push('');lines.push(`Sitemap: ${sitemap}`)}
+  document.getElementById('output').textContent=lines.join('\n');
+}
+function cp(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+render();gen();
+</script>
+</body>
+</html>
