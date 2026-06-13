@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChromaForge — Color Palette Generator</title>
+<meta name="description" content="Generate beautiful color palettes instantly. Extract colors from images, create harmonious schemes, and export for CSS, Tailwind, and more.">
+<meta name="keywords" content="color palette generator, color scheme, color picker, css colors, tailwind colors, color harmony">
+<meta property="og:title" content="ChromaForge — Beautiful Color Palettes">
+<meta property="og:description" content="Generate stunning color palettes from images or algorithms. Free and instant.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:#111;color:#eee;min-height:100vh}
+nav{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #222}
+.logo{font-size:1.2rem;font-weight:800;letter-spacing:-.02em}.logo span{background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#9b59b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.gen-btn{background:#fff;color:#111;border:none;padding:.5rem 1.4rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:transform .15s}
+.gen-btn:hover{transform:scale(1.04)}
+.gen-btn:active{transform:scale(.97)}
+.palette-view{display:flex;min-height:55vh}
+.swatch{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:1.5rem;cursor:pointer;transition:flex .3s;position:relative}
+.swatch:hover{flex:1.4}
+.swatch .hex{font-family:'SF Mono',monospace;font-size:1.1rem;font-weight:700;margin-bottom:.3rem;opacity:.9}
+.swatch .name{font-size:.75rem;opacity:.6}
+.swatch .copied{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:800;font-size:1.2rem;opacity:0;transition:opacity .3s}
+.swatch .copied.show{opacity:1}
+.controls{padding:1.5rem 2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border-bottom:1px solid #222}
+.controls select,.controls input{background:#1a1a1a;border:1px solid #333;color:#eee;padding:.45rem .8rem;border-radius:6px;font-size:.82rem;font-family:inherit}
+.controls label{font-size:.8rem;color:#888;margin-right:.3rem}
+.export-section{padding:1.5rem 2rem}
+.export-section h3{font-size:.85rem;color:#888;margin-bottom:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.export-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
+.export-card{background:#1a1a1a;border:1px solid #222;border-radius:8px;padding:.8rem 1rem;cursor:pointer;transition:border-color .2s}
+.export-card:hover{border-color:#555}
+.export-card .label{font-size:.72rem;color:#888;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
+.export-card code{font-family:monospace;font-size:.75rem;color:#ccc;word-break:break-all;display:block;max-height:60px;overflow:hidden}
+footer{text-align:center;padding:1.5rem;color:#555;font-size:.72rem;border-top:1px solid #222}
+.lock-icon{position:absolute;top:.8rem;right:.8rem;width:24px;height:24px;border-radius:4px;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;opacity:0;transition:opacity .2s}
+.swatch:hover .lock-icon{opacity:1}
+.swatch.locked .lock-icon{opacity:1;background:rgba(255,255,255,.2)}
+</style>
+</head>
+<body>
+<nav><div class="logo">Chroma<span>Forge</span></div><button class="gen-btn" onclick="generate()">Generate ⌘G</button></nav>
+<div class="palette-view" id="palette"></div>
+<div class="controls">
+<div><label>Mode</label><select id="mode"><option value="random">Random</option><option value="analogous">Analogous</option><option value="complementary">Complementary</option><option value="triadic">Triadic</option><option value="monochrome">Monochrome</option><option value="warm">Warm</option><option value="cool">Cool</option><option value="pastel">Pastel</option></select></div>
+<div><label>Colors</label><select id="count"><option>3</option><option selected>5</option><option>7</option><option>9</option></select></div>
+</div>
+<div class="export-section">
+<h3>Export</h3>
+<div class="export-grid" id="exports"></div>
+</div>
+<footer>&copy; 2026 ChromaForge &mdash; Color palette generator. Press spacebar to generate.</footer>
+<script>
+let colors=[],locked=new Set();
+const palette=document.getElementById('palette'),exports=document.getElementById('exports');
+function hslToHex(h,s,l){h/=360;s/=100;l/=100;let r,g,b;if(s===0){r=g=b=l}else{const q=l<.5?l*(1+s):l+s-l*s;const p=2*l-q;r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3)}return'#'+[r,g,b].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('')}
+function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p}
+function luminance(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;return .299*r+.587*g+.114*b}
+function generate(){const mode=document.getElementById('mode').value;const count=parseInt(document.getElementById('count').value);const newColors=[];const baseH=Math.random()*360;
+for(let i=0;i<count;i++){if(locked.has(i)&&colors[i]){newColors.push(colors[i]);continue}
+let h,s,l;
+switch(mode){case'analogous':h=(baseH+i*(30/(count-1||1))*2-30)%360;s=60+Math.random()*25;l=45+Math.random()*20;break;
+case'complementary':h=(baseH+(i%2===0?0:180)+Math.random()*20-10)%360;s=55+Math.random()*30;l=40+Math.random()*25;break;
+case'triadic':h=(baseH+i*120+Math.random()*15)%360;s=55+Math.random()*30;l=42+Math.random()*22;break;
+case'monochrome':h=baseH;s=20+Math.random()*40;l=15+i*(70/(count-1||1));break;
+case'warm':h=Math.random()*60-10;if(h<0)h+=360;s=60+Math.random()*30;l=40+Math.random()*25;break;
+case'cool':h=180+Math.random()*120;s=50+Math.random()*30;l=35+Math.random()*30;break;
+case'pastel':h=Math.random()*360;s=40+Math.random()*30;l=75+Math.random()*15;break;
+default:h=Math.random()*360;s=45+Math.random()*45;l=30+Math.random()*40}
+newColors.push(hslToHex(h,s,l))}
+colors=newColors;render()}
+function render(){palette.innerHTML='';colors.forEach((c,i)=>{const d=document.createElement('div');d.className='swatch'+(locked.has(i)?' locked':'');d.style.background=c;const textColor=luminance(c)>.55?'#111':'#fff';d.style.color=textColor;
+d.innerHTML=`<div class="lock-icon" onclick="event.stopPropagation();toggleLock(${i})">${locked.has(i)?'🔒':'🔓'}</div><div class="copied" id="cp${i}">Copied!</div><div class="hex">${c.toUpperCase()}</div><div class="name">Color ${i+1}</div>`;
+d.onclick=()=>{navigator.clipboard.writeText(c.toUpperCase());const cp=document.getElementById('cp'+i);cp.classList.add('show');setTimeout(()=>cp.classList.remove('show'),800)};palette.appendChild(d)});renderExports()}
+function toggleLock(i){locked.has(i)?locked.delete(i):locked.add(i);render()}
+function renderExports(){const hexes=colors.map(c=>c.toUpperCase());
+exports.innerHTML='';
+const formats=[
+{label:'CSS Variables',code:colors.map((c,i)=>`--color-${i+1}: ${c};`).join('\n')},
+{label:'Tailwind Config',code:`colors: {\n${colors.map((c,i)=>`  '${i+1}': '${c}'`).join(',\n')}\n}`},
+{label:'Array',code:`[${colors.map(c=>`"${c}"`).join(', ')}]`},
+{label:'SCSS Variables',code:colors.map((c,i)=>`$color-${i+1}: ${c};`).join('\n')},
+];
+formats.forEach(f=>{const d=document.createElement('div');d.className='export-card';d.innerHTML=`<div class="label">${f.label}</div><code>${f.code.replace(/</g,'&lt;')}</code>`;d.onclick=()=>{navigator.clipboard.writeText(f.code)};exports.appendChild(d)})}
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target===document.body){e.preventDefault();generate()}});
+document.getElementById('mode').onchange=generate;
+document.getElementById('count').onchange=()=>{locked.clear();generate()};
+generate();
+</script>
+</body>
+</html>
