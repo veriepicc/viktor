@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReadTime — Article Reading Time & Readability Score Calculator</title>
+<meta name="description" content="Calculate reading time, speaking time, Flesch readability score, and grade level for any text. Free readability analyzer.">
+<meta name="keywords" content="reading time calculator, readability score, flesch kincaid, reading level, word count, article analyzer">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fefdfb;--surface:#fff;--border:#e8e3d9;--accent:#b45309;--text:#292524;--muted:#78716c}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:.9rem 2rem;border-bottom:1px solid var(--border);background:var(--surface);font-family:'Inter',sans-serif}
+.logo{font-size:1.2rem;font-weight:800}.logo span{color:var(--accent)}
+main{max-width:700px;margin:0 auto;padding:2.5rem 1.5rem}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:.3rem;font-family:'Inter',sans-serif}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:2rem;font-family:'Inter',sans-serif}
+textarea{width:100%;min-height:250px;padding:1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:Georgia,serif;font-size:1rem;line-height:1.8;resize:vertical;outline:none}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:#bbb}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;margin:1.5rem 0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem;text-align:center}
+.stat .num{font-size:1.4rem;font-weight:800;color:var(--accent);font-family:'Inter',sans-serif}
+.stat .label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem;font-family:'Inter',sans-serif}
+.readability{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-top:1rem}
+.readability h3{font-size:.85rem;font-weight:700;margin-bottom:.8rem;font-family:'Inter',sans-serif}
+.meter{height:12px;background:#f0ece4;border-radius:6px;overflow:hidden;margin-bottom:.5rem}
+.meter-fill{height:100%;border-radius:6px;transition:width .3s}
+.meter-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-bottom:1rem;font-family:'Inter',sans-serif}
+.read-row{display:flex;padding:.3rem 0;font-size:.85rem;border-bottom:1px solid #f0ece4;font-family:'Inter',sans-serif}
+.read-row:last-child{border-bottom:none}
+.read-row .key{flex:1;color:var(--muted);font-size:.8rem}
+.read-row .val{font-weight:600}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;margin-top:3rem;font-family:'Inter',sans-serif}
+</style>
+</head>
+<body>
+<nav><div class="logo">Read<span>Time</span></div></nav>
+<main>
+<h1>Reading Time & Readability</h1>
+<p class="sub">Paste your article to analyze reading time, complexity, and grade level.</p>
+<textarea id="input" placeholder="Paste your article or text here..." oninput="analyze()">The quick brown fox jumps over the lazy dog. This is a sample paragraph to demonstrate the reading time calculator. It analyzes your text and provides useful metrics like word count, sentence count, average word length, reading time, speaking time, and readability scores. The Flesch-Kincaid readability test is designed to indicate how difficult a passage in English is to understand. It uses factors like sentence length and syllable count to calculate a score.</textarea>
+<div class="stats" id="stats"></div>
+<div class="readability" id="readability"></div>
+</main>
+<footer>&copy; 2026 ReadTime &mdash; Readability analyzer. Nothing is sent anywhere.</footer>
+<script>
+function countSyllables(word){
+  word=word.toLowerCase().replace(/[^a-z]/g,'');
+  if(!word)return 0;
+  if(word.length<=3)return 1;
+  word=word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'');
+  word=word.replace(/^y/,'');
+  const m=word.match(/[aeiouy]{1,2}/g);
+  return m?m.length:1;
+}
+
+function analyze(){
+  const text=document.getElementById('input').value;
+  const words=text.trim()?text.trim().split(/\s+/).filter(w=>w.length>0):[];
+  const chars=text.length;
+  const charsNoSpace=text.replace(/\s/g,'').length;
+  const sentences=text.split(/[.!?]+/).filter(s=>s.trim()).length||1;
+  const paragraphs=text.split(/\n\n+/).filter(p=>p.trim()).length||0;
+  const wordCount=words.length;
+
+  // Average word length
+  const avgWordLen=wordCount?words.reduce((a,w)=>a+w.replace(/[^a-zA-Z]/g,'').length,0)/wordCount:0;
+
+  // Syllable count
+  const totalSyllables=words.reduce((a,w)=>a+countSyllables(w),0);
+  const avgSyllPerWord=wordCount?totalSyllables/wordCount:0;
+  const avgWordsPerSentence=wordCount/sentences;
+
+  // Reading time (238 wpm avg)
+  const readMin=Math.ceil(wordCount/238);
+  const readSec=Math.round((wordCount/238)*60);
+  // Speaking time (150 wpm avg)
+  const speakMin=Math.ceil(wordCount/150);
+
+  // Flesch Reading Ease
+  const flesch=206.835-1.015*avgWordsPerSentence-84.6*avgSyllPerWord;
+  const fleschClamped=Math.max(0,Math.min(100,flesch));
+
+  // Flesch-Kincaid Grade Level
+  const fkGrade=0.39*avgWordsPerSentence+11.8*avgSyllPerWord-15.59;
+
+  document.getElementById('stats').innerHTML=
+    `<div class="stat"><div class="num">${readMin}</div><div class="label">Min Read</div></div>`+
+    `<div class="stat"><div class="num">${speakMin}</div><div class="label">Min Speak</div></div>`+
+    `<div class="stat"><div class="num">${wordCount.toLocaleString()}</div><div class="label">Words</div></div>`+
+    `<div class="stat"><div class="num">${chars.toLocaleString()}</div><div class="label">Characters</div></div>`+
+    `<div class="stat"><div class="num">${sentences}</div><div class="label">Sentences</div></div>`+
+    `<div class="stat"><div class="num">${paragraphs}</div><div class="label">Paragraphs</div></div>`;
+
+  const meterColor=fleschClamped>=60?'#22c55e':fleschClamped>=30?'#f59e0b':'#ef4444';
+  const difficulty=fleschClamped>=90?'Very Easy':fleschClamped>=80?'Easy':fleschClamped>=70?'Fairly Easy':fleschClamped>=60?'Standard':fleschClamped>=50?'Fairly Difficult':fleschClamped>=30?'Difficult':'Very Confusing';
+
+  document.getElementById('readability').innerHTML=
+    `<h3>Readability Analysis</h3>
+    <div class="meter"><div class="meter-fill" style="width:${fleschClamped}%;background:${meterColor}"></div></div>
+    <div class="meter-labels"><span>Hard</span><span>Medium</span><span>Easy</span></div>
+    <div class="read-row"><span class="key">Flesch Reading Ease</span><span class="val">${flesch.toFixed(1)} — ${difficulty}</span></div>
+    <div class="read-row"><span class="key">Grade Level</span><span class="val">${fkGrade>0?fkGrade.toFixed(1):'N/A'} (Flesch-Kincaid)</span></div>
+    <div class="read-row"><span class="key">Avg Words/Sentence</span><span class="val">${avgWordsPerSentence.toFixed(1)}</span></div>
+    <div class="read-row"><span class="key">Avg Syllables/Word</span><span class="val">${avgSyllPerWord.toFixed(1)}</span></div>
+    <div class="read-row"><span class="key">Avg Word Length</span><span class="val">${avgWordLen.toFixed(1)} chars</span></div>`;
+}
+analyze();
+</script>
+</body>
+</html>
