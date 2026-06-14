@@ -92,6 +92,16 @@ footer{border-top:1px solid var(--line)}
 </style>
 <meta name="robots" content="index,follow">
 <meta property="og:url" content="https://tinytools.store/">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+.card-emoji{display:flex;align-items:center;justify-content:center;height:30px}
+.card-emoji svg{width:25px;height:25px;color:var(--ink);stroke-width:1.5;transition:color .16s}
+.card:hover .card-emoji svg{color:var(--accent)}
+.feat-emoji{display:flex;align-items:center;justify-content:center}
+.feat-emoji svg{width:20px;height:20px;color:var(--accent);stroke-width:1.6}
+.logo-icon{display:inline-flex}
+.logo-icon svg{width:19px;height:19px;color:var(--accent);stroke-width:1.8}
+</style>
 </head>
 <body>
 <nav><div class="nav-inner"><a href="/" class="logo"><span class="logo-icon">🛠️</span><span>TinyTools</span></a><span class="nav-count">[ <b>308</b> tools · 0 tracking ]</span></div></nav>
@@ -126,6 +136,46 @@ document.getElementById('noResults').style.display=shown?'none':'block'}
 function filterCat(cat){currentCat=cat;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat||(cat==='all'&&!b.dataset.cat)));
 if(cat==='all')document.querySelectorAll('.cat-btn')[0].classList.add('active');
 filterTools()}
+</script>
+<script>
+function iconFor(t,cat){
+  var p=[
+    [/json/,'braces'],[/regex/,'regex'],[/jwt/,'key-round'],[/base64|binary|hex|ascii|unicode/,'binary'],
+    [/hash|md5|sha/,'hash'],[/qr/,'qr-code'],[/password|passphrase|passcraft/,'key'],[/encrypt|decrypt|blindfold|\bcrypt/,'lock'],
+    [/gradient|chroma|palette|color|shade|harmony|contrast/,'palette'],[/css|flexbox|grid|box ?model|neumorph|glass|shadow|border/,'code-xml'],
+    [/svg|pen|draw|whiteboard|pixel|paint/,'pen-tool'],[/font|type|case|leet|flip|wavy|rotate text|text transform/,'type'],
+    [/image|img|photo|favicon|thumb|exif|crop|resize|compress|squeeze|blur/,'image'],
+    [/qr|scan/,'scan-line'],[/markdown|md /,'file-text'],[/html|xml|toml|yaml|env|csv|tsv/,'file-code'],
+    [/url|link|slug|shorten|embed/,'link'],[/email|mail/,'mail'],[/ip|dns|subnet|network|header|user ?agent|http|cookie/,'globe'],
+    [/calendar|date|due|age|epoch|timestamp|timezone|tz|world ?clock/,'calendar'],[/timer|pomodoro|stopwatch|countdown|time|clock/,'clock'],
+    [/calc|percent|prime|fibonacci|matrix|scientific|quick ?math|number/,'calculator'],[/convert|flip|\bunit|length|weight|volume|area|pressure|temp|speed|fuel|frequency/,'arrow-left-right'],
+    [/diff|merge|compare/,'git-compare'],[/git/,'git-branch'],[/sql|database/,'database'],[/terminal|curl|cli|chmod|htaccess|robots|csp/,'terminal'],
+    [/table|csv|toc/,'table'],[/chart|stat|cloud|freq|graph/,'bar-chart-3'],[/emoji|smile/,'smile'],[/random|dice|name|username|bio|lorem|lipsum|caption|title|hashtag/,'dices'],
+    [/screenshot|screen|responsive|monitor|device/,'monitor'],[/keyboard|typing|keycode/,'keyboard'],
+    [/invoice|paycheck|loan|mortgage|tax|discount|tip|price|salary|electricity|compound|iban|card/,'receipt'],
+    [/bmi|calorie|bmr|health/,'activity'],[/ruler|dpi|ppi|aspect|ratio|px|rem|pixel density/,'ruler'],
+    [/seo|meta|search|finder|lookup|inspect/,'search'],[/ai|prompt|token|detector/,'sparkles'],
+    [/sort|line|list|duplicate|count|word|read ?time|note|todo/,'list'],[/share|social|og|opengraph/,'share-2'],
+    [/morse|nato|braille|noise|sound|audio|volume/,'radio'],[/loader|spinner|animate|easing|transform/,'loader'],
+    [/privacy|terms|policy|shield|access|a11y/,'shield']
+  ];
+  for(var i=0;i<p.length;i++){if(p[i][0].test(t))return p[i][1];}
+  var d={Dev:'code',Design:'palette',Utility:'wrench',Text:'type',Image:'image',Network:'globe',AI:'sparkles'};
+  return d[cat]||'wrench';
+}
+window.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.grid .card').forEach(function(c){
+    var t=c.querySelector('.card-title').textContent.toLowerCase();
+    var cat=c.querySelector('.card-cat').textContent.trim();
+    var e=c.querySelector('.card-emoji'); if(e) e.innerHTML='<i data-lucide="'+iconFor(t,cat)+'"></i>';
+  });
+  document.querySelectorAll('.feat-card').forEach(function(c){
+    var t=c.querySelector('.feat-title').textContent.toLowerCase();
+    var e=c.querySelector('.feat-emoji'); if(e) e.innerHTML='<i data-lucide="'+iconFor(t,'Dev')+'"></i>';
+  });
+  var lg=document.querySelector('.logo-icon'); if(lg) lg.innerHTML='<i data-lucide="shapes"></i>';
+  if(window.lucide&&lucide.createIcons)lucide.createIcons();
+});
 </script>
 </body>
 </html>
