@@ -42,18 +42,24 @@ footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;border
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://tinytools.store/hashcraft/">
 <meta property="og:url" content="https://tinytools.store/hashcraft/">
-</head>
-<body style="padding-top:48px"><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
-<style>
-.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid #1c1c1c;padding:0 1rem;font-family:'Inter',system-ui,sans-serif}
-.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
-.tt-nav a{text-decoration:none;color:#ededed;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
-.tt-nav a:hover{opacity:.7}
-.tt-nav .tt-logo{font-size:.72rem;font-weight:800;letter-spacing:-.02em}
-.tt-nav .tt-logo span{background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.tt-nav .tt-back{color:#a0a0a0;font-size:.68rem}
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style id="tt-ds">
+:root{--bg:#e8e6df!important;--surface:#f3f1ea!important;--surface2:#fbfaf6!important;--border:rgba(22,19,15,.13)!important;--border2:rgba(22,19,15,.22)!important;--accent:#d6451f!important;--accent2:#d6451f!important;--text:#16130f!important;--text2:#5b564d!important;--muted:#9c958a!important;--code-bg:#fbfaf6!important;--tt-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace}
+body{font-family:'Inter',system-ui,sans-serif;padding-top:54px!important}
+.ttbar{position:fixed;top:0;left:0;right:0;width:100%;z-index:99999;display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 1.3rem;background:rgba(232,230,223,.82);backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid rgba(22,19,15,.13);box-sizing:border-box}
+.ttbar .l{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600;color:#16130f;text-decoration:none}
+.ttbar .l svg{width:17px;height:17px;color:#d6451f;stroke-width:2.2}
+.ttbar .b{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.95rem;letter-spacing:-.02em;color:#16130f;text-decoration:none}
+.ttbar .b svg{width:18px;height:18px;color:#d6451f;stroke-width:1.8}
+.ttbar .t{font-family:var(--tt-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#9c958a;border:1px solid rgba(22,19,15,.22);border-radius:5px;padding:.18rem .45rem}
+@media(max-width:560px){.ttbar .t{display:none}}
 </style>
-<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+</head>
+<body><div class="ttbar"><a href="/" class="l"><i data-lucide="arrow-left"></i> All tools</a><span class="b"><i data-lucide="shapes"></i> TinyTools</span><span class="t">Free tool</span></div>
+
+
 
 <nav><div class="logo">Hash<span>Craft</span></div></nav>
 <main>
@@ -86,5 +92,5 @@ async function hashBuffer(buf){for(const a of algos){const el=document.getElemen
 function copyHash(a){const t=document.getElementById('h-'+a).textContent;if(t.startsWith('Waiting'))return;navigator.clipboard.writeText(t);const btn=document.querySelector(`#h-${a}`).parentElement.querySelector('button');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1200)}
 function md5(b){function f(a,c){return(a+c)|0}function r(n,s){return(n<<s)|(n>>>(32-s))}var x=[];for(var i=0;i<b.length;i+=4)x.push(b[i]|(b[i+1]<<8)|(b[i+2]<<16)|(b[i+3]<<24));var l=b.length*8;x[b.length>>2]|=128<<(b.length%4*8);x[(((b.length+8)>>>6)<<4)+14]=l;var a=1732584193,c=-271733879,d=-1732584194,e=271733878;var S=[7,12,17,22,5,9,14,20,4,11,16,23,6,10,15,21];var T=[];for(i=0;i<64;i++)T[i]=Math.floor(Math.abs(Math.sin(i+1))*4294967296);for(i=0;i<x.length;i+=16){var aa=a,bb=c,cc=d,dd=e;for(var j=0;j<64;j++){var g,k;if(j<16){g=(c&d)|((~c)&e);k=j}else if(j<32){g=(e&c)|((~e)&d);k=(5*j+1)%16}else if(j<48){g=c^d^e;k=(3*j+5)%16}else{g=d^(c|(~e));k=(7*j)%16}var t=e;e=d;d=c;c=f(c,r(f(f(a,g),f(T[j],x[i+k])),S[(j>>4)*4+(j%4)]));a=t}a=f(a,aa);c=f(c,bb);d=f(d,cc);e=f(e,dd)}var o='';[a,c,d,e].forEach(v=>{for(var i=0;i<4;i++)o+=((v>>(i*8))&255).toString(16).padStart(2,'0')});return o}
 </script>
-</body>
+<script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
 </html>

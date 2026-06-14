@@ -7,38 +7,44 @@
 <meta name="description" content="Learn CSS Flexbox visually. Interactive playground with live preview. Generate flexbox code. Free CSS flexbox generator.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0a0a;min-height:100vh;color:#fff}main{max-width:700px;margin:0 auto;padding:1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem}
-.preview{width:100%;min-height:250px;background:#111;border:2px dashed #333;border-radius:12px;padding:12px;margin-bottom:1rem;display:flex}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#e8e6df;min-height:100vh;color:#fff}main{max-width:700px;margin:0 auto;padding:1.5rem}h1{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:1rem}
+.preview{width:100%;min-height:250px;background:#e8e6df;border:2px dashed rgba(22,19,15,.13);border-radius:12px;padding:12px;margin-bottom:1rem;display:flex}
 .item{min-width:50px;min-height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff}
-.item:nth-child(1){background:#8b5cf6}.item:nth-child(2){background:#ec4899}.item:nth-child(3){background:#f59e0b}
+.item:nth-child(1){background:#d6451f}.item:nth-child(2){background:#ec4899}.item:nth-child(3){background:#f59e0b}
 .item:nth-child(4){background:#10b981}.item:nth-child(5){background:#3b82f6}.item:nth-child(6){background:#ef4444}
-.card{background:#111;border:1px solid #222;border-radius:12px;padding:1rem;margin-bottom:.8rem}
+.card{background:#e8e6df;border:1px solid #f3f1ea;border-radius:12px;padding:1rem;margin-bottom:.8rem}
 .card h3{font-size:.6rem;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:.5rem}
 .props{display:flex;flex-wrap:wrap;gap:.5rem}
 .prop{min-width:140px;flex:1}
 .prop label{display:block;font-size:.58rem;color:#888;font-weight:600;margin-bottom:.2rem;text-transform:uppercase}
-.prop select{width:100%;padding:.35rem;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:#fff;font-size:.75rem;outline:none;font-family:inherit}
-.prop input[type=range]{width:100%;accent-color:#8b5cf6}
+.prop select{width:100%;padding:.35rem;background:#e8e6df;border:1px solid rgba(22,19,15,.13);border-radius:5px;color:#fff;font-size:.75rem;outline:none;font-family:inherit}
+.prop input[type=range]{width:100%;accent-color:#d6451f}
 .btn-row{display:flex;gap:.3rem;margin-bottom:.5rem}
-.btn{padding:.35rem .6rem;border-radius:5px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid #333;color:#888;background:#1a1a1a}
-.btn:hover{border-color:#8b5cf6;color:#8b5cf6}
-.code{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.7rem;color:#a5f3fc;cursor:pointer;white-space:pre}
+.btn{padding:.35rem .6rem;border-radius:5px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid rgba(22,19,15,.13);color:#888;background:#e8e6df}
+.btn:hover{border-color:#d6451f;color:#d6451f}
+.code{background:#e8e6df;border:1px solid rgba(22,19,15,.13);border-radius:8px;padding:.7rem;font-family:'SF Mono',monospace;font-size:.7rem;color:#a5f3fc;cursor:pointer;white-space:pre}
 </style>
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://tinytools.store/flexbox/">
 <meta property="og:url" content="https://tinytools.store/flexbox/">
-</head>
-<body style="padding-top:48px"><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
-<style>
-.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid #1c1c1c;padding:0 1rem;font-family:'Inter',system-ui,sans-serif}
-.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
-.tt-nav a{text-decoration:none;color:#ededed;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
-.tt-nav a:hover{opacity:.7}
-.tt-nav .tt-logo{font-size:.72rem;font-weight:800;letter-spacing:-.02em}
-.tt-nav .tt-logo span{background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.tt-nav .tt-back{color:#a0a0a0;font-size:.68rem}
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style id="tt-ds">
+:root{--bg:#e8e6df!important;--surface:#f3f1ea!important;--surface2:#fbfaf6!important;--border:rgba(22,19,15,.13)!important;--border2:rgba(22,19,15,.22)!important;--accent:#d6451f!important;--accent2:#d6451f!important;--text:#16130f!important;--text2:#5b564d!important;--muted:#9c958a!important;--code-bg:#fbfaf6!important;--tt-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace}
+body{font-family:'Inter',system-ui,sans-serif;padding-top:54px!important}
+.ttbar{position:fixed;top:0;left:0;right:0;width:100%;z-index:99999;display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 1.3rem;background:rgba(232,230,223,.82);backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid rgba(22,19,15,.13);box-sizing:border-box}
+.ttbar .l{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600;color:#16130f;text-decoration:none}
+.ttbar .l svg{width:17px;height:17px;color:#d6451f;stroke-width:2.2}
+.ttbar .b{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.95rem;letter-spacing:-.02em;color:#16130f;text-decoration:none}
+.ttbar .b svg{width:18px;height:18px;color:#d6451f;stroke-width:1.8}
+.ttbar .t{font-family:var(--tt-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#9c958a;border:1px solid rgba(22,19,15,.22);border-radius:5px;padding:.18rem .45rem}
+@media(max-width:560px){.ttbar .t{display:none}}
 </style>
-<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+</head>
+<body><div class="ttbar"><a href="/" class="l"><i data-lucide="arrow-left"></i> All tools</a><span class="b"><i data-lucide="shapes"></i> TinyTools</span><span class="t">Free tool</span></div>
+
+
 
 <main>
 <h1>📦 Flexbox Playground</h1>
@@ -103,5 +109,5 @@ function render(){
 }
 render();
 </script>
-</body>
+<script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
 </html>

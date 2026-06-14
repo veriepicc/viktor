@@ -63,9 +63,23 @@ tr:hover td{background:var(--surface2)}
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://tinytools.store/svgtool/">
 <meta property="og:url" content="https://tinytools.store/svgtool/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style id="tt-ds">
+:root{--bg:#e8e6df!important;--surface:#f3f1ea!important;--surface2:#fbfaf6!important;--border:rgba(22,19,15,.13)!important;--border2:rgba(22,19,15,.22)!important;--accent:#d6451f!important;--accent2:#d6451f!important;--text:#16130f!important;--text2:#5b564d!important;--muted:#9c958a!important;--code-bg:#fbfaf6!important;--tt-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace}
+body{font-family:'Inter',system-ui,sans-serif;padding-top:54px!important}
+.ttbar{position:fixed;top:0;left:0;right:0;width:100%;z-index:99999;display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 1.3rem;background:rgba(232,230,223,.82);backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid rgba(22,19,15,.13);box-sizing:border-box}
+.ttbar .l{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600;color:#16130f;text-decoration:none}
+.ttbar .l svg{width:17px;height:17px;color:#d6451f;stroke-width:2.2}
+.ttbar .b{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.95rem;letter-spacing:-.02em;color:#16130f;text-decoration:none}
+.ttbar .b svg{width:18px;height:18px;color:#d6451f;stroke-width:1.8}
+.ttbar .t{font-family:var(--tt-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#9c958a;border:1px solid rgba(22,19,15,.22);border-radius:5px;padding:.18rem .45rem}
+@media(max-width:560px){.ttbar .t{display:none}}
+</style>
 </head>
-<body style="padding-top:48px"><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
-<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+<body><div class="ttbar"><a href="/" class="l"><i data-lucide="arrow-left"></i> All tools</a><span class="b"><i data-lucide="shapes"></i> TinyTools</span><span class="t">Free tool</span></div>
+
 <div class="hero"><h1>✏️ <em>SVG Editor</em></h1><p>Create and edit SVG shapes with live code</p></div>
 <div class="container">
 <div class="grid-2">
@@ -96,5 +110,5 @@ function downloadSVG(){const blob=new Blob([document.getElementById('code').valu
 const a=document.createElement('a');a.download='shape.svg';a.href=URL.createObjectURL(blob);a.click()}
 render()
 </script>
-</body>
+<script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
 </html>

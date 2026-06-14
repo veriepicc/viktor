@@ -11,10 +11,10 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:#111;color:#eee;min-height:100vh}
-nav{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #222}
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:#e8e6df;color:#16130f;min-height:100vh}
+nav{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f3f1ea}
 .logo{font-size:1.2rem;font-weight:800;letter-spacing:-.02em}.logo span{background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#9b59b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.gen-btn{background:#fff;color:#111;border:none;padding:.5rem 1.4rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:transform .15s}
+.gen-btn{background:#fff;color:#e8e6df;border:none;padding:.5rem 1.4rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:transform .15s}
 .gen-btn:hover{transform:scale(1.04)}
 .gen-btn:active{transform:scale(.97)}
 .palette-view{display:flex;min-height:55vh}
@@ -24,17 +24,17 @@ nav{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-betw
 .swatch .name{font-size:.75rem;opacity:.6}
 .swatch .copied{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:800;font-size:1.2rem;opacity:0;transition:opacity .3s}
 .swatch .copied.show{opacity:1}
-.controls{padding:1.5rem 2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border-bottom:1px solid #222}
-.controls select,.controls input{background:#1a1a1a;border:1px solid #333;color:#eee;padding:.45rem .8rem;border-radius:6px;font-size:.82rem;font-family:inherit}
+.controls{padding:1.5rem 2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border-bottom:1px solid #f3f1ea}
+.controls select,.controls input{background:#e8e6df;border:1px solid rgba(22,19,15,.13);color:#16130f;padding:.45rem .8rem;border-radius:6px;font-size:.82rem;font-family:inherit}
 .controls label{font-size:.8rem;color:#888;margin-right:.3rem}
 .export-section{padding:1.5rem 2rem}
 .export-section h3{font-size:.85rem;color:#888;margin-bottom:.8rem;text-transform:uppercase;letter-spacing:.05em}
 .export-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
-.export-card{background:#1a1a1a;border:1px solid #222;border-radius:8px;padding:.8rem 1rem;cursor:pointer;transition:border-color .2s}
+.export-card{background:#e8e6df;border:1px solid #f3f1ea;border-radius:8px;padding:.8rem 1rem;cursor:pointer;transition:border-color .2s}
 .export-card:hover{border-color:#555}
 .export-card .label{font-size:.72rem;color:#888;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
 .export-card code{font-family:monospace;font-size:.75rem;color:#ccc;word-break:break-all;display:block;max-height:60px;overflow:hidden}
-footer{text-align:center;padding:1.5rem;color:#555;font-size:.72rem;border-top:1px solid #222}
+footer{text-align:center;padding:1.5rem;color:#555;font-size:.72rem;border-top:1px solid #f3f1ea}
 .lock-icon{position:absolute;top:.8rem;right:.8rem;width:24px;height:24px;border-radius:4px;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;opacity:0;transition:opacity .2s}
 .swatch:hover .lock-icon{opacity:1}
 .swatch.locked .lock-icon{opacity:1;background:rgba(255,255,255,.2)}
@@ -42,18 +42,24 @@ footer{text-align:center;padding:1.5rem;color:#555;font-size:.72rem;border-top:1
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://tinytools.store/chromaforge/">
 <meta property="og:url" content="https://tinytools.store/chromaforge/">
-</head>
-<body style="padding-top:48px"><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
-<style>
-.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid #1c1c1c;padding:0 1rem;font-family:'Inter',system-ui,sans-serif}
-.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
-.tt-nav a{text-decoration:none;color:#ededed;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
-.tt-nav a:hover{opacity:.7}
-.tt-nav .tt-logo{font-size:.72rem;font-weight:800;letter-spacing:-.02em}
-.tt-nav .tt-logo span{background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.tt-nav .tt-back{color:#a0a0a0;font-size:.68rem}
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style id="tt-ds">
+:root{--bg:#e8e6df!important;--surface:#f3f1ea!important;--surface2:#fbfaf6!important;--border:rgba(22,19,15,.13)!important;--border2:rgba(22,19,15,.22)!important;--accent:#d6451f!important;--accent2:#d6451f!important;--text:#16130f!important;--text2:#5b564d!important;--muted:#9c958a!important;--code-bg:#fbfaf6!important;--tt-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace}
+body{font-family:'Inter',system-ui,sans-serif;padding-top:54px!important}
+.ttbar{position:fixed;top:0;left:0;right:0;width:100%;z-index:99999;display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 1.3rem;background:rgba(232,230,223,.82);backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid rgba(22,19,15,.13);box-sizing:border-box}
+.ttbar .l{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600;color:#16130f;text-decoration:none}
+.ttbar .l svg{width:17px;height:17px;color:#d6451f;stroke-width:2.2}
+.ttbar .b{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.95rem;letter-spacing:-.02em;color:#16130f;text-decoration:none}
+.ttbar .b svg{width:18px;height:18px;color:#d6451f;stroke-width:1.8}
+.ttbar .t{font-family:var(--tt-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#9c958a;border:1px solid rgba(22,19,15,.22);border-radius:5px;padding:.18rem .45rem}
+@media(max-width:560px){.ttbar .t{display:none}}
 </style>
-<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+</head>
+<body><div class="ttbar"><a href="/" class="l"><i data-lucide="arrow-left"></i> All tools</a><span class="b"><i data-lucide="shapes"></i> TinyTools</span><span class="t">Free tool</span></div>
+
+
 
 <nav><div class="logo">Chroma<span>Forge</span></div><button class="gen-btn" onclick="generate()">Generate ⌘G</button></nav>
 <div class="palette-view" id="palette"></div>
@@ -103,5 +109,5 @@ document.getElementById('mode').onchange=generate;
 document.getElementById('count').onchange=()=>{locked.clear();generate()};
 generate();
 </script>
-</body>
+<script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
 </html>
