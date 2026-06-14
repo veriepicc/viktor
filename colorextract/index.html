@@ -17,11 +17,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
 .tt-nav a{text-decoration:none;color:var(--text);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
 .tt-nav a:hover{opacity:.7}
-.tt-nav .tt-logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tt-nav .tt-logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:currentColor}
 .tt-nav .tt-back{color:var(--text2);font-size:.68rem}
 .hero{text-align:center;padding:2.5rem 1rem 1.5rem}
 .hero h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:currentColor}
 .hero p{color:var(--text2);font-size:.9rem;max-width:500px;margin:0 auto}
 .container{max-width:800px;margin:0 auto;padding:0 1.5rem 3rem}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:.8rem}
@@ -30,7 +30,7 @@ label{display:block;font-size:.72rem;font-weight:600;color:var(--text2);margin-b
 input[type="text"],input[type="number"],input[type="url"],input[type="email"],input[type="color"],select,textarea{width:100%;padding:.55rem .7rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.82rem;font-family:inherit;outline:none;transition:border-color .2s;margin-bottom:.5rem}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 textarea{min-height:100px;resize:vertical;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.78rem}
-button,.btn{padding:.5rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+button,.btn{padding:.5rem 1rem;background:var(--accent);color:#16130f;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
 button:hover,.btn:hover{filter:brightness(1.15)}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{border-color:var(--accent)}
@@ -41,7 +41,7 @@ button:hover,.btn:hover{filter:brightness(1.15)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 .tag{display:inline-block;padding:.2rem .5rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:.68rem;margin:.15rem;cursor:pointer;transition:all .15s}
-.tag:hover,.tag.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tag:hover,.tag.active{background:var(--accent);color:#16130f;border-color:var(--accent)}
 .slider-wrap{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
 .slider-wrap input[type="range"]{flex:1;accent-color:var(--accent)}
 .slider-val{font-size:.72rem;font-weight:700;color:var(--accent);min-width:35px;text-align:right}
@@ -101,7 +101,7 @@ const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);const data=
 const pixels=[];for(let i=0;i<data.length;i+=4)pixels.push([data[i],data[i+1],data[i+2]]);
 const n=parseInt(document.getElementById('num').value);const colors=kMeans(pixels,n);
 const hexColors=colors.map(c=>'#'+c.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''));
-document.getElementById('palette').innerHTML=hexColors.map(c=>'<div onclick="navigator.clipboard.writeText(\''+c+'\')" style="width:60px;height:60px;background:'+c+';border-radius:8px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding:.2rem"><span style="font-size:.5rem;font-weight:700;background:rgba(0,0,0,.5);color:#fff;padding:.1rem .2rem;border-radius:3px">'+c+'</span></div>').join('');
+document.getElementById('palette').innerHTML=hexColors.map(c=>'<div onclick="navigator.clipboard.writeText(\''+c+'\')" style="width:60px;height:60px;background:'+c+';border-radius:8px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding:.2rem"><span style="font-size:.5rem;font-weight:700;background:rgba(0,0,0,.5);color:#16130f;padding:.1rem .2rem;border-radius:3px">'+c+'</span></div>').join('');
 document.getElementById('css').textContent=':root {\n'+hexColors.map((c,i)=>'  --color-'+(i+1)+': '+c+';').join('\n')+'\n}'}};reader.readAsDataURL(f)}
 function kMeans(pixels,k){let centers=pixels.sort(()=>Math.random()-.5).slice(0,k).map(p=>[...p]);
 for(let iter=0;iter<10;iter++){const clusters=Array(k).fill(null).map(()=>[]);

@@ -17,11 +17,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
 .tt-nav a{text-decoration:none;color:var(--text);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
 .tt-nav a:hover{opacity:.7}
-.tt-nav .tt-logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tt-nav .tt-logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:currentColor}
 .tt-nav .tt-back{color:var(--text2);font-size:.68rem}
 .hero{text-align:center;padding:2.5rem 1rem 1.5rem}
 .hero h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:currentColor}
 .hero p{color:var(--text2);font-size:.9rem;max-width:500px;margin:0 auto}
 .container{max-width:800px;margin:0 auto;padding:0 1.5rem 3rem}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:.8rem}
@@ -30,7 +30,7 @@ label{display:block;font-size:.72rem;font-weight:600;color:var(--text2);margin-b
 input[type="text"],input[type="number"],input[type="url"],input[type="email"],input[type="color"],select,textarea{width:100%;padding:.55rem .7rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.82rem;font-family:inherit;outline:none;transition:border-color .2s;margin-bottom:.5rem}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 textarea{min-height:100px;resize:vertical;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.78rem}
-button,.btn{padding:.5rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+button,.btn{padding:.5rem 1rem;background:var(--accent);color:#16130f;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
 button:hover,.btn:hover{filter:brightness(1.15)}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{border-color:var(--accent)}
@@ -41,7 +41,7 @@ button:hover,.btn:hover{filter:brightness(1.15)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 .tag{display:inline-block;padding:.2rem .5rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:.68rem;margin:.15rem;cursor:pointer;transition:all .15s}
-.tag:hover,.tag.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tag:hover,.tag.active{background:var(--accent);color:#16130f;border-color:var(--accent)}
 .slider-wrap{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
 .slider-wrap input[type="range"]{flex:1;accent-color:var(--accent)}
 .slider-val{font-size:.72rem;font-weight:700;color:var(--accent);min-width:35px;text-align:right}
@@ -100,8 +100,8 @@ if(pos==='top')posCSS='bottom:100%;left:50%;transform:translateX(-50%);margin-bo
 else if(pos==='bottom')posCSS='top:100%;left:50%;transform:translateX(-50%);margin-top:8px';
 else if(pos==='left')posCSS='right:100%;top:50%;transform:translateY(-50%);margin-right:8px';
 else posCSS='left:100%;top:50%;transform:translateY(-50%);margin-left:8px';
-document.getElementById('preview').innerHTML='<style>.tt{position:relative;display:inline-block;padding:.5rem 1rem;background:var(--accent);color:#fff;border-radius:8px;cursor:pointer;font-weight:700}.tt::after{content:attr(data-tooltip);position:absolute;'+posCSS+';background:'+color+';color:#fff;padding:.4rem .8rem;border-radius:6px;font-size:.75rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}.tt:hover::after{opacity:1}</style><span class="tt" data-tooltip="'+tip+'">'+txt+'</span>';
-document.getElementById('code').textContent='<style>\n.tooltip {\n  position: relative;\n}\n.tooltip::after {\n  content: attr(data-tooltip);\n  position: absolute;\n  '+posCSS.replace(/;/g,';\n  ')+';\n  background: '+color+';\n  color: #fff;\n  padding: .4rem .8rem;\n  border-radius: 6px;\n  font-size: .75rem;\n  opacity: 0;\n  transition: opacity .2s;\n}\n.tooltip:hover::after {\n  opacity: 1;\n}\n</style>\n\n<span class="tooltip" data-tooltip="'+tip+'">'+txt+'</span>'}
+document.getElementById('preview').innerHTML='<style>.tt{position:relative;display:inline-block;padding:.5rem 1rem;background:var(--accent);color:#16130f;border-radius:8px;cursor:pointer;font-weight:700}.tt::after{content:attr(data-tooltip);position:absolute;'+posCSS+';background:'+color+';color:#16130f;padding:.4rem .8rem;border-radius:6px;font-size:.75rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}.tt:hover::after{opacity:1}</style><span class="tt" data-tooltip="'+tip+'">'+txt+'</span>';
+document.getElementById('code').textContent='<style>\n.tooltip {\n  position: relative;\n}\n.tooltip::after {\n  content: attr(data-tooltip);\n  position: absolute;\n  '+posCSS.replace(/;/g,';\n  ')+';\n  background: '+color+';\n  color: #16130f;\n  padding: .4rem .8rem;\n  border-radius: 6px;\n  font-size: .75rem;\n  opacity: 0;\n  transition: opacity .2s;\n}\n.tooltip:hover::after {\n  opacity: 1;\n}\n</style>\n\n<span class="tooltip" data-tooltip="'+tip+'">'+txt+'</span>'}
 gen()
 </script>
 <script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
