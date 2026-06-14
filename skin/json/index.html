@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSONPrettify — Format, Validate & Minify JSON Online</title>
+<meta name="description" content="Free JSON formatter, validator and minifier. Paste your JSON and instantly format, validate or compress it. Runs entirely in your browser.">
+<meta name="keywords" content="json formatter, json validator, json prettify, json minify, format json online">
+<meta property="og:title" content="JSONPrettify — Format & Validate JSON Online">
+<meta property="og:description" content="Instantly format, validate, and minify JSON in your browser. Free, fast, private.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>{ }</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#faf9f7;--surface:#fff;--border:#e8e5e0;--accent:#d35400;--accent2:#e67e22;--text:#2c2c2c;--muted:#8a8680;--code-bg:#fdfcfa}
+body{font-family:'SF Mono','Fira Code','Cascadia Code',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+nav{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}
+.tag{font-size:.65rem;background:var(--accent);color:#fff;padding:.2rem .5rem;border-radius:4px;font-weight:600;letter-spacing:.04em}
+.workspace{display:flex;height:calc(100vh - 110px);gap:0}
+.panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+.panel:last-child{border-right:none}
+.panel-head{padding:.6rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-head h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.panel-head button{background:none;border:1px solid var(--border);padding:.3rem .7rem;border-radius:5px;font-size:.7rem;cursor:pointer;font-family:inherit;color:var(--text);transition:all .15s}
+.panel-head button:hover{border-color:var(--accent);color:var(--accent)}
+textarea{flex:1;width:100%;border:none;padding:1rem;font-family:inherit;font-size:.85rem;background:var(--code-bg);color:var(--text);resize:none;outline:none;line-height:1.6;tab-size:2}
+textarea::placeholder{color:var(--muted)}
+.output{flex:1;width:100%;padding:1rem;font-family:inherit;font-size:.85rem;background:var(--code-bg);color:var(--text);overflow:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+.toolbar{padding:.7rem 1rem;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.toolbar button{background:var(--accent);color:#fff;border:none;padding:.45rem 1rem;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.toolbar button:hover{opacity:.85}
+.toolbar button.sec{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.toolbar .spacer{flex:1}
+.toolbar .status{font-size:.75rem;color:var(--muted)}
+.status.valid{color:#27ae60}.status.invalid{color:#e74c3c}
+footer{text-align:center;padding:.8rem;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border)}
+@media(max-width:700px){.workspace{flex-direction:column;height:auto}.panel{min-height:40vh;border-right:none;border-bottom:1px solid var(--border)}}
+</style>
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://tinytools.store/jsonprettify/">
+<meta property="og:url" content="https://tinytools.store/jsonprettify/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style id="tt-skin">
+:root{--tt-paper:#e8e6df;--tt-panel:#f3f1ea;--tt-panel2:#fbfaf6;--tt-ink:#16130f;--tt-ink2:#5b564d;--tt-muted:#9c958a;--tt-line:rgba(22,19,15,.13);--tt-line2:rgba(22,19,15,.22);--tt-accent:#d6451f;--tt-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace}
+body{background:var(--tt-paper)!important;color:var(--tt-ink)!important;font-family:'Inter',system-ui,sans-serif!important}
+h1,h2,h3,h4{color:var(--tt-ink)!important;letter-spacing:-.02em}
+a{color:var(--tt-accent)!important}
+input,textarea,select,pre,code,.code-bg,[contenteditable]{background:var(--tt-panel2)!important;color:var(--tt-ink)!important;border-color:var(--tt-line)!important}
+input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(--tt-ink)!important;box-shadow:0 0 0 3px rgba(22,19,15,.06)!important}
+::placeholder{color:var(--tt-muted)!important}
+.tt-bar{position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 1.4rem;background:rgba(232,230,223,.78);backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid var(--tt-line)}
+.tt-bar a.tt-back{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600;color:var(--tt-ink)!important}
+.tt-bar a.tt-back svg{width:17px;height:17px;color:var(--tt-accent);stroke-width:2}
+.tt-bar .tt-brand{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.95rem;letter-spacing:-.02em;color:var(--tt-ink)!important}
+.tt-bar .tt-brand svg{width:18px;height:18px;color:var(--tt-accent);stroke-width:1.8}
+.tt-bar .tt-tag{font-family:var(--tt-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tt-muted);border:1px solid var(--tt-line2);border-radius:5px;padding:.18rem .45rem}
+body>nav{display:none!important}
+</style>
+</head>
+<body style="padding-top:48px"><div class="tt-bar"><a href="/" class="tt-back"><i data-lucide="arrow-left"></i> All tools</a><span class="tt-brand"><i data-lucide="shapes"></i> TinyTools</span><span class="tt-tag">Free tool</span></div><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
+<style>
+.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid #1c1c1c;padding:0 1rem;font-family:'Inter',system-ui,sans-serif}
+.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
+.tt-nav a{text-decoration:none;color:#ededed;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
+.tt-nav a:hover{opacity:.7}
+.tt-nav .tt-logo{font-size:.72rem;font-weight:800;letter-spacing:-.02em}
+.tt-nav .tt-logo span{background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tt-nav .tt-back{color:#a0a0a0;font-size:.68rem}
+</style>
+<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+
+<nav><div class="logo">JSON<span>Prettify</span></div><span class="tag">FREE TOOL</span></nav>
+<div class="workspace">
+<div class="panel">
+<div class="panel-head"><h3>Input</h3><button onclick="clearInput()">Clear</button></div>
+<textarea id="input" placeholder='Paste your JSON here...&#10;&#10;{"name": "example", "value": 42}'></textarea>
+</div>
+<div class="panel">
+<div class="panel-head"><h3>Output</h3><button onclick="copyOutput()">Copy</button></div>
+<div class="output" id="output"><span style="color:var(--muted)">Formatted JSON will appear here...</span></div>
+</div>
+</div>
+<div class="toolbar">
+<button onclick="format(2)">Prettify (2 sp)</button>
+<button onclick="format(4)">Prettify (4 sp)</button>
+<button onclick="format('\t')">Prettify (tab)</button>
+<button class="sec" onclick="minify()">Minify</button>
+<div class="spacer"></div>
+<span class="status" id="status"></span>
+</div>
+<footer>&copy; 2026 JSONPrettify &mdash; Format and validate JSON in your browser. Nothing is sent to any server.</footer>
+<script>
+const input=document.getElementById('input'),output=document.getElementById('output'),status=document.getElementById('status');
+input.addEventListener('input',()=>validate());
+function validate(){try{JSON.parse(input.value);status.textContent='✓ Valid JSON';status.className='status valid';return true}catch(e){status.textContent='✗ '+e.message.replace('JSON.parse: ','');status.className='status invalid';return false}}
+function format(indent){try{const obj=JSON.parse(input.value);output.textContent=JSON.stringify(obj,null,indent);status.textContent='✓ Formatted';status.className='status valid'}catch(e){output.textContent='Error: '+e.message;status.textContent='✗ Invalid JSON';status.className='status invalid'}}
+function minify(){try{const obj=JSON.parse(input.value);output.textContent=JSON.stringify(obj);status.textContent='✓ Minified';status.className='status valid'}catch(e){output.textContent='Error: '+e.message;status.textContent='✗ Invalid JSON';status.className='status invalid'}}
+function clearInput(){input.value='';output.innerHTML='<span style="color:var(--muted)">Formatted JSON will appear here...</span>';status.textContent=''}
+function copyOutput(){navigator.clipboard.writeText(output.textContent);const btn=document.querySelector('.panel:last-child .panel-head button');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
+</script>
+<script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
+</html>
