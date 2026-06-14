@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tip Calculator — Bill Split & Tip Calculator</title>
+<meta name="description" content="Calculate tips and split bills easily. Choose tip percentage, split between friends. Free online tip calculator.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#18181b;color:#fafafa;min-height:100vh;display:flex;align-items:center;justify-content:center}
+main{max-width:380px;width:100%;padding:1.5rem}
+h1{font-size:1.3rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+.field{margin-bottom:1.2rem}
+.field label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#71717a;font-weight:700;margin-bottom:.4rem}
+.field input{width:100%;padding:.7rem;background:#27272a;border:1px solid #3f3f46;border-radius:10px;color:#fafafa;font-size:1.3rem;font-weight:700;text-align:center;outline:none;font-family:inherit}
+.field input:focus{border-color:#a78bfa}
+.tips{display:flex;gap:.3rem;margin-bottom:1.2rem}
+.tip-btn{flex:1;padding:.6rem;text-align:center;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;border:1px solid #3f3f46;color:#71717a;background:#27272a;transition:all .15s}
+.tip-btn.active{background:#a78bfa;color:#18181b;border-color:#a78bfa}
+.split-ctrl{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem}
+.split-ctrl button{width:36px;height:36px;border-radius:50%;border:1px solid #3f3f46;background:#27272a;color:#fafafa;font-size:1.2rem;cursor:pointer;font-weight:700}
+.split-ctrl .num{font-size:1.5rem;font-weight:800;min-width:40px;text-align:center}
+.split-ctrl .label{font-size:.68rem;color:#71717a;text-transform:uppercase}
+.results{background:#27272a;border-radius:14px;padding:1.2rem}
+.result-row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid #3f3f46;font-size:.88rem}
+.result-row:last-child{border-bottom:none;padding-top:.8rem}
+.result-row .key{color:#a1a1aa}
+.result-row .val{font-weight:800}
+.result-row.total .val{color:#a78bfa;font-size:1.3rem}
+.result-row.per .val{color:#22c55e;font-size:1.1rem}
+</style>
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://tinytools.store/tipcalc/">
+<meta property="og:url" content="https://tinytools.store/tipcalc/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style id="tt-skin">
+:root{--tt-paper:#e8e6df;--tt-panel:#f3f1ea;--tt-panel2:#fbfaf6;--tt-ink:#16130f;--tt-ink2:#5b564d;--tt-muted:#9c958a;--tt-line:rgba(22,19,15,.13);--tt-line2:rgba(22,19,15,.22);--tt-accent:#d6451f;--tt-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace}
+body{background:var(--tt-paper)!important;color:var(--tt-ink)!important;font-family:'Inter',system-ui,sans-serif!important}
+h1,h2,h3,h4{color:var(--tt-ink)!important;letter-spacing:-.02em}
+a{color:var(--tt-accent)!important}
+input,textarea,select,pre,code,.code-bg,[contenteditable]{background:var(--tt-panel2)!important;color:var(--tt-ink)!important;border-color:var(--tt-line)!important}
+input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(--tt-ink)!important;box-shadow:0 0 0 3px rgba(22,19,15,.06)!important}
+::placeholder{color:var(--tt-muted)!important}
+.tt-bar{position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 1.4rem;background:rgba(232,230,223,.78);backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid var(--tt-line)}
+.tt-bar a.tt-back{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600;color:var(--tt-ink)!important}
+.tt-bar a.tt-back svg{width:17px;height:17px;color:var(--tt-accent);stroke-width:2}
+.tt-bar .tt-brand{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.95rem;letter-spacing:-.02em;color:var(--tt-ink)!important}
+.tt-bar .tt-brand svg{width:18px;height:18px;color:var(--tt-accent);stroke-width:1.8}
+.tt-bar .tt-tag{font-family:var(--tt-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tt-muted);border:1px solid var(--tt-line2);border-radius:5px;padding:.18rem .45rem}
+body>nav{display:none!important}
+</style>
+</head>
+<body><div class="tt-bar"><a href="/" class="tt-back"><i data-lucide="arrow-left"></i> All tools</a><span class="tt-brand"><i data-lucide="shapes"></i> TinyTools</span><span class="tt-tag">Free tool</span></div><div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:rgba(10,10,10,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)"><a href="/" style="display:flex;align-items:center;gap:.4rem;text-decoration:none;font-size:.82rem;font-weight:700;color:#a78bfa">← Back</a><a href="/" style="display:flex;align-items:center;gap:.3rem;text-decoration:none;font-size:.82rem;font-weight:800;color:#e0e0e0">🛠️ TinyTools</a></div>
+<style>
+.tt-nav{position:sticky;top:0;z-index:999;background:rgba(5,5,5,.9);backdrop-filter:blur(16px);border-bottom:1px solid #1c1c1c;padding:0 1rem;font-family:'Inter',system-ui,sans-serif}
+.tt-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:42px}
+.tt-nav a{text-decoration:none;color:#ededed;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.3rem;transition:opacity .15s}
+.tt-nav a:hover{opacity:.7}
+.tt-nav .tt-logo{font-size:.72rem;font-weight:800;letter-spacing:-.02em}
+.tt-nav .tt-logo span{background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tt-nav .tt-back{color:#a0a0a0;font-size:.68rem}
+</style>
+<div class="tt-nav"><div class="tt-nav-inner"><a href="../" class="tt-back">← Back</a><a href="../" class="tt-logo">🛠️ <span>TinyTools</span></a></div></div>
+
+<main>
+<h1>Tip Calculator</h1>
+<div class="field"><label>Bill Amount</label><input type="number" id="bill" value="85.50" step="0.01" oninput="calc()"></div>
+<label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#71717a;font-weight:700;margin-bottom:.4rem;display:block">Tip</label>
+<div class="tips">
+<div class="tip-btn" onclick="setTip(10,this)">10%</div>
+<div class="tip-btn" onclick="setTip(15,this)">15%</div>
+<div class="tip-btn active" onclick="setTip(18,this)">18%</div>
+<div class="tip-btn" onclick="setTip(20,this)">20%</div>
+<div class="tip-btn" onclick="setTip(25,this)">25%</div>
+</div>
+<div class="field"><label>Custom Tip %</label><input type="number" id="tipPct" value="18" step="1" oninput="calc()"></div>
+<label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#71717a;font-weight:700;margin-bottom:.4rem;display:block">Split Between</label>
+<div class="split-ctrl">
+<button onclick="changeSplit(-1)">−</button>
+<div><div class="num" id="splitNum">1</div><div class="label">people</div></div>
+<button onclick="changeSplit(1)">+</button>
+</div>
+<div class="results" id="results"></div>
+</main>
+<script>
+let tipPct=18,split=1;
+function setTip(p,el){tipPct=p;document.getElementById('tipPct').value=p;document.querySelectorAll('.tip-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calc()}
+function changeSplit(d){split=Math.max(1,split+d);document.getElementById('splitNum').textContent=split;calc()}
+function calc(){
+  const bill=parseFloat(document.getElementById('bill').value)||0;
+  tipPct=parseFloat(document.getElementById('tipPct').value)||0;
+  const tip=bill*tipPct/100;
+  const total=bill+tip;
+  const perPerson=total/split;
+  const tipPer=tip/split;
+  const fmt=v=>'$'+v.toFixed(2);
+  document.getElementById('results').innerHTML=`
+    <div class="result-row"><span class="key">Bill</span><span class="val">${fmt(bill)}</span></div>
+    <div class="result-row"><span class="key">Tip (${tipPct}%)</span><span class="val">${fmt(tip)}</span></div>
+    <div class="result-row total"><span class="key">Total</span><span class="val">${fmt(total)}</span></div>
+    ${split>1?`<div class="result-row per"><span class="key">Per Person (${split})</span><span class="val">${fmt(perPerson)}</span></div>
+    <div class="result-row"><span class="key">Tip Per Person</span><span class="val">${fmt(tipPer)}</span></div>`:''}`;
+}
+calc();
+</script>
+<script>window.addEventListener('DOMContentLoaded',function(){if(window.lucide&&lucide.createIcons)lucide.createIcons();});</script></body>
+</html>
