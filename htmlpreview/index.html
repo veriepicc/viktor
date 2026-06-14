@@ -8,18 +8,18 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,sans-serif;background:#1e1e1e;color:#d4d4d4;height:100vh;display:flex;flex-direction:column}
+body{font-family:'Inter',-apple-system,sans-serif;background:#1e1e1e;color:#16130f;height:100vh;display:flex;flex-direction:column}
 .toolbar{display:flex;align-items:center;padding:.4rem .8rem;background:#252526;border-bottom:1px solid #3c3c3c;gap:.5rem}
 .logo{font-size:.95rem;font-weight:800;margin-right:auto}.logo span{color:#569cd6}
 .tab{padding:.3rem .7rem;border-radius:4px;font-size:.72rem;font-weight:600;cursor:pointer;color:#858585;transition:all .15s}
-.tab.active{color:#d4d4d4;background:#1e1e1e}
+.tab.active{color:#16130f;background:#1e1e1e}
 .run-btn{background:#569cd6;color:#1e1e1e;border:none;padding:.3rem .8rem;border-radius:4px;font-size:.72rem;font-weight:700;cursor:pointer}
 .workspace{flex:1;display:flex;overflow:hidden}
 .editors{flex:1;display:flex;flex-direction:column;min-width:0}
 .editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .editor-pane.hidden{display:none}
 .editor-label{padding:.2rem .8rem;background:#2d2d2d;font-size:.65rem;color:#858585;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #3c3c3c}
-.editor-pane textarea{flex:1;padding:.6rem .8rem;background:#1e1e1e;border:none;color:#d4d4d4;font-family:'Cascadia Code','Fira Code','SF Mono',monospace;font-size:.82rem;line-height:1.7;resize:none;outline:none;tab-size:2}
+.editor-pane textarea{flex:1;padding:.6rem .8rem;background:#1e1e1e;border:none;color:#16130f;font-family:'Cascadia Code','Fira Code','SF Mono',monospace;font-size:.82rem;line-height:1.7;resize:none;outline:none;tab-size:2}
 .divider{width:4px;background:#3c3c3c;cursor:col-resize;flex-shrink:0}
 .preview{flex:1;min-width:0;background:#fff}
 .preview iframe{width:100%;height:100%;border:none}
@@ -67,11 +67,11 @@ body{font-family:'Inter',system-ui,sans-serif;padding-top:54px!important}
 <div class="editor-label">CSS</div>
 <textarea id="css" oninput="autoRun()" spellcheck="false">* { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: system-ui; padding: 2rem; background: #1a1a2e; color: #16130f; }
-h1 { color: #00d2ff; margin-bottom: 1rem; }
-p { margin-bottom: 1rem; color: #aaa; }
+h1 { color: #16130f; margin-bottom: 1rem; }
+p { margin-bottom: 1rem; color: #16130f; }
 button { background: #00d2ff; color: #1a1a2e; border: none; padding: .6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
 button:hover { opacity: .8; }
-#output { margin-top: 1rem; font-size: 1.2rem; color: #ffd700; }</textarea>
+#output { margin-top: 1rem; font-size: 1.2rem; color: #16130f; }</textarea>
 </div>
 <div class="editor-pane hidden" id="pane-js">
 <div class="editor-label">JavaScript</div>

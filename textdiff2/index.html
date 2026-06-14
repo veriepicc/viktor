@@ -94,7 +94,7 @@ function diff(){const a=document.getElementById('a').value.split('\n'),b=documen
 let html='';const max=Math.max(a.length,b.length);
 for(let i=0;i<max;i++){if(a[i]===b[i])html+='<div style="padding:1px 4px">  '+esc(a[i]||'')+'</div>';
 else{if(a[i]!==undefined)html+='<div style="background:#3a1e1e;padding:1px 4px;color:#f87171">- '+esc(a[i])+'</div>';
-if(b[i]!==undefined)html+='<div style="background:#1e3a1e;padding:1px 4px;color:#4ade80">+ '+esc(b[i])+'</div>'}}
+if(b[i]!==undefined)html+='<div style="background:#1e3a1e;padding:1px 4px;color:#16130f">+ '+esc(b[i])+'</div>'}}
 document.getElementById('diff').innerHTML=html}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 </script>

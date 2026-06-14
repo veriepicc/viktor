@@ -96,7 +96,7 @@ const max=Math.max(a.length,b.length);let html='';
 for(let i=0;i<max;i++){const la=a[i]||'',lb=b[i]||'';
 if(la===lb)html+='<div style="color:var(--muted);padding:1px 4px">'+(i+1).toString().padStart(3)+' &nbsp;'+esc(la)+'</div>';
 else{if(la)html+='<div style="background:#3a1e1e;padding:1px 4px;border-radius:3px;color:#f87171">'+(i+1).toString().padStart(3)+' - '+esc(la)+'</div>';
-if(lb)html+='<div style="background:#1e3a1e;padding:1px 4px;border-radius:3px;color:#4ade80">'+(i+1).toString().padStart(3)+' + '+esc(lb)+'</div>'}}
+if(lb)html+='<div style="background:#1e3a1e;padding:1px 4px;border-radius:3px;color:#16130f">'+(i+1).toString().padStart(3)+' + '+esc(lb)+'</div>'}}
 if(!html)html='<div style="color:var(--muted);text-align:center;padding:1rem">Texts are identical</div>';
 document.getElementById('result').innerHTML=html}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}

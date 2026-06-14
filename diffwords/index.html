@@ -100,7 +100,7 @@ function diff(){const a=document.getElementById('a').value.split(/\s+/),b=docume
 let html='',added=0,removed=0,same=0;const max=Math.max(a.length,b.length);
 for(let i=0;i<max;i++){if(a[i]===b[i]){html+='<span>'+esc(a[i]||'')+' </span>';same++}
 else{if(a[i])html+='<span style="background:#3a1e1e;color:#f87171;padding:1px 3px;border-radius:3px;text-decoration:line-through">'+esc(a[i])+'</span> ';
-if(b[i])html+='<span style="background:#1e3a1e;color:#4ade80;padding:1px 3px;border-radius:3px">'+esc(b[i])+'</span> ';
+if(b[i])html+='<span style="background:#1e3a1e;color:#16130f;padding:1px 3px;border-radius:3px">'+esc(b[i])+'</span> ';
 if(a[i]&&b[i]){removed++;added++}else if(a[i])removed++;else added++}}
 document.getElementById('out').innerHTML=html;document.getElementById('added').textContent=added;
 document.getElementById('removed').textContent=removed;document.getElementById('same').textContent=same}

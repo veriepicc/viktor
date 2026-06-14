@@ -15,7 +15,7 @@
 .dot{width:12px;height:12px;border-radius:50%}
 .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
 .titlebar .filename{flex:1;text-align:center;font-size:.65rem;color:#16130f;font-family:'SF Mono',monospace}
-textarea{width:100%;min-height:200px;border:none;outline:none;font-family:'SF Mono','Fira Code',monospace;font-size:14px;line-height:1.6;padding:16px 20px;resize:vertical;tab-size:2;background:transparent;color:#e4e4e7}
+textarea{width:100%;min-height:200px;border:none;outline:none;font-family:'SF Mono','Fira Code',monospace;font-size:14px;line-height:1.6;padding:16px 20px;resize:vertical;tab-size:2;background:transparent;color:#16130f}
 .card{background:#e8e6df;border:1px solid #f3f1ea;border-radius:12px;padding:1rem;margin-bottom:1rem}
 .card h3{font-size:.6rem;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:.5rem}
 .row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem}
@@ -57,7 +57,7 @@ body{font-family:'Inter',system-ui,sans-serif;padding-top:54px!important}
 <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
 <span class="filename" id="filename">untitled.js</span>
 </div>
-<textarea id="code" style="background:#1e1e2e;color:#cdd6f4" oninput="updateSize()" spellcheck="false">function fibonacci(n) {
+<textarea id="code" style="background:#1e1e2e;color:#16130f" oninput="updateSize()" spellcheck="false">function fibonacci(n) {
   if (n <= 1) return n;
   return fibonacci(n - 1) + fibonacci(n - 2);
 }
