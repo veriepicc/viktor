@@ -1,0 +1,8 @@
+# TinyTools
+
+TinyTools is a collection of 308 free, client-side browser tools for developers, designers, writers, and creators.
+
+Website: https://tinytools.store/
+Sitemap: https://tinytools.store/sitemap.xml
+
+All tools run in the browser. No signup, no backend, no tracking by default.
